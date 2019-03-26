@@ -1,5 +1,5 @@
 Bugs:
 - tratar de hacer click derecho en el morph del inspector de un morph
 - ponerle nil al morph en el inspector de un morph mientras se está mostrando el morph
-- tratar de guardar un morph (Arreglado)
+- (**Arreglado**) tratar de guardar un morph
 - renombrar no elimina el nombre del registro de nombres o algo así
