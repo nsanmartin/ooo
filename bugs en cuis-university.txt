@@ -3,3 +3,4 @@ Bugs:
 - ponerle nil al morph en el inspector de un morph mientras se está mostrando el morph
 - (**Arreglado**) tratar de guardar un morph
 - renombrar no elimina el nombre del registro de nombres o algo así
+- Te deja poner objetos nuevos con nombre | (pipe), que rompe el programa
