@@ -47,3 +47,38 @@ adecuadamente a las demandas de modificaciones que son inevitables en
 todo proyecto. Es decir, la concepción debería reemplazarse por una
 que tomara la programación como mera aplicación de reglas y el
 seguimeinto de instrucciones.
+
+* The Design of Everyday Things
++ Elija dos entes de la realidad (pueden ser objetos físicos del mundo
+  real o incluso software) y clasifíquelos por: Visibilidad de las
+  partes a operar, Visibilidad de Mapeo, Feedback, Modelo Conceptual y
+  Diseño Natural (y sus affordances). Por ej. hablando de Modelo
+  Conceptual, una tijera tiene uno bueno, un reloj digital uno
+  inexistente, y la heladera con freezer de Dan uno malo. Explique y
+  justifique cada una de las 5 apreciaciones de la clasificación. No
+  puede utilizar ninguno de los ejemplos dados en el libro o los
+  videos de Norman.
+
+Cocina: las partes a operar son cada una de las perillas con las que
+se contraola la intensidad de la llama de cada hornalla y del horno, y
+la que controla la chispa (para encender), además de uan manija para
+abrir la puerta del horno. Las partes son bien visibles y se
+encuentran en un lugar esperable (es estándar). Además, cada perilla
+tiene un pequeño esquema donde se puede ver a qué horanalla
+corresponde facilmente, para hacer el mapeo más visible. El mapeo de
+la manija para abrir el horno es natural (similar al del agujero de la
+tijera). El feedback está provisto por la intensidad de la llama y es
+por ende inmediato. El modelo conceptual puede considerarse bueno, ya
+que cada control actúa de modo independiente y el resultado de operar
+en ellos es completamente predecible. El diseño resulta natural, ya
+que las perillas naturalmente son usadas para ajustar una magnitud (la
+llama) la manija de la puerta del horno, para tirar y abrirla. Y por
+su puesto, las hornallas para apoyar lso elementos de cocina, así como
+el interior del horno.
+
+Agujereadora: La visibilidad de las partes es adecuada: su forma
+indica el modo en que debe ser agarrada y la función del gatillo
+resulta clara. El mapeo con su función es también inequívoca. El
+feedback es bueno, dado que la mecha empieza a girar ni bien se apreta
+el gatillo, lo cual hace a un buen modelo conceptual y un diseño natural. 
+
