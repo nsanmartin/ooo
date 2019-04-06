@@ -1,0 +1,49 @@
+* Programming As Theory Building
+
++ ¿Cómo relacionaría lo escrito por Naur con un sistema de
+  organización a de trabajo como el Taylorismo?
+
+El escrito de Naur propone una concepción de la actividad del
+programador como una "construcción de teoría" (theory building). Esta
+noción de teoría está basada en la de Ryle, la cual está basada en el
+análisis de la naturaleza de la actividad intelectual (y en particular
+en cuanto difiere de la mera inteligencia (merely inttelligent). Esta
+tería es el conocimiento que permite al programador explicar cómo su
+solución  se relaciona a los aspectos del mundo que ayuda a manejar,
+explicar porqué las partes de su programa se decomponene del modo en
+que lo hacen, responder a las necesidades de modificación en el
+programa a medida que se torna necesario.
+
+Esto se relaciona con su noción de "vida" de un programa. Según Naur,
+entonces, la construcción de un programa es la construcción de una
+teoría del mismo por parte de un equipo. La vida de un programa es
+correlativa a la existencia del mismo, sin el cual el mismo se
+considera muerto. Esto implica que, por ejemplo, la inclusión de un
+nuevo miembro al equipo requiere que el mismo tenga la oportunidad de
+mantener un contacto cercano con aquellos programadores que ya conocen
+la teoría vinculada al mismo, de forma de poder volverse familiar con
+la misma (y copara la educación de un programador que se incluye
+a un proyecto con actividades artísticas).
+
+Como conlusión podemos decir que, entendiéndo la programación como
+construcción de teoría, no puede ser reducida a una mera secuenciación
+de instrucciones como en el caso de los métodos industriales
+tayloristas. En particular, el programador no puede ser considerado
+como un componente facilmente reemplazable, dado el papel fundamental
+del desarrollo de la teoría vinculada a su actividad.
+
++ ¿Qué habría que modificar en la concepción de Naur para que esta sea
+  compatible con la visión de que la programación puede ser en el
+  futuro desarrollada por completo por agentes artificiales?
+
+Si por "agentes artificiales" entendemos meros autómatas que ejecutan
+una seria de instrucciones fijas, desde luego que esto no es
+compatible con la concepción de Naur. Para que fuera compatible
+debería prescindirse de la importancia de la teoría sobre su actividad
+de parte del programados, dado que una agente así sería incapaz tanto
+de comprender el programa como su relación con el problema que está
+llamado a resolver, y asimismo sería incapaz de responder
+adecuadamente a las demandas de modificaciones que son inevitables en
+todo proyecto. Es decir, la concepción debería reemplazarse por una
+que tomara la programación como mera aplicación de reglas y el
+seguimeinto de instrucciones.
