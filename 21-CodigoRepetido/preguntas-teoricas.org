@@ -82,3 +82,8 @@ resulta clara. El mapeo con su función es también inequívoca. El
 feedback es bueno, dado que la mecha empieza a girar ni bien se apreta
 el gatillo, lo cual hace a un buen modelo conceptual y un diseño natural. 
 
+* TODO Design Principles Behind Smalltalk
++ ¿Qué modalidad usaron los desarrolladores del proyecto Smalltalk?
++ ¿En qué dos aspectos decidieron enfocarse para investigar?
++ El paper enumera rápidamente dos principios en los que se basa el
+  diseño de Smalltalk. ¿Cuál es el tercero y que significa?
