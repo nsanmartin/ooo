@@ -7,10 +7,10 @@ El escrito de Naur propone una concepción de la actividad del
 programador como una "construcción de teoría" (theory building). Esta
 noción de teoría está basada en la de Ryle, la cual está basada en el
 análisis de la naturaleza de la actividad intelectual (y en particular
-en cuanto difiere de la mera inteligencia (merely inttelligent). Esta
-tería es el conocimiento que permite al programador explicar cómo su
+en cuanto difiere de la mera inteligencia (merely intelligent). Esta
+teoría es el conocimiento que permite al programador explicar cómo su
 solución  se relaciona a los aspectos del mundo que ayuda a manejar,
-explicar porqué las partes de su programa se decomponene del modo en
+explicar porqué las partes de su programa se descomponen del modo en
 que lo hacen, responder a las necesidades de modificación en el
 programa a medida que se torna necesario.
 
@@ -25,11 +25,11 @@ la teoría vinculada al mismo, de forma de poder volverse familiar con
 la misma (y copara la educación de un programador que se incluye
 a un proyecto con actividades artísticas).
 
-Como conlusión podemos decir que, entendiéndo la programación como
+Como conclusión podemos decir que, entendiendo la programación como
 construcción de teoría, no puede ser reducida a una mera secuenciación
 de instrucciones como en el caso de los métodos industriales
 tayloristas. En particular, el programador no puede ser considerado
-como un componente facilmente reemplazable, dado el papel fundamental
+como un componente fácilmente reemplazable, dado el papel fundamental
 del desarrollo de la teoría vinculada a su actividad.
 
 + ¿Qué habría que modificar en la concepción de Naur para que esta sea
@@ -37,16 +37,18 @@ del desarrollo de la teoría vinculada a su actividad.
   futuro desarrollada por completo por agentes artificiales?
 
 Si por "agentes artificiales" entendemos meros autómatas que ejecutan
-una seria de instrucciones fijas, desde luego que esto no es
+una serie de instrucciones fijas, desde luego que esto no es
 compatible con la concepción de Naur. Para que fuera compatible
 debería prescindirse de la importancia de la teoría sobre su actividad
-de parte del programados, dado que una agente así sería incapaz tanto
+de parte del programador, dado que un agente así sería incapaz tanto
 de comprender el programa como su relación con el problema que está
 llamado a resolver, y asimismo sería incapaz de responder
 adecuadamente a las demandas de modificaciones que son inevitables en
 todo proyecto. Es decir, la concepción debería reemplazarse por una
 que tomara la programación como mera aplicación de reglas y el
-seguimeinto de instrucciones.
+seguimiento de instrucciones, o considerar que la formación de la
+teoría del programa es un proceso que se puede axiomatizar,
+y por lo tanto no una característica exclusiva del ser humano.
 
 * The Design of Everyday Things
 + Elija dos entes de la realidad (pueden ser objetos físicos del mundo
@@ -60,28 +62,42 @@ seguimeinto de instrucciones.
   videos de Norman.
 
 Cocina: las partes a operar son cada una de las perillas con las que
-se contraola la intensidad de la llama de cada hornalla y del horno, y
-la que controla la chispa (para encender), además de uan manija para
+se controla la intensidad de la llama de cada hornalla y del horno, y
+la que controla la chispa (para encender), además de una manija para
 abrir la puerta del horno. Las partes son bien visibles y se
 encuentran en un lugar esperable (es estándar). Además, cada perilla
-tiene un pequeño esquema donde se puede ver a qué horanalla
-corresponde facilmente, para hacer el mapeo más visible. El mapeo de
-la manija para abrir el horno es natural (similar al del agujero de la
-tijera). El feedback está provisto por la intensidad de la llama y es
+tiene un pequeño esquema donde se puede ver a qué hornalla
+corresponde fácilmente, para hacer el mapeo más visible. Por otro lado,
+el mapeo de las perillas, especialmente la de la chispa, no es para nada
+natural, ya que se sitúan en general en una hilera, sin conexión
+(aparte de los esquemas) a la hornalla que controlan.
+El mapeo de la manija para abrir el horno es natural (similar al del
+agujero de la tijera), dado que sus únicos affordances son abrir,
+tirar y empujar, y que está situada en la puerta. El feedback es
+inmediato, ya que se abre o cierra la puerta.
+El feedback de las perillas que controlan las hornallas, previo a ser
+encendidas, es presentado en algunas por el sonido del gas saliendo de
+las hornallas. Luego de ser encendidas con la chispa está provisto por la
+intensidad de la llama y es
 por ende inmediato. El modelo conceptual puede considerarse bueno, ya
 que cada control actúa de modo independiente y el resultado de operar
-en ellos es completamente predecible. El diseño resulta natural, ya
+en ellos es completamente predecible. El principal obstáculo que se
+presenta es el de la perilla o botón que controla la chispa, que no
+tiene una relación explícita con las hornallas.
+El diseño resulta natural, ya
 que las perillas naturalmente son usadas para ajustar una magnitud (la
 llama) la manija de la puerta del horno, para tirar y abrirla. Y por
-su puesto, las hornallas para apoyar lso elementos de cocina, así como
+supuesto, las hornallas para apoyar los elementos de cocina, así como
 el interior del horno.
 
 Agujereadora: La visibilidad de las partes es adecuada: su forma
 indica el modo en que debe ser agarrada y la función del gatillo
-resulta clara. El mapeo con su función es también inequívoca. El
-feedback es bueno, dado que la mecha empieza a girar ni bien se apreta
-el gatillo, lo cual hace a un buen modelo conceptual y un diseño natural. 
+resulta clara, ya que tiene un solo affordance: apretarlo.
+El mapeo con su función es también inequívoca. El
+feedback es bueno, dado que la mecha empieza a girar ni bien se aprieta
+el gatillo, lo cual hace a un buen modelo conceptual y un diseño natural.
 
+// Versión de Nico
 * Design Principles Behind Smalltalk
 + ¿Qué modalidad usaron los desarrolladores del proyecto Smalltalk?
   La modalidad usada es descripta por el autor como un ciclo
@@ -90,17 +106,17 @@ el gatillo, lo cual hace a un buen modelo conceptual y un diseño natural.
   sistema (homólogo a realizar una observación en el método
   científico); basándose en esa experiencia, rediseñar el lenguaje
   (formular una teoría), y construir un nuevo sistema basado en ese
-  rediseño (relizar una predicción que sea contrastble).
+  rediseño (realizar una predicción que sea contrastable).
 + ¿En qué dos aspectos decidieron enfocarse para investigar?
   Los aspectos en que se enfocaron fueron: un lenguaje de descripción
-  (lemguaje de programación) que sirva como interfaz entre los modelos
+  (lenguaje de programación) que sirva como interfaz entre los modelos
   en la mente humana y los modelos en el hardware y un lenguaje de
-  interacción (interfaz de ususario) que vincule el systema de
+  interacción (interfaz de usuario) que vincule el sistema de
   comunicación humano con el de la computadora.
 + El paper enumera rápidamente dos principios en los que se basa el
   diseño de Smalltalk. ¿Cuál es el tercero y que significa?  EL tercer
   principio del diseño es que el cómputo debe ser visto como una
-  competencia intrínseca capaz de ser invocada uniformamente mediante
+  competencia intrínseca capaz de ser invocada uniformemente mediante
   el envío de mensajes. Este principio implica que, por ejemplo para
   realizar una operación sobre un número como la suma, se envía un
   mensaje conteniendo su nombre y los argumentos (colaboradores)
@@ -109,3 +125,28 @@ el gatillo, lo cual hace a un buen modelo conceptual y un diseño natural.
   resulta limpia, dado que no se requiere saber sobre la
   implementación de la operación (y en general, la forma en que debe
   un objeto responder a un mensaje) desde afuera del objeto que lo recibe.
+
+// Versión de Eric
+* Design Principles Behind Smalltalk
++ ¿Qué modalidad usaron los desarrolladores del proyecto Smalltalk?
+
+Usaron el modelo orientado a objetos para el almacenamiento,
+el modelo de pasaje de mensajes para el procesamiento, y
+el modelo de mapa de bits para la visualización de la información.
+
++ ¿En qué dos aspectos decidieron enfocarse para investigar?
+
+Classification y polymorphism? Personal mastery y good design?
+
++ El paper enumera rápidamente dos principios en los que se basa el diseño de Smalltalk. ¿Cuál es el tercero y que significa?
+
+Los principios que enumera están contenidos bajo el título de párrafo "Good Design", y dice que:
+- Un sistema debe ser construido con un conjunto mínimo de partes incambiables;
+- Esas partes deben ser lo más generales posible;
+- Todas las partes del sistema deben ser compiladas en un marco de referencia uniforme.
+
+El tercero habla de tratar de eliminar lo máximo posible inconsistencias
+entre dos partes del sistema. Así, el usuario creativo que quiera
+investigar sobre una nueva parte del sistema deberá pasar por un período
+de aprendizaje lo más corto posible, y entonces esa parte no será un
+obstáculo para el desarrollo de nuevas ideas.
