@@ -145,48 +145,124 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	category: 'Stack-Exercise'!
 
 
-!classDefinition: #OOStack category: #'Stack-Exercise'!
-Object subclass: #OOStack
-	instanceVariableNames: 'elements'
+!classDefinition: #Element category: #'Stack-Exercise'!
+Object subclass: #Element
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'evaluation' stamp: 'EB 4/17/2019 01:55:24'!
-emptyCheck
-	elements isEmpty ifTrue: [self error: self class stackEmptyErrorDescription].	! !
+!Element methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:17:21'!
+isNullElement
+	self subclassResponsibility.! !
 
-!OOStack methodsFor: 'evaluation' stamp: 'EB 4/17/2019 01:43:11'!
+
+!Element methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:25:08'!
+previous
+	self subclassResponsibility.! !
+
+!Element methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:27:30'!
+value
+	self subclassResponsibility.! !
+
+
+!classDefinition: #NullElement category: #'Stack-Exercise'!
+Element subclass: #NullElement
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!NullElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:15:29'!
+isNullElement
+	^true! !
+
+
+!NullElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:31:40'!
+previous
+	OOStack raiseEmptyError.! !
+
+!NullElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:31:48'!
+value
+	OOStack raiseEmptyError.! !
+
+
+!classDefinition: #ValueElement category: #'Stack-Exercise'!
+Element subclass: #ValueElement
+	instanceVariableNames: 'value previous'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!ValueElement methodsFor: 'initialization' stamp: 'EB 4/17/2019 02:13:48'!
+initializeWithValue: aValue andPrevious: previousElement
+	value _ aValue.
+	previous _ previousElement.! !
+
+
+!ValueElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:16:05'!
+isNullElement
+	^false.! !
+
+
+!ValueElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:18:08'!
+previous
+	^previous! !
+
+!ValueElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:19:30'!
+value
+	^value.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ValueElement class' category: #'Stack-Exercise'!
+ValueElement class
+	instanceVariableNames: ''!
+
+!ValueElement class methodsFor: 'instantiation' stamp: 'EB 4/17/2019 02:13:00'!
+withValue: aValue andPrevious: previousElement
+	^self new initializeWithValue: aValue andPrevious: previousElement.! !
+
+
+!classDefinition: #OOStack category: #'Stack-Exercise'!
+Object subclass: #OOStack
+	instanceVariableNames: 'lastElement elementQuantity'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStack methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:15:02'!
 isEmpty
-	^elements isEmpty.! !
+	^lastElement isNullElement.! !
 
-!OOStack methodsFor: 'evaluation' stamp: 'EB 4/17/2019 01:47:11'!
+!OOStack methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:23:49'!
 size
-	^elements size.! !
+	^elementQuantity.! !
 
 
-!OOStack methodsFor: 'modification' stamp: 'EB 4/17/2019 01:55:33'!
+!OOStack methodsFor: 'modification' stamp: 'EB 4/17/2019 02:23:13'!
 pop
-	| poppedElement |
-	self emptyCheck.
-	poppedElement _ elements last.
-	elements removeLast.
-	^poppedElement ! !
+	| poppedValue |
+	poppedValue _ lastElement value.
+	lastElement _ lastElement previous.
+	elementQuantity _ elementQuantity - 1.
+	^poppedValue! !
 
-!OOStack methodsFor: 'modification' stamp: 'EB 4/17/2019 01:42:54'!
-push: element
-	elements add: element! !
+!OOStack methodsFor: 'modification' stamp: 'EB 4/17/2019 02:21:21'!
+push: value
+	lastElement _ ValueElement withValue: value andPrevious: lastElement.
+	elementQuantity _ elementQuantity + 1.! !
 
 
-!OOStack methodsFor: 'initialization' stamp: 'EB 4/17/2019 01:42:35'!
+!OOStack methodsFor: 'initialization' stamp: 'EB 4/17/2019 02:23:59'!
 initialize
-	elements _ OrderedCollection new.! !
+	lastElement _ NullElement new.
+	elementQuantity _ 0.! !
 
 
-!OOStack methodsFor: 'accessing' stamp: 'EB 4/17/2019 01:55:17'!
+!OOStack methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:20:15'!
 top
-	self emptyCheck.
-	^elements last.! !
+	^lastElement value.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -198,6 +274,11 @@ OOStack class
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
+
+
+!OOStack class methodsFor: 'error raising' stamp: 'EB 4/17/2019 02:31:20'!
+raiseEmptyError
+	self error: self stackEmptyErrorDescription.! !
 
 
 !classDefinition: #SentenceFinderByPrefix category: #'Stack-Exercise'!
