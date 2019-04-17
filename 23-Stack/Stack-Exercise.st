@@ -144,6 +144,128 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:00:21'!
+test01ShouldFindNoneWhenStackIsEmpty
+	self assertFinderWithElements: OrderedCollection new 
+		andPrefix: 'Wint' 
+		finds: OrderedCollection new.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:01:56'!
+test02ShouldFindNoneWhenNoneHasPrefix
+	| elements |
+	elements _ OrderedCollection with: 'hola' with: 'chau'.
+	self assertFinderWithElements: elements 
+		andPrefix: 'como estas' 
+		finds: OrderedCollection new.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:02:45'!
+test03ShouldFindWithOneElementInStack
+	| elements |
+	elements _ OrderedCollection with: 'hola'.
+	self assertFinderWithElements: elements 
+		andPrefix: 'hol' 
+		finds: elements. ! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:03:44'!
+test04ShouldFindWhenAllHavePrefix
+	| elements |
+	elements _ OrderedCollection with: 'Wint' with: 'Winter' with: 'WintWint'.
+	self assertFinderWithElements: elements 
+		andPrefix: 'Wint' 
+		finds: elements. 
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:04:45'!
+test05DoesNotModifyStackWhenFinding
+	| finder stack stringsInStack |
+	stringsInStack _ OrderedCollection with: 'hola' with: 'chau'.
+	stack _ self stackWith: stringsInStack.
+	
+	finder _ SentenceFinderByPrefix withStack: stack.
+	finder find: 'cha'.
+	stringsInStack reverseDo: [ :string |
+		self assert: string equals: stack top.
+		stack pop.
+	].! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:05:30'!
+test06ShouldFindWhenSomeHavePrefix
+	| elements elementsExpected |
+	elements _ OrderedCollection with: 'hola' with: 'chau' with: 'chacachaca'.
+	elementsExpected _ OrderedCollection with: 'chau' with: 'chacachaca'.
+	self assertFinderWithElements: elements andPrefix: 'cha' finds: elementsExpected.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:06:13'!
+test07FindingIsCaseSensitive
+	| elements elementsExpected |
+	elements _ OrderedCollection with: 'hola' with: 'Hola' with: 'holache' with: 'Holhol'.
+	elementsExpected _ OrderedCollection with: 'hola' with: 'holache'.
+	self assertFinderWithElements: elements andPrefix: 'hol' finds: elementsExpected.
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:19:13'!
+test08CanFindMoreThanOnce
+	| elements elementsExpected finder |
+	elements _ OrderedCollection with: 'hol' with: 'chau' with: 'holes' with: 'chauches'.
+	finder _ self finderWithStackWithElements: elements.
+	
+	elementsExpected _ OrderedCollection with: 'hol' with: 'holes'.
+	self assertFinder: finder withPrefix: 'hol' finds: elementsExpected.
+	
+	elementsExpected _ OrderedCollection with: 'chau' with: 'chauches'.
+	self assertFinder: finder withPrefix: 'chau' finds: elementsExpected.
+	
+	elementsExpected _ OrderedCollection with: 'holes'.
+	self assertFinder: finder withPrefix: 'hole' finds: elementsExpected.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:33:12'!
+test09ShouldFindAllWithEmptyPrefix
+	| elements |
+	elements _ OrderedCollection with: 'hola' with: 'Hljals' with: '' with: 'lakjsd'.
+	self assertFinderWithElements: elements
+		andPrefix: ''
+		finds: elements.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'EB 4/17/2019 14:35:47'!
+test10ShouldFindRepeatedStrings
+	| elements |
+	elements _ OrderedCollection with: 'hola' with: 'hola' with: 'hola'.
+	self assertFinderWithElements: elements
+		andPrefix: 'hol'
+		finds: elements.! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'stack utilities' stamp: 'EB 4/17/2019 13:52:20'!
+stackWith: elements
+	| stack |
+	stack _ OOStack new.
+	elements do: [ :element |
+		stack push: element.
+	].
+	^stack.! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'assertions' stamp: 'EB 4/17/2019 14:13:04'!
+assertFinder: aFinder withPrefix: aPrefix finds: elementsToFind
+	| found |
+	found _ aFinder find: aPrefix.
+	self assert: elementsToFind equals: found.	 ! !
+
+!SentenceFinderByPrefixTest methodsFor: 'assertions' stamp: 'EB 4/17/2019 14:16:27'!
+assertFinderWithElements: elementsInStack andPrefix: aPrefix finds: elementsToFind
+	| finder |
+	finder _ self finderWithStackWithElements: elementsInStack.
+	self assertFinder: finder withPrefix: aPrefix finds: elementsToFind.! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'finder utilities' stamp: 'EB 4/17/2019 14:15:52'!
+finderWithStackWithElements: elementsInStack
+	| stack |
+	stack _ self stackWith: elementsInStack. 
+	^SentenceFinderByPrefix withStack: stack.! !
+
 
 !classDefinition: #OOStack category: #'Stack-Exercise'!
 Object subclass: #OOStack
@@ -283,7 +405,40 @@ withValue: aValue andPrevious: previousElement
 
 !classDefinition: #SentenceFinderByPrefix category: #'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
-	instanceVariableNames: ''
+	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'initialization' stamp: 'EB 4/17/2019 13:00:36'!
+initializeWithStack: anOOStack 
+	stack _ anOOStack.! !
+
+
+!SentenceFinderByPrefix methodsFor: 'finding' stamp: 'EB 4/17/2019 13:51:12'!
+find: aPrefix
+	| stackElements |
+	stackElements _ self stackToOrderedCollection: stack.
+	^stackElements select: [ :element | element beginsWith: aPrefix.].
+	! !
+
+
+!SentenceFinderByPrefix methodsFor: 'stack utilities' stamp: 'EB 4/17/2019 13:43:25'!
+stackToOrderedCollection: aStack
+	| stackElements |
+	stackElements _ OrderedCollection new.
+	[stack isEmpty] whileFalse: [
+		stackElements addFirst: stack pop.
+	].
+	stackElements do: [ :element | stack push: element].
+	^stackElements.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: #'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'instantiation' stamp: 'EB 4/17/2019 13:01:08'!
+withStack: anOOStack
+	^self new initializeWithStack: anOOStack.! !
