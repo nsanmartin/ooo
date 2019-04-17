@@ -145,85 +145,6 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	category: 'Stack-Exercise'!
 
 
-!classDefinition: #Element category: #'Stack-Exercise'!
-Object subclass: #Element
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!Element methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:17:21'!
-isNullElement
-	self subclassResponsibility.! !
-
-
-!Element methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:25:08'!
-previous
-	self subclassResponsibility.! !
-
-!Element methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:27:30'!
-value
-	self subclassResponsibility.! !
-
-
-!classDefinition: #NullElement category: #'Stack-Exercise'!
-Element subclass: #NullElement
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!NullElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:15:29'!
-isNullElement
-	^true! !
-
-
-!NullElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:31:40'!
-previous
-	OOStack raiseEmptyError.! !
-
-!NullElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:31:48'!
-value
-	OOStack raiseEmptyError.! !
-
-
-!classDefinition: #ValueElement category: #'Stack-Exercise'!
-Element subclass: #ValueElement
-	instanceVariableNames: 'value previous'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!ValueElement methodsFor: 'initialization' stamp: 'EB 4/17/2019 02:13:48'!
-initializeWithValue: aValue andPrevious: previousElement
-	value _ aValue.
-	previous _ previousElement.! !
-
-
-!ValueElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:16:05'!
-isNullElement
-	^false.! !
-
-
-!ValueElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:18:08'!
-previous
-	^previous! !
-
-!ValueElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:19:30'!
-value
-	^value.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'ValueElement class' category: #'Stack-Exercise'!
-ValueElement class
-	instanceVariableNames: ''!
-
-!ValueElement class methodsFor: 'instantiation' stamp: 'EB 4/17/2019 02:13:00'!
-withValue: aValue andPrevious: previousElement
-	^self new initializeWithValue: aValue andPrevious: previousElement.! !
-
-
 !classDefinition: #OOStack category: #'Stack-Exercise'!
 Object subclass: #OOStack
 	instanceVariableNames: 'lastElement elementQuantity'
@@ -248,15 +169,15 @@ pop
 	elementQuantity _ elementQuantity - 1.
 	^poppedValue! !
 
-!OOStack methodsFor: 'modification' stamp: 'EB 4/17/2019 02:21:21'!
+!OOStack methodsFor: 'modification' stamp: 'EB 4/17/2019 12:52:14'!
 push: value
-	lastElement _ ValueElement withValue: value andPrevious: lastElement.
+	lastElement _ ValueOOStackElement withValue: value andPrevious: lastElement.
 	elementQuantity _ elementQuantity + 1.! !
 
 
-!OOStack methodsFor: 'initialization' stamp: 'EB 4/17/2019 02:23:59'!
+!OOStack methodsFor: 'initialization' stamp: 'EB 4/17/2019 12:51:57'!
 initialize
-	lastElement _ NullElement new.
+	lastElement _ NullOOStackElement new.
 	elementQuantity _ 0.! !
 
 
@@ -279,6 +200,85 @@ stackEmptyErrorDescription
 !OOStack class methodsFor: 'error raising' stamp: 'EB 4/17/2019 02:31:20'!
 raiseEmptyError
 	self error: self stackEmptyErrorDescription.! !
+
+
+!classDefinition: #OOStackElement category: #'Stack-Exercise'!
+Object subclass: #OOStackElement
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStackElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:17:21'!
+isNullElement
+	self subclassResponsibility.! !
+
+
+!OOStackElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:25:08'!
+previous
+	self subclassResponsibility.! !
+
+!OOStackElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:27:30'!
+value
+	self subclassResponsibility.! !
+
+
+!classDefinition: #NullOOStackElement category: #'Stack-Exercise'!
+OOStackElement subclass: #NullOOStackElement
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!NullOOStackElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:15:29'!
+isNullElement
+	^true! !
+
+
+!NullOOStackElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:31:40'!
+previous
+	OOStack raiseEmptyError.! !
+
+!NullOOStackElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:31:48'!
+value
+	OOStack raiseEmptyError.! !
+
+
+!classDefinition: #ValueOOStackElement category: #'Stack-Exercise'!
+OOStackElement subclass: #ValueOOStackElement
+	instanceVariableNames: 'value previous'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!ValueOOStackElement methodsFor: 'initialization' stamp: 'EB 4/17/2019 02:13:48'!
+initializeWithValue: aValue andPrevious: previousElement
+	value _ aValue.
+	previous _ previousElement.! !
+
+
+!ValueOOStackElement methodsFor: 'evaluation' stamp: 'EB 4/17/2019 02:16:05'!
+isNullElement
+	^false.! !
+
+
+!ValueOOStackElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:18:08'!
+previous
+	^previous! !
+
+!ValueOOStackElement methodsFor: 'accessing' stamp: 'EB 4/17/2019 02:19:30'!
+value
+	^value.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ValueOOStackElement class' category: #'Stack-Exercise'!
+ValueOOStackElement class
+	instanceVariableNames: ''!
+
+!ValueOOStackElement class methodsFor: 'instantiation' stamp: 'EB 4/17/2019 02:13:00'!
+withValue: aValue andPrevious: previousElement
+	^self new initializeWithValue: aValue andPrevious: previousElement.! !
 
 
 !classDefinition: #SentenceFinderByPrefix category: #'Stack-Exercise'!
