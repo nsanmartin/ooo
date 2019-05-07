@@ -7,3 +7,5 @@ Bugs:
 - No podes poner explore it en el denotativo object browser
 - en Aconcagua -> baseunit -> initialization hay un mensaje intializeNameFomOne
 - Renombrar un mensaje que no está siendo enviado por nadie.
+- No funciona el ctrl-shift-c para mostrar categoria
+- Refactor de pasar a variable de instancia.
