@@ -1,0 +1,35 @@
+Bugs:
+- Tratar de hacer click derecho en el morph del inspector de un DenotativeObjectMorph.
+- ponerle nil al morph en el inspector de un DenotativeObjectMorph mientras se está mostrando el DenotativeObjectMorph.
+- [No lo puedo reproducir] renombrar no elimina el nombre del registro de nombres o algo así.
+- [https://github.com/hernanwilkinson/Cuis-Smalltalk-DenotativeObject/issues/34] Te deja poner objetos nuevos con nombre | (pipe), que rompe el programa
+- [No sé qué quise decir] No podes poner explore it en el denotative object browser.
+- En Aconcagua -> baseunit -> initialization hay un mensaje intializeNameFomOne.
+- No funciona el ctrl-shift-c para mostrar categoria
+- Tratar de hacer una variable de instancia cuando antes
+era una local, aunque hayas borrado la local.
+
+Features:
+- Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
+le puedas poner un shortcut y te lo muestre en el menú y cuando se aprete el shortcut
+te haga la acción.
+- Refactors:
+	- variable local <-> variable de instancia
+	- extract method
+	- variable de bloque <-> variable local
+	- subimplement method
+	- move method down
+	- change superclass
+	- implement method in other class? No me gusta
+- Que sea fácil cambiar/agregar shortcuts.
+- find/replace in class/category/system.
+- si no hay mensajes para la categoría, debería existir la categoría?
+Si, para poder agregar otros métodos a ella. Igual, estaría bueno preguntar al
+eliminar el último método de la categoría si se quiere eliminar la categoría
+también.
+- Multiple selection.
+- Seleccionar un wallpaper desde el FileList.
+- Rotar por Wallpapers de un directorio cada x tiempo.
+Arreglados:
+- Tratar de guardar un morph.
+- Renombrar un mensaje que no está siendo enviado por nadie.
