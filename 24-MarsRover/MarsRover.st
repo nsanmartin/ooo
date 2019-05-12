@@ -5,72 +5,56 @@ Object subclass: #MarsRover
 	poolDictionaries: ''
 	category: 'MarsRover'!
 
-!MarsRover methodsFor: 'initializing' stamp: 'EB 5/7/2019 18:55:28'!
-initializeWithOrigin: originPoint andOrientation: orientationPoint 
-	position _ originPoint.
-	(self class isValidOrientationPoint: orientationPoint) ifFalse: [
-		self error: self class invalidOrientationExceptionDescription.
-	].
-	orientation _ orientationPoint.! !
+!MarsRover methodsFor: 'initialization' stamp: 'EB 5/12/2019 18:19:12'!
+initializeWithPosition: aPosition andOrientation: anOrientation 
+	position _ aPosition.
+	orientation _ anOrientation.! !
 
 
-!MarsRover methodsFor: 'accessing' stamp: 'EB 5/7/2019 16:37:02'!
+!MarsRover methodsFor: 'accessing' stamp: 'EB 5/12/2019 18:19:38'!
 orientation
 	^orientation! !
 
-!MarsRover methodsFor: 'accessing' stamp: 'EB 5/7/2019 16:36:53'!
+!MarsRover methodsFor: 'accessing' stamp: 'EB 5/12/2019 18:17:38'!
 position
 	^position! !
 
 
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:07:35'!
-addToPosition: translation
-	position _ position + translation.! !
-
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:27:32'!
-execute: commands 	
-	commands do: [ :command|
+!MarsRover methodsFor: 'executing' stamp: 'EB 5/12/2019 19:43:20'!
+execute: someCommands
+	someCommands do: [ :command |
 		self executeCommand: command.
 	].! !
 
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:26:54'!
-executeCommand: commandCharacter
-	| commandExecutors executor |
+!MarsRover methodsFor: 'executing' stamp: 'EB 5/12/2019 19:50:21'!
+executeCommand: aCommand
+	| commandExecutors executorMessage |
 	commandExecutors _ {
-		$r -> [self rotateRight].
-		$l -> [self rotateLeft].
-		$f -> [self moveForward].
-		$b -> [self moveBackward].
+		$f -> #moveForward.
+		$b -> #moveBackward.
+		$l -> #rotateLeft.
+		$r -> #rotateRight.
 	} asDictionary.
-	executor _ commandExecutors at: commandCharacter ifAbsent: [
-		self raiseInvalidOperationError.
+	executorMessage _ commandExecutors at: aCommand ifAbsent: [
+		self error: self class invalidCommandExceptionMessage.
 	].
-	executor value.! !
+	executorMessage asMessage sendTo: self.! !
 
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:09:10'!
+!MarsRover methodsFor: 'executing' stamp: 'EB 5/12/2019 20:29:37'!
 moveBackward
-	self addToPosition: orientation negated.! !
+	position _ position - orientation forwardVector.! !
 
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:09:02'!
+!MarsRover methodsFor: 'executing' stamp: 'EB 5/12/2019 20:29:32'!
 moveForward
-	self addToPosition: orientation.! !
+	position _ position + orientation forwardVector.	! !
 
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:01:50'!
+!MarsRover methodsFor: 'executing' stamp: 'EB 5/12/2019 20:29:50'!
 rotateLeft
-	self transposeOrientationAndMultiplyBy: (-1 @ 1).! !
+	orientation _ orientation leftRotated.! !
 
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:01:33'!
+!MarsRover methodsFor: 'executing' stamp: 'EB 5/12/2019 20:29:56'!
 rotateRight
-	self transposeOrientationAndMultiplyBy: (1 @ -1).! !
-
-!MarsRover methodsFor: 'executing commands' stamp: 'EB 5/7/2019 18:01:33'!
-transposeOrientationAndMultiplyBy: aPoint
-	orientation _ orientation transposed * aPoint.! !
-
-
-!MarsRover methodsFor: 'exceptions' stamp: 'EB 5/7/2019 16:56:49'!
-raiseInvalidOperationError
-	self error: self class invalidOperationExceptionDescription.! !
+	orientation _ orientation rightRotated.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -78,20 +62,121 @@ raiseInvalidOperationError
 MarsRover class
 	instanceVariableNames: ''!
 
-!MarsRover class methodsFor: 'instance creation' stamp: 'EB 5/7/2019 16:36:41'!
-withOrigin: originPoint andOrientation: orientationPoint 
-	^self new initializeWithOrigin: originPoint andOrientation: orientationPoint! !
+!MarsRover class methodsFor: 'instance creation' stamp: 'EB 5/12/2019 18:11:32'!
+withPosition: aPosition andOrientation: anOrientation 
+	^self new initializeWithPosition: aPosition andOrientation: anOrientation.! !
 
 
-!MarsRover class methodsFor: 'exception descriptions' stamp: 'EB 5/7/2019 16:53:06'!
-invalidOperationExceptionDescription
-	^'Operation is not valid'. ! !
+!MarsRover class methodsFor: 'exception messages' stamp: 'EB 5/12/2019 19:39:38'!
+invalidCommandExceptionMessage
+	^'The command is invalid.'! !
 
-!MarsRover class methodsFor: 'exception descriptions' stamp: 'EB 5/7/2019 18:36:26'!
-invalidOrientationExceptionDescription
-	^'This orientation is not supported'.! !
+
+!classDefinition: #MarsRoverOrientation category: #MarsRover!
+Object subclass: #MarsRoverOrientation
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!MarsRoverOrientation methodsFor: 'comparing' stamp: 'EB 5/12/2019 20:08:42'!
+= anObject
+	^anObject class = self class.! !
 
 
-!MarsRover class methodsFor: 'orientation validity' stamp: 'EB 5/7/2019 18:53:43'!
-isValidOrientationPoint: anOrientationPoint
-	^{0 @ 1. 1 @ 0. 0 @ -1. -1 @ 0.} includes: anOrientationPoint.! !
+!MarsRoverOrientation methodsFor: 'accessing' stamp: 'EB 5/12/2019 20:10:25'!
+forwardVector
+	self subclassResponsibility.! !
+
+
+!MarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:26:13'!
+leftRotated
+	self subclassResponsibility.! !
+
+!MarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:14:49'!
+rightRotated
+	self subclassResponsibility.! !
+
+
+!classDefinition: #EastMarsRoverOrientation category: #MarsRover!
+MarsRoverOrientation subclass: #EastMarsRoverOrientation
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!EastMarsRoverOrientation methodsFor: 'accessing' stamp: 'EB 5/12/2019 20:10:43'!
+forwardVector
+	^1 @ 0.! !
+
+
+!EastMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:28:14'!
+leftRotated
+	^NorthMarsRoverOrientation new.! !
+
+!EastMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:21:50'!
+rightRotated
+	^ SouthMarsRoverOrientation new.! !
+
+
+!classDefinition: #NorthMarsRoverOrientation category: #MarsRover!
+MarsRoverOrientation subclass: #NorthMarsRoverOrientation
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!NorthMarsRoverOrientation methodsFor: 'accessing' stamp: 'EB 5/12/2019 19:59:33'!
+forwardVector
+	^ 0 @ 1.! !
+
+
+!NorthMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:03:56'!
+leftRotated
+	^WestMarsRoverOrientation new.! !
+
+!NorthMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:06:50'!
+rightRotated
+	^EastMarsRoverOrientation new.! !
+
+
+!classDefinition: #SouthMarsRoverOrientation category: #MarsRover!
+MarsRoverOrientation subclass: #SouthMarsRoverOrientation
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!SouthMarsRoverOrientation methodsFor: 'accessing' stamp: 'EB 5/12/2019 20:12:10'!
+forwardVector
+	^NorthMarsRoverOrientation new forwardVector negated.! !
+
+
+!SouthMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:26:30'!
+leftRotated
+	^EastMarsRoverOrientation new.! !
+
+!SouthMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:24:54'!
+rightRotated
+	^WestMarsRoverOrientation new.! !
+
+
+!classDefinition: #WestMarsRoverOrientation category: #MarsRover!
+MarsRoverOrientation subclass: #WestMarsRoverOrientation
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!WestMarsRoverOrientation methodsFor: 'accessing' stamp: 'EB 5/12/2019 20:13:21'!
+forwardVector
+	^-1 @ 0.! !
+
+
+!WestMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:27:20'!
+leftRotated
+	^SouthMarsRoverOrientation new.! !
+
+!WestMarsRoverOrientation methodsFor: 'rotating' stamp: 'EB 5/12/2019 20:25:30'!
+rightRotated
+	^NorthMarsRoverOrientation new.! !
