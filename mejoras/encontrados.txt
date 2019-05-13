@@ -2,12 +2,11 @@ Bugs:
 - Tratar de hacer click derecho en el morph del inspector de un DenotativeObjectMorph.
 - ponerle nil al morph en el inspector de un DenotativeObjectMorph mientras se está mostrando el DenotativeObjectMorph.
 - [No lo puedo reproducir] renombrar no elimina el nombre del registro de nombres o algo así.
-- [https://github.com/hernanwilkinson/Cuis-Smalltalk-DenotativeObject/issues/34] Te deja poner objetos nuevos con nombre | (pipe), que rompe el programa
 - [No sé qué quise decir] No podes poner explore it en el denotative object browser.
 - En Aconcagua -> baseunit -> initialization hay un mensaje intializeNameFomOne.
-- No funciona el ctrl-shift-c para mostrar categoria
 - Tratar de hacer una variable de instancia cuando antes
 era una local, aunque hayas borrado la local.
+- FileList no soporta nombres con tilde.
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
@@ -30,6 +29,9 @@ también.
 - Multiple selection.
 - Seleccionar un wallpaper desde el FileList.
 - Rotar por Wallpapers de un directorio cada x tiempo.
+
 Arreglados:
 - Tratar de guardar un morph.
 - Renombrar un mensaje que no está siendo enviado por nadie.
+- No funciona el ctrl-shift-c para mostrar categoria
+- [https://github.com/hernanwilkinson/Cuis-Smalltalk-DenotativeObject/issues/34] Te deja poner objetos nuevos con nombre | (pipe), que rompe el programa
