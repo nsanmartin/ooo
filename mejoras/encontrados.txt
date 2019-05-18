@@ -20,6 +20,8 @@ te haga la acción.
 	- move method down
 	- change superclass
 	- implement method in other class? No me gusta
+	- implement method object? (te crea una clase sólo con el método actual)
+	- Cambiar superclase a Object llevándose las instance variables necesarias.
 - Que sea fácil cambiar/agregar shortcuts.
 - find/replace in class/category/system.
 - si no hay mensajes para la categoría, debería existir la categoría?
@@ -29,6 +31,14 @@ también.
 - Multiple selection.
 - Seleccionar un wallpaper desde el FileList.
 - Rotar por Wallpapers de un directorio cada x tiempo.
+- Seleccionar más de un archivo en el FileList (en cualquier lado en realidad).
+- El FileList es reeee lento.
+- Creador de with: e initialize: (Para no tener que escribir dos veces lo mismo).
+- Que el autocomplete no tome en cuenta el case.
+- Shortcuts de:
+	- Seleccionar línea
+	- Comentar línea
+	- Indentar/desindentar línea
 
 Arreglados:
 - Tratar de guardar un morph.
