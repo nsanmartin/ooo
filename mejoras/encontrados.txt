@@ -39,6 +39,7 @@ también.
 	- Seleccionar línea
 	- Comentar línea
 	- Indentar/desindentar línea
+- Mensaje contains: para Set.
 
 Arreglados:
 - Tratar de guardar un morph.
