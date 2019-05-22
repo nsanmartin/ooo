@@ -7,6 +7,8 @@ Bugs:
 - Tratar de hacer una variable de instancia cuando antes
 era una local, aunque hayas borrado la local.
 - FileList no soporta nombres con tilde.
+- Crear una clase inexistente desde el editor cuando te pregunta no actualiza vista de clases
+actuales, por lo menos en Cuis-University.
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
@@ -40,6 +42,8 @@ también.
 	- Comentar línea
 	- Indentar/desindentar línea
 - Mensaje contains: para Set.
+- Hacer que el ChangeList no te borre los cambios que querés ignorar en este
+ChangeSet, para poder agregarlos en el próximo.
 
 Arreglados:
 - Tratar de guardar un morph.
