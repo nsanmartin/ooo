@@ -9,6 +9,8 @@ era una local, aunque hayas borrado la local.
 - FileList no soporta nombres con tilde.
 - Crear una clase inexistente desde el editor cuando te pregunta no actualiza vista de clases
 actuales, por lo menos en Cuis-University.
+- Rename de variable de bloque cuando ya hay un bloque en el mismo método
+con ese nombre.
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
