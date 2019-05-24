@@ -52,6 +52,7 @@ estamos adentro de un block.
 - En Collection un #replace:with:ifAbsent:?
 - Coso para poder dibujar con el mouse.
 - No sé si hay redo.
+- Shortcuts para abrir cada browser.
 
 Arreglados:
 - Tratar de guardar un morph.
