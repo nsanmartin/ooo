@@ -43,16 +43,19 @@ test05OPositionNotAddedShouldBeEmpty
 	jugada _ 1@3.
 	self deny: (tateti isOAt: jugada). ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:01:21'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:00:32'!
 test06CantAddOOnPositionOccupiedByX
  	| tateti jugada |
 	tateti _ TerniLapilli new.
 	jugada _ 1@3.
 	tateti addXAt: jugada.
-	self should: [tateti addOAt: jugada] raise: Error withExceptionDo: [:exception| self assert: exception messageText equals: TerniLapilli occupiedPositionExceptionMessage].
+	self 
+		should: [tateti addOAt: jugada]
+		raise: Error 
+		withMessageText: TerniLapilli occupiedPositionExceptionMessage.
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:01:43'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:00:53'!
 test07CantAddXOnPositionOccupiedByX
  	| tateti jugada jugada2 |
 	tateti _ TerniLapilli new.
@@ -60,10 +63,13 @@ test07CantAddXOnPositionOccupiedByX
 	tateti addXAt: jugada.
 	jugada2 _ 3@3.
 	tateti addOAt: jugada2.
-	self should: [tateti addXAt: jugada] raise: Error withExceptionDo: [:exception| self assert: exception messageText equals: TerniLapilli occupiedPositionExceptionMessage].
+	self 
+		should: [tateti addXAt: jugada]
+		raise: Error 
+		withMessageText: TerniLapilli occupiedPositionExceptionMessage.
 	! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:15:55'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:01:11'!
 test08CantAddXOnPositionOccupiedByO
  	| tateti jugada jugada2 |
 	tateti _ TerniLapilli new.
@@ -71,7 +77,10 @@ test08CantAddXOnPositionOccupiedByO
 	jugada2 _ 2@3.
 	tateti addXAt: jugada.
 	tateti addOAt:  jugada2 .
-	self should: [tateti addXAt: jugada2] raise: Error withExceptionDo: [:exception| self assert: exception messageText equals: TerniLapilli occupiedPositionExceptionMessage].
+	self 
+		should: [tateti addXAt: jugada2]
+		raise: Error 
+		withMessageText: TerniLapilli occupiedPositionExceptionMessage.
 ! !
 
 !TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:02:30'!
@@ -124,7 +133,7 @@ test11ShouldAddManyPositions
 	self assert: (tateti isXAt: jugada5).
 	! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:16:44'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 19:53:53'!
 test12CantAddOTwice
  	| tateti jugada jugada2 jugada3 |
 	tateti _ TerniLapilli new.
@@ -133,25 +142,31 @@ test12CantAddOTwice
 	jugada3 _ 3@3.
 	tateti addXAt: jugada.
 	tateti addOAt:  jugada2 .
-	self should: [tateti addOAt: jugada3] raise: Error withExceptionDo: [:exception| self assert: exception messageText equals: TerniLapilli playersMustInterleave ].
+	self should: [tateti addOAt: jugada3] 
+		raise: Error 
+		withMessageText: (TerniLapilli exceptionMessageCurrentPlayerIs: #X andNot: #O).
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:15:37'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 19:57:00'!
 test13CantAddXTwice
  	| tateti jugada jugada2 |
 	tateti _ TerniLapilli new.
 	jugada _ 1@3.
 	jugada2 _ 1@2.
 	tateti addXAt: jugada.
-	self should: [tateti addXAt: jugada2] raise: Error withExceptionDo: [:exception| self assert: exception messageText equals: TerniLapilli playersMustInterleave].
+	self should: [tateti addXAt: jugada2] 
+		raise: Error 
+		withMessageText: (TerniLapilli exceptionMessageCurrentPlayerIs: #O andNot: #X).
 	! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:05:30'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 19:58:08'!
 test14XShouldBeFirstPlayer
  	| tateti jugada |
 	tateti _ TerniLapilli new.
 	jugada _ 1@3.
-	self should: [tateti addOAt: jugada] raise: Error withExceptionDo: [:exception| self assert: exception messageText equals: TerniLapilli XMustStart].
+	self should: [tateti addOAt: jugada] 
+		raise: Error 
+		withMessageText: (TerniLapilli exceptionMessageCurrentPlayerIs: #X andNot: #O).
 ! !
 
 !TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:17:15'!
@@ -234,7 +249,7 @@ test24XShouldNotHaveWonWhenOWon
 	self deny: tateti xHasWon.
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:20:35'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:00:03'!
 test25CantAddAnXAtXBoardPositionBelow1
  	| tateti position |
 	tateti _ TerniLapilli new.
@@ -242,11 +257,10 @@ test25CantAddAnXAtXBoardPositionBelow1
 	self 
 		should: [ tateti addXAt: position ]
 		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (TerniLapilli invalidPositionExceptionMessage: position) equals: exception messageText ].
+		withMessageText: (TerniLapilli invalidPositionExceptionMessage: position).
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:20:39'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:01:53'!
 test26CantAddAnXAtXBoardPositionOver3
  	| tateti position |
 	tateti _ TerniLapilli new.
@@ -254,11 +268,10 @@ test26CantAddAnXAtXBoardPositionOver3
 	self 
 		should: [ tateti addXAt: position ]
 		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (TerniLapilli invalidPositionExceptionMessage: position) equals: exception messageText ].
+		withMessageText: (TerniLapilli invalidPositionExceptionMessage: position).
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:20:43'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:02:10'!
 test27CantAddAnXAtYBoardPositionOutOfRange
  	| tateti position |
 	tateti _ TerniLapilli new.
@@ -266,11 +279,10 @@ test27CantAddAnXAtYBoardPositionOutOfRange
 	self 
 		should: [ tateti addXAt: position ]
 		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (TerniLapilli invalidPositionExceptionMessage: position) equals: exception messageText ].
+		withMessageText: (TerniLapilli invalidPositionExceptionMessage: position).
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:20:48'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:02:28'!
 test28CantAddAnOAtBoardPositionOutOfRange
  	| tateti position |
 	tateti _ TerniLapilli new.
@@ -279,11 +291,10 @@ test28CantAddAnOAtBoardPositionOutOfRange
 	self 
 		should: [ tateti addOAt: position ]
 		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (TerniLapilli invalidPositionExceptionMessage: position) equals: exception messageText ].
+		withMessageText: (TerniLapilli invalidPositionExceptionMessage: position).
 ! !
 
-!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/22/2019 14:20:53'!
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:02:43'!
 test29AddedPositionCoordinatesMustBeIntegers
  	| tateti position |
 	tateti _ TerniLapilli new.
@@ -291,8 +302,7 @@ test29AddedPositionCoordinatesMustBeIntegers
 	self 
 		should: [ tateti addXAt: position ]
 		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (TerniLapilli invalidPositionExceptionMessage: position) equals: exception messageText ].
+		withMessageText: (TerniLapilli invalidPositionExceptionMessage: position).
 ! !
 
 !TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 01:45:02'!
@@ -337,6 +347,102 @@ test31OSlidingToValidPosition
 	xPositions at: 1 put: newXPosition.
 	self assert: tateti hasXAtPositions: xPositions andOAtPositions: oPositions.! !
 
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:31:39'!
+test32XSlidingAfterOSliding
+ 	| tateti newOPosition oPositions xPositions |
+	xPositions _ {1@2. 1@3. 2@3}.
+	oPositions _ {2@2. 2@1. 3@3}.
+	tateti _ self simulateGameWithXPositions: xPositions andOPositions: oPositions.
+	"
+	X | X | O      X | X | O
+	- - - - -      - - - - - 
+	X | O |    ->  X |   | O
+	- - - - -      - - - - - 
+	  | O |          | O |   
+	"
+	tateti slideFrom: 1@2 to: 1@1.
+	newOPosition _ 3@2.
+	tateti slideFrom: 2@2 to: newOPosition.
+	tateti slideFrom: 1@1 to: 1@2.
+	
+	oPositions at: 1 put: newOPosition.
+	self assert: tateti hasXAtPositions: xPositions andOAtPositions: oPositions.! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:03:26'!
+test33CantSlideFromUnoccupiedPosition
+ 	| tateti unoccupiedPosition |
+	tateti _ self simulateGame: {1@1. 1@2. 1@3. 2@1. 2@2. 2@3}.
+	unoccupiedPosition _ 3@1.
+	self 
+		should: [tateti slideFrom: unoccupiedPosition to: 3@2]
+		raise: Error
+		withMessageText: (TerniLapilli unoccupiedPositionExceptionMessage: unoccupiedPosition).! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 13:31:50'!
+test34CantSlideToPositionOutsideBoard
+ 	| tateti oPositions xPositions newXPosition |
+	xPositions _ {1@2. 1@3. 2@3}.
+	oPositions _ {2@2. 2@1. 3@3}.
+	tateti _ self simulateGameWithXPositions: xPositions andOPositions: oPositions.
+	newXPosition _ 0@2.
+	self 
+		should: [tateti slideFrom: 1@2 to: newXPosition]
+		raise: Error
+		withMessageText: (TerniLapilli invalidPositionExceptionMessage: newXPosition).! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 18:09:38'!
+test35CantSlideToNotNeighboringPositionInFirstCoordinate
+ 	| tateti oPositions xPositions newXPosition originalXPosition |
+	xPositions _ {1@2. 1@3. 2@3}.
+	oPositions _ {2@2. 2@1. 3@3}.
+	tateti _ self simulateGameWithXPositions: xPositions andOPositions: oPositions.
+	originalXPosition _ 1@2.
+	newXPosition _ 3@2.
+	self 
+		should: [tateti slideFrom: originalXPosition to: newXPosition]
+		raise: Error
+		withMessageText: (TerniLapilli notNeighboringPositionsExceptionMessageWith: originalXPosition and: newXPosition).! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 18:18:52'!
+test36CantSlideToNotNeighboringPositionInSecondCoordinate
+ 	| tateti newXPosition originalXPosition |
+	tateti _ self simulateGame: {1@1. 1@2. 1@3. 2@1. 3@3. 2@3}.
+	originalXPosition _ 3@3.
+	newXPosition _ 3@1.
+	self 
+		should: [tateti slideFrom: originalXPosition to: newXPosition]
+		raise: Error
+		withMessageText: (TerniLapilli notNeighboringPositionsExceptionMessageWith: originalXPosition and: newXPosition).! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 19:13:43'!
+test37CantSlideToOccupiedPosition
+ 	| tateti oPositions xPositions |
+	xPositions _ {1@2. 1@3. 2@3}.
+	oPositions _ {2@2. 2@1. 3@3}.
+	tateti _ self simulateGameWithXPositions: xPositions andOPositions: oPositions.
+	self 
+		should: [tateti slideFrom: 1@2 to: 2@2]
+		raise: Error
+		withMessageText: (TerniLapilli occupiedPositionExceptionMessage).! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 19:23:09'!
+test38CantSlideWhenStarting
+ 	| tateti |
+	tateti _ TerniLapilli new.
+	self 
+		should: [tateti slideFrom: 1@2 to: 2@2]
+		raise: Error
+		withMessageText: (TerniLapilli shouldAddAllBeforeSlidingExceptionMessage).! !
+
+!TerniLapilliTests methodsFor: 'tests' stamp: 'EB 5/23/2019 19:27:53'!
+test39CantSlideBeforeAddingAllPieces
+ 	| tateti |
+	tateti _ self simulateGame: {1@2. 2@3.}.
+	self 
+		should: [tateti slideFrom: 1@2 to: 2@2]
+		raise: Error
+		withMessageText: (TerniLapilli shouldAddAllBeforeSlidingExceptionMessage).! !
+
 
 !TerniLapilliTests methodsFor: 'assertions' stamp: 'EB 5/23/2019 01:49:15'!
 assert: aCollection allSatisfy: aBlock
@@ -349,6 +455,14 @@ assert: aTerniLapilli hasXAtPositions: xBoardPositions andOAtPositions: oBoardPo
 	self assert: oBoardPositions allSatisfy: [ :boardPosition | aTerniLapilli isOAt: boardPosition]. 
 	self assert: xBoardPositions allSatisfy: [ :boardPosition | aTerniLapilli isXAt: boardPosition]. 
 	! !
+
+!TerniLapilliTests methodsFor: 'assertions' stamp: 'EB 5/23/2019 12:57:16'!
+should: aBlock raise: anExceptionClass withMessageText: anErrorMessageText
+	self should: aBlock 
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: anErrorMessageText equals: exception messageText.
+		].! !
 
 
 !TerniLapilliTests methodsFor: 'game simulation' stamp: 'NSM 5/21/2019 20:07:32'!
@@ -369,91 +483,79 @@ simulateGameWithXPositions: xBoardPositions andOPositions: oBoardPositions
 	^tateti! !
 
 
-!classDefinition: #LastPlayed category: #TerniLapilli!
-Object subclass: #LastPlayed
-	instanceVariableNames: 'terniLapilli'
+!classDefinition: #CurrentPlayer category: #TerniLapilli!
+Object subclass: #CurrentPlayer
+	instanceVariableNames: 'gamePhase terniLapilli'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TerniLapilli'!
 
-!LastPlayed methodsFor: 'as yet unclassified' stamp: 'NSM 5/21/2019 19:48:56'!
+!CurrentPlayer methodsFor: 'player actions' stamp: 'NSM 5/21/2019 19:48:56'!
 playO
 	self subclassResponsibility.! !
 
-!LastPlayed methodsFor: 'as yet unclassified' stamp: 'NSM 5/21/2019 19:48:44'!
+!CurrentPlayer methodsFor: 'player actions' stamp: 'NSM 5/21/2019 19:48:44'!
 playX
 	self subclassResponsibility.! !
 
+!CurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 12:18:16'!
+slideFrom: originalBoardPosition to: newBoardPosition
+	self subclassResponsibility.! !
 
-!LastPlayed methodsFor: 'initialization' stamp: 'EB 5/23/2019 02:01:03'!
+
+!CurrentPlayer methodsFor: 'initialization' stamp: 'EB 5/23/2019 20:41:03'!
 initializeWithTerniLapilli: aTerniLapilli
 	terniLapilli _ aTerniLapilli.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'LastPlayed class' category: #TerniLapilli!
-LastPlayed class
+!classDefinition: 'CurrentPlayer class' category: #TerniLapilli!
+CurrentPlayer class
 	instanceVariableNames: ''!
 
-!LastPlayed class methodsFor: 'instance creation' stamp: 'EB 5/23/2019 02:04:44'!
+!CurrentPlayer class methodsFor: 'instance creation' stamp: 'EB 5/23/2019 20:50:26'!
 withTerniLapilli: aTerniLapilli
 	^self new initializeWithTerniLapilli: aTerniLapilli.! !
 
 
-!classDefinition: #NoneLastPlayed category: #TerniLapilli!
-LastPlayed subclass: #NoneLastPlayed
+!classDefinition: #OCurrentPlayer category: #TerniLapilli!
+CurrentPlayer subclass: #OCurrentPlayer
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TerniLapilli'!
 
-!NoneLastPlayed methodsFor: 'as yet unclassified' stamp: 'NSM 5/21/2019 20:07:32'!
+!OCurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 19:58:53'!
 playO
-	self error: TerniLapilli XMustStart.! !
+	^XCurrentPlayer withTerniLapilli: terniLapilli.! !
 
-!NoneLastPlayed methodsFor: 'as yet unclassified' stamp: 'EB 5/23/2019 02:04:12'!
+!OCurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 19:57:40'!
 playX
-	^XLastPlayed withTerniLapilli: terniLapilli.! !
+	self error: (terniLapilli class exceptionMessageCurrentPlayerIs: #O andNot: #X).! !
 
-
-!classDefinition: #OLastPlayed category: #TerniLapilli!
-LastPlayed subclass: #OLastPlayed
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TerniLapilli'!
-
-!OLastPlayed methodsFor: 'as yet unclassified' stamp: 'NSM 5/21/2019 20:07:31'!
-playO
-	self error: TerniLapilli playersMustInterleave! !
-
-!OLastPlayed methodsFor: 'as yet unclassified' stamp: 'EB 5/23/2019 02:03:41'!
-playX
-	^XLastPlayed withTerniLapilli: terniLapilli.! !
-
-!OLastPlayed methodsFor: 'as yet unclassified' stamp: 'EB 5/23/2019 02:02:53'!
-slideFrom: originalBoardPosition to: newBoardPosition
-	terniLapilli slideXFrom: originalBoardPosition to: newBoardPosition.! !
-
-
-!classDefinition: #XLastPlayed category: #TerniLapilli!
-LastPlayed subclass: #XLastPlayed
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TerniLapilli'!
-
-!XLastPlayed methodsFor: 'as yet unclassified' stamp: 'EB 5/23/2019 02:03:52'!
-playO
-	^OLastPlayed withTerniLapilli: terniLapilli.! !
-
-!XLastPlayed methodsFor: 'as yet unclassified' stamp: 'NSM 5/21/2019 20:07:32'!
-playX
-	self error: TerniLapilli playersMustInterleave.! !
-
-!XLastPlayed methodsFor: 'as yet unclassified' stamp: 'EB 5/23/2019 02:07:00'!
+!OCurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 02:07:00'!
 slideFrom: originalBoardPosition to: newBoardPosition
 	terniLapilli slideOFrom: originalBoardPosition to: newBoardPosition.! !
+
+
+!classDefinition: #XCurrentPlayer category: #TerniLapilli!
+CurrentPlayer subclass: #XCurrentPlayer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TerniLapilli'!
+
+!XCurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 19:56:26'!
+playO
+	self error: (terniLapilli class exceptionMessageCurrentPlayerIs: #X andNot: #O).! !
+
+!XCurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 19:59:03'!
+playX
+	^OCurrentPlayer withTerniLapilli: terniLapilli.! !
+
+!XCurrentPlayer methodsFor: 'player actions' stamp: 'EB 5/23/2019 02:02:53'!
+slideFrom: originalBoardPosition to: newBoardPosition
+	terniLapilli slideXFrom: originalBoardPosition to: newBoardPosition.! !
 
 
 !classDefinition: #TerniLapilli category: #TerniLapilli!
@@ -463,11 +565,11 @@ Object subclass: #TerniLapilli
 	poolDictionaries: ''
 	category: 'TerniLapilli'!
 
-!TerniLapilli methodsFor: 'initialization' stamp: 'EB 5/23/2019 02:05:21'!
+!TerniLapilli methodsFor: 'initialization' stamp: 'EB 5/23/2019 19:58:53'!
 initialize
 	piecePositions _ Dictionary new.
 	piecePositions add: #X -> Set new; add: #O -> Set new.
-	lastPlayed _ NoneLastPlayed withTerniLapilli: self.! !
+	lastPlayed _ XCurrentPlayer withTerniLapilli: self.! !
 
 
 !TerniLapilli methodsFor: 'player actions' stamp: 'NSM 5/22/2019 02:06:41'!
@@ -486,17 +588,29 @@ addXAt: aBoardPosition
 	lastPlayed _ lastPlayed playX.
 	self addPieceType: #X at: aBoardPosition.! !
 
-!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 02:11:40'!
-slide: aPlayer from: originalBoardPosition to: newBoardPosition
-	piecePositions at: aPlayer :: remove: originalBoardPosition; add: newBoardPosition.! !
+!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 12:50:35'!
+inCollection: aCollection replace: originalObject with: aNewObject ifAbsent: aBlock
+	^aCollection remove: originalObject ifAbsent: aBlock; add: aNewObject.! !
 
-!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 01:58:10'!
+!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 12:54:15'!
+slide: aPlayer from: originalBoardPosition to: newBoardPosition
+	self inCollection: (piecePositions at: aPlayer)
+		replace: originalBoardPosition
+		with: newBoardPosition
+		ifAbsent: [ self raiseUnoccupiedError: originalBoardPosition ].! !
+
+!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 19:42:02'!
 slideFrom: originalBoardPosition to: newBoardPosition 
+	self assertPositionInsideBoard: newBoardPosition.
+	self assert: newBoardPosition isNeighborOf: originalBoardPosition.
+	self assertPositionNotOccupied: newBoardPosition.
+	self assertAddingPhaseFinished.
 	lastPlayed slideFrom: originalBoardPosition to: newBoardPosition. ! !
 
-!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 02:12:00'!
+!TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 13:30:39'!
 slideOFrom: originalBoardPosition to: newBoardPosition 
-	self slide: #O from: originalBoardPosition to: newBoardPosition.! !
+	self slide: #O from: originalBoardPosition to: newBoardPosition.
+	lastPlayed _ lastPlayed playO.! !
 
 !TerniLapilli methodsFor: 'player actions' stamp: 'EB 5/23/2019 02:12:11'!
 slideXFrom: originalBoardPosition to: newBoardPosition 
@@ -517,6 +631,22 @@ isXAt: aBoardPosition
 	^self is: #X at: aBoardPosition.! !
 
 
+!TerniLapilli methodsFor: 'assertions' stamp: 'EB 5/23/2019 19:42:50'!
+areAllPiecesAddedForPlayer: aPlayer
+	^(piecePositions at: aPlayer) size = 3.! !
+
+!TerniLapilli methodsFor: 'assertions' stamp: 'EB 5/23/2019 18:43:12'!
+assert: aNeighborBoardPosition isNeighborOf: anOriginalBoardPosition
+	self is: aNeighborBoardPosition aNeighborOf: anOriginalBoardPosition :: ifFalse: [
+		self raiseNotNeighboringPositionsErrorWith: anOriginalBoardPosition and: aNeighborBoardPosition
+	].! !
+
+!TerniLapilli methodsFor: 'assertions' stamp: 'EB 5/23/2019 19:43:24'!
+assertAddingPhaseFinished
+	(self areAllPiecesAddedForPlayer: #X) and: (self areAllPiecesAddedForPlayer: #O) :: ifFalse: [
+		self raiseShouldAddAllBeforeSlidingError.
+	].! !
+
 !TerniLapilli methodsFor: 'assertions' stamp: 'NSM 5/22/2019 02:14:25'!
 assertPositionInsideBoard: aBoardPosition
 	self isPositionInsideBoard: aBoardPosition :: ifFalse: [
@@ -526,6 +656,15 @@ assertPositionInsideBoard: aBoardPosition
 assertPositionNotOccupied: aBoardPosition
 	(self isPositionOccupied: aBoardPosition) ifTrue: [
 		self raiseOccupiedError.].! !
+
+!TerniLapilli methodsFor: 'assertions' stamp: 'EB 5/23/2019 18:42:53'!
+is: aNeighboringBoardPosition aNeighborOf: anOriginalBoardPosition
+	^(self is: aNeighboringBoardPosition x aNeighboringCoordinateOf: anOriginalBoardPosition x) and: 
+	(self is: aNeighboringBoardPosition y aNeighboringCoordinateOf: anOriginalBoardPosition y).! !
+
+!TerniLapilli methodsFor: 'assertions' stamp: 'EB 5/23/2019 18:36:49'!
+is: aNeighboringCoordinate aNeighboringCoordinateOf: anOriginalCoordinate
+	^(aNeighboringCoordinate - anOriginalCoordinate) abs <= 1.! !
 
 !TerniLapilli methodsFor: 'assertions' stamp: 'EB 5/22/2019 13:53:30'!
 isCoordinateInsideBoard: aCoordinate
@@ -545,9 +684,25 @@ isPositionOccupied: aBoardPosition
 raiseInvalidPositionError: aBoardPosition
 	self error: (self class invalidPositionExceptionMessage: aBoardPosition).! !
 
+!TerniLapilli methodsFor: 'error raising' stamp: 'EB 5/23/2019 18:28:10'!
+raiseNotNeighboringPositionsErrorWith: anOriginalBoardPosition and: aNeighborBoardPosition
+	self error: (
+		self class 
+			notNeighboringPositionsExceptionMessageWith: anOriginalBoardPosition 
+			and: aNeighborBoardPosition
+	).! !
+
 !TerniLapilli methodsFor: 'error raising' stamp: 'NSM 5/20/2019 18:35:55'!
 raiseOccupiedError
 	self error: self class occupiedPositionExceptionMessage.! !
+
+!TerniLapilli methodsFor: 'error raising' stamp: 'EB 5/23/2019 19:34:56'!
+raiseShouldAddAllBeforeSlidingError
+	self error: self class shouldAddAllBeforeSlidingExceptionMessage.! !
+
+!TerniLapilli methodsFor: 'error raising' stamp: 'EB 5/23/2019 12:54:15'!
+raiseUnoccupiedError: aBoardPosition
+	self error: (self class unoccupiedPositionExceptionMessage: aBoardPosition).! !
 
 
 !TerniLapilli methodsFor: 'winning' stamp: 'EB 5/23/2019 01:23:45'!
@@ -603,9 +758,17 @@ xHasWon
 TerniLapilli class
 	instanceVariableNames: ''!
 
+!TerniLapilli class methodsFor: 'exception messages' stamp: 'EB 5/23/2019 19:55:31'!
+exceptionMessageCurrentPlayerIs: aCurrentPlayer andNot: aNonCurrentPlayer 
+	^aNonCurrentPlayer asString, ' can''t, play; it''s ', aCurrentPlayer asString, '''s turn.'.! !
+
 !TerniLapilli class methodsFor: 'exception messages' stamp: 'NSM 5/22/2019 01:58:44'!
 invalidPositionExceptionMessage: anInvalidBoardPosition
 	^'There''s no position in the board at ', anInvalidBoardPosition asString.! !
+
+!TerniLapilli class methodsFor: 'exception messages' stamp: 'EB 5/23/2019 17:23:12'!
+notNeighboringPositionsExceptionMessageWith: originalBoardPosition and: newBoardPosition 
+	^newBoardPosition asString, ' is not a neighboring position of ', originalBoardPosition asString.! !
 
 !TerniLapilli class methodsFor: 'exception messages' stamp: 'NSM 5/20/2019 18:35:55'!
 occupiedPositionExceptionMessage
@@ -615,7 +778,10 @@ occupiedPositionExceptionMessage
 playersMustInterleave
 	^'Players must go one after another interleaving'! !
 
+!TerniLapilli class methodsFor: 'exception messages' stamp: 'EB 5/23/2019 19:19:23'!
+shouldAddAllBeforeSlidingExceptionMessage
+	^'Can''t slide pieces before adding all pieces to the board.'! !
 
-!TerniLapilli class methodsFor: 'as yet unclassified' stamp: 'NSM 5/20/2019 19:16:01'!
-XMustStart
-	^'X must be the first to make a move'! !
+!TerniLapilli class methodsFor: 'exception messages' stamp: 'EB 5/23/2019 12:41:58'!
+unoccupiedPositionExceptionMessage: aBoardPosition 
+	^'There''s no piece at position ', aBoardPosition asString, '.'.! !
