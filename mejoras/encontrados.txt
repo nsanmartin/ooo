@@ -27,6 +27,7 @@ te haga la acción.
 	- implement method in other class? No me gusta
 	- implement method object? (te crea una clase sólo con el método actual)
 	- Cambiar superclase a Object llevándose las instance variables necesarias.
+	- Mensaje de clase a mensaje de instancia?
 - Que sea fácil cambiar/agregar shortcuts.
 - find/replace in class/category/system.
 - si no hay mensajes para la categoría, debería existir la categoría?
@@ -47,6 +48,12 @@ también.
 - Mensaje contains: para Set.
 - Hacer que el ChangeList no te borre los cambios que querés ignorar en este
 ChangeSet, para poder agregarlos en el próximo.
+- No mostrar lo de declarar variable si no existe en block-local si no 
+estamos adentro de un block.
+- En Collection un #replace:with:ifAbsent:?
+- Coso para poder dibujar con el mouse.
+- No sé si hay redo.
+- Shortcuts para abrir cada browser.
 
 Arreglados:
 - Tratar de guardar un morph.
