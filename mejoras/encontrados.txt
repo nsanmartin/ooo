@@ -11,6 +11,7 @@ era una local, aunque hayas borrado la local.
 actuales, por lo menos en Cuis-University.
 - Rename de variable de bloque cuando ya hay un bloque en el mismo método
 con ese nombre.
+- Cuando buscas actualSenders de value en ejericio 30 (Portfolio) Error: My subclass should have overridden #typesIn:addingIncompleteTypeInfoTo: 
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
