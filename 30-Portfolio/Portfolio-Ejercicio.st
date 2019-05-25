@@ -82,6 +82,51 @@ test06CantAddPortfoliosWithRepeatedAccounts
 		withExceptionDo: [ :exception |
 			self assert: exception messageText equals: Portfolio cantAddTheSameAccountTwiceExceptionMessage].! !
 
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:02:44'!
+test07CantAddAnAccountContainedInASuperPortfolio
+	| account subPortfolio superPortfolio account2 |
+		
+	account := ReceptiveAccount  new.
+	Deposit register: 100 on: account.
+	
+	account2 := ReceptiveAccount  new.
+	Withdraw register: 100 on: account.
+	
+	superPortfolio _ Portfolio with: account.
+	subPortfolio _ Portfolio with: account2.
+	
+	superPortfolio add: subPortfolio.
+	
+	self
+		should: [subPortfolio add: account]
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: exception messageText equals: Portfolio cantAddTheSameAccountTwiceExceptionMessage].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:30:50'!
+test08CantAddAnAccountContainedInFirstSuperPortfolioWhenAddingTwo
+	| account subPortfolio firstSuperPortfolio account2 account3 secondSuperPortfolio |
+		
+	account := ReceptiveAccount  new.
+	Deposit register: 100 on: account.
+	
+	account2 := ReceptiveAccount  new.
+	Withdraw register: 100 on: account.
+	
+	account3 := ReceptiveAccount  new.
+	
+	firstSuperPortfolio _ Portfolio with: account.
+	secondSuperPortfolio _ Portfolio with: account2.
+	subPortfolio _ Portfolio with: account3.
+	firstSuperPortfolio add: subPortfolio.
+	secondSuperPortfolio add: subPortfolio.
+	
+	self
+		should: [subPortfolio add: account]
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: exception messageText equals: Portfolio cantAddTheSameAccountTwiceExceptionMessage].! !
+
 
 !classDefinition: #ReceptiveAccountTest category: #'Portfolio-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -277,7 +322,7 @@ for: aValue
 
 !classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'accountsAndPortfolios'
+	instanceVariableNames: 'accountsAndPortfolios parentPortfolios'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
@@ -287,19 +332,39 @@ balance
 	^ accountsAndPortfolios sum: [ :account | account balance ].! !
 
 
-!Portfolio methodsFor: 'initialization' stamp: 'nsm 5/23/2019 21:39:02'!
+!Portfolio methodsFor: 'initialization' stamp: 'nsm 5/25/2019 18:45:44'!
 initializeWith: anAccount
+	parentPortfolios  _ OrderedCollection new.
 	accountsAndPortfolios _ OrderedCollection with: anAccount.! !
 
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/23/2019 21:51:47'!
-add: aReceptiveAccount 
-	(accountsAndPortfolios anySatisfy: [ :account| account hasRepeatedAccountsWith: aReceptiveAccount])  ifTrue: [self error: self class cantAddTheSameAccountTwiceExceptionMessage ].
-	accountsAndPortfolios add:aReceptiveAccount .! !
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:26:35'!
+add: anAccountable
+	(self parentHasRepeatedAccountsWith: anAccountable)
+	"(accountsAndPortfolios anySatisfy: [ :accountable| accountable hasRepeatedAccountsWith: anAccountable])" 
+		ifTrue: [self error: self class cantAddTheSameAccountTwiceExceptionMessage ].
+	accountsAndPortfolios add:anAccountable .
+	anAccountable addParent: self.! !
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/23/2019 21:51:47'!
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:45:44'!
+addParent: aPortfolio
+	parentPortfolios add: aPortfolio .! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:09:09'!
+hasAccount: anAccount
+	^ accountsAndPortfolios anySatisfy: [ :accountable| accountable hasAccount: anAccount ].! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:24:17'!
 hasRepeatedAccountsWith: anAccountable
-	^ accountsAndPortfolios anySatisfy: [ :accountable| accountable hasRepeatedAccountsWith: anAccountable ].! !
+	^ accountsAndPortfolios anySatisfy: [ :accountable| accountable hasRepeatedAccountsWith: anAccountable ]
+	! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:45:52'!
+parentHasRepeatedAccountsWith: anAccountable
+	parentPortfolios  ifEmpty: [
+		^ self hasRepeatedAccountsWith: anAccountable.
+	].
+	^ parentPortfolios anySatisfy: [:parentPortfolio| parentPortfolio parentHasRepeatedAccountsWith: anAccountable] .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -330,9 +395,13 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'nsm 5/23/2019 21:37:48'!
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'nsm 5/25/2019 18:05:58'!
 hasAccount: anAccount
-	^ self = anAccount .! !
+	^ self = anAccount.! !
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'nsm 5/25/2019 18:07:08'!
+hasRepeatedAccountsWith: anAccount
+	^ anAccount hasAccount: self.! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
@@ -359,3 +428,8 @@ hasRegistered: aTtransaction
 
 	^ transactions includes: aTtransaction 
 ! !
+
+
+!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:16:33'!
+addParent: aPortfolio
+	.! !
