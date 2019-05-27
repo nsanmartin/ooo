@@ -1,0 +1,85 @@
+* pregunta 1
+
+** Qué intenta resolver el patrón object recursion.
+
+Este patrón permite dividir la implementación de un método de forma
+tal que un objeto utiliza el polimorfismo con otros objetos en base a
+los cuales está definido. Al mismo tiempo permite mantener el
+encapsulamiento. Por ejemplo, en lugar de definir un objeto Comparador
+que conozca la estructura de un objeto complejo a fin de compararlo,
+podemos hacer que el mismo objeto realice la comparación haciendo que
+sus partes de comparen con las del objeto comparado (y así
+recursivamente hasta llegar a objetos simples o básicos).
+
+** Presente un ejemplo diferente al del paper
+
+Un ejemplo distinto puede ser el de obtener el tamaño de un objeto
+(por ejemplo el tamaño ocupado por un directorio y sus archivos y
+subdirectorios, o cualquier objeto en realidad). Al solicitar el tamaño
+de un directorio, el mismo obtiene de sus elementos, que son
+polimóficos con él, su tamaño, y luego realiza la sum. Por su puesto
+que si el elemento en cuestión es un subdirectorio, a su vez aplicará
+la recursión.
+
+** Cómo se relaciona con el patrón decorator?
+
+Si bien comparten el hecho de que ambos delegan a sus elementos un
+solicitud, el decorator lo hace porque es él quien implementa el
+método en cuestión (le pasa el mensaje simplemente) mientras que en
+Object Recursion este traspaso se realiza recursivamente las veces que
+sea necesario hasta que llegar a los elementos básicos. En este
+sentido, puede decirse, según Woolf, que mientras que el primero es
+estructural, el segundo es comportamental.
+
+* pregunta 2
+
+** describa las características inalienables.
+
+Según Brooks, son inalienables al software:
++ la complejidad: así como las computadoras son muy complejas debido
+ a la enorme cantidad de estados que pueden tener, el software es más
+ complejo aún porque puede tener más aún.
++ la conformidad: mucha de la complejidad proviene de la necesidad de
+  conformidad a interfaces que vienen dadas.
++ la cambiabilidad: necesariamente todo software está sujeto al
+  cambio. Por un lado, a l resultar útil un software, puede surgir la
+  idea de extenderlo o aplicarlo a casos que iban más allá de su
+  dominio original. Por otra parte, el hecho de que persista su uso
+  hace que por el mero paso del tiempo surjan nuevas situaciones que
+  tiene que resolver.
++ la invisibilidad: no es posible visualizar un sistema de software
+  debido a su complejidad, dificultando tanto el proceso de diseño
+  como el de comunicación.
+  
+
+** Porqué es esencialmente complejo 
+
+Que sea esencialmente complejo significa que dicha característica es
+inseparable del software (a diferencia de las características
+accidentales). Las características mencionadas hacen que el software
+sea esencialmente algo complejo.
+
+* Pregunta 3
+
+** diferencia entre adapter y decorator
+Si bien ambos funcionan como un wrapper que envuelve otro objeto, el
+decorator es diferente que el adapter en que el cambia las
+responsabilidades del objeto (le otorga más responsabilidades), pero
+no su interfaz, mientras que el adapter modifica por completo su
+interfaz.
+
+** ventajas de un proxy polimórfico sobre uno no polimórfico
+
+El hecho de que un proxy sea polimórfico permite que se le envíen
+mensajes como si se tratara del objeto que está subrogando, lo cual lo
+vuelve transparente para el cliente.
+
+** 
+
+* pregunta 4
+
+** el future se utiliza para
+
+** Explique por qué son importantes las promesas en un lenguaje fuertemente basado en eventos como Javascript
+
+** Explique es un future transparente o polimórfico. ¿Qué ventajas tiene con respecto a uno que no comparte el mismo protocolo que el objeto a proxiar?
