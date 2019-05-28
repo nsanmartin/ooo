@@ -82,6 +82,100 @@ test06CantAddPortfoliosWithRepeatedAccounts
 		withExceptionDo: [ :exception |
 			self assert: exception messageText equals: Portfolio cantAddTheSameAccountTwiceExceptionMessage].! !
 
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:02:44'!
+test07CantAddAnAccountContainedInASuperPortfolio
+	| account subPortfolio superPortfolio account2 |
+		
+	account := ReceptiveAccount  new.
+	Deposit register: 100 on: account.
+	
+	account2 := ReceptiveAccount  new.
+	Withdraw register: 100 on: account.
+	
+	superPortfolio _ Portfolio with: account.
+	subPortfolio _ Portfolio with: account2.
+	
+	superPortfolio add: subPortfolio.
+	
+	self
+		should: [subPortfolio add: account]
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: exception messageText equals: Portfolio cantAddTheSameAccountTwiceExceptionMessage].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'nsm 5/25/2019 18:30:50'!
+test08CantAddAnAccountContainedInFirstSuperPortfolioWhenAddingTwo
+	| account subPortfolio firstSuperPortfolio account2 account3 secondSuperPortfolio |
+		
+	account := ReceptiveAccount  new.
+	Deposit register: 100 on: account.
+	
+	account2 := ReceptiveAccount  new.
+	Withdraw register: 100 on: account.
+	
+	account3 := ReceptiveAccount  new.
+	
+	firstSuperPortfolio _ Portfolio with: account.
+	secondSuperPortfolio _ Portfolio with: account2.
+	subPortfolio _ Portfolio with: account3.
+	firstSuperPortfolio add: subPortfolio.
+	secondSuperPortfolio add: subPortfolio.
+	
+	self
+		should: [subPortfolio add: account]
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: exception messageText equals: Portfolio cantAddTheSameAccountTwiceExceptionMessage].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'EB 5/25/2019 21:50:33'!
+test09PortfolioWithOneTransactionShouldHaveItRegistered
+	| account portfolio transaction |
+		
+	account _ ReceptiveAccount  new.
+	transaction _ Deposit register: 100 on: account.
+	portfolio _ Portfolio with: account.
+	
+	self assert: (portfolio hasRegistered: transaction). ! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'EB 5/25/2019 21:52:51'!
+test10PortfolioShouldNotHaveRegisteredOtherTransactions
+	| portfolio |
+	portfolio _ Portfolio with: ReceptiveAccount new.
+	
+	self deny: (portfolio hasRegistered: (Withdraw register: 42 on: ReceptiveAccount new)).! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'EB 5/25/2019 22:00:53'!
+test11PortfolioTransactionsDoesntHaveAnUnregisteredTransaction
+	| portfolio account |
+	account _ ReceptiveAccount new.
+	portfolio _ Portfolio with: account.
+	
+	self deny: (portfolio transactions includes: (Withdraw register: 234 on: ReceptiveAccount new)).! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'EB 5/25/2019 21:59:49'!
+test12PortfolioTransactionsWithOneTransaction
+	| portfolio account transaction |
+	account _ ReceptiveAccount new.
+	transaction _ Withdraw register: 234 on: account.
+	portfolio _ Portfolio with: account.
+	
+	self assert: (portfolio transactions includes: transaction).! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'EB 5/25/2019 22:05:05'!
+test13PortfolioTransactionsWithTwoTransactionsInDifferentAccounts
+	| portfolio account transaction account2 transaction2 transactions |
+	account _ ReceptiveAccount new.
+	transaction _ Withdraw register: 234 on: account.
+	account2 _ ReceptiveAccount new.
+	transaction2 _ Withdraw register: 235 on: account2.
+	portfolio _ Portfolio with: account.
+	portfolio add: account2.
+	
+	transactions _ portfolio transactions.
+	
+	self assert: (transactions includes: transaction).
+	self assert: (transactions includes: transaction2).! !
+
 
 !classDefinition: #ReceptiveAccountTest category: #'Portfolio-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -275,9 +369,44 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
+!classDefinition: #Accountable category: #'Portfolio-Ejercicio'!
+Object subclass: #Accountable
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!Accountable methodsFor: 'adding' stamp: 'EB 5/25/2019 22:25:09'!
+addParent: anAccountable
+	self subclassResponsibility.! !
+
+!Accountable methodsFor: 'adding' stamp: 'EB 5/25/2019 22:27:02'!
+hasRepeatedAccountsWith: anAccountable
+	self subclassResponsibility.! !
+
+
+!Accountable methodsFor: 'testing' stamp: 'EB 5/25/2019 22:26:03'!
+hasAccount: anAccount
+	self subclassResponsibility.! !
+
+!Accountable methodsFor: 'testing' stamp: 'EB 5/25/2019 22:26:30'!
+hasRegistered: aTransaction
+	self subclassResponsibility.! !
+
+
+!Accountable methodsFor: 'balance' stamp: 'EB 5/25/2019 22:27:34'!
+balance
+	self subclassResponsibility.! !
+
+
+!Accountable methodsFor: 'transactions' stamp: 'EB 5/25/2019 22:28:16'!
+transactions
+	self subclassResponsibility.! !
+
+
 !classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
-Object subclass: #Portfolio
-	instanceVariableNames: 'accountsAndPortfolios'
+Accountable subclass: #Portfolio
+	instanceVariableNames: 'accountsAndPortfolios parentPortfolios'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
@@ -287,19 +416,53 @@ balance
 	^ accountsAndPortfolios sum: [ :account | account balance ].! !
 
 
-!Portfolio methodsFor: 'initialization' stamp: 'nsm 5/23/2019 21:39:02'!
-initializeWith: anAccount
-	accountsAndPortfolios _ OrderedCollection with: anAccount.! !
+!Portfolio methodsFor: 'initialization' stamp: 'EB 5/25/2019 22:28:37'!
+initializeWith: anAccountable
+	parentPortfolios  _ OrderedCollection new.
+	accountsAndPortfolios _ OrderedCollection with: anAccountable.! !
 
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/23/2019 21:51:47'!
-add: aReceptiveAccount 
-	(accountsAndPortfolios anySatisfy: [ :account| account hasRepeatedAccountsWith: aReceptiveAccount])  ifTrue: [self error: self class cantAddTheSameAccountTwiceExceptionMessage ].
-	accountsAndPortfolios add:aReceptiveAccount .! !
+!Portfolio methodsFor: 'adding' stamp: 'EB 5/25/2019 22:24:38'!
+add: anAccountable
+	(self parentsHaveRepeatedAccountsWith: anAccountable) ifTrue: [
+		self error: self class cantAddTheSameAccountTwiceExceptionMessage ].
+	accountsAndPortfolios add: anAccountable.
+	anAccountable addParent: self.! !
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'nsm 5/23/2019 21:51:47'!
+!Portfolio methodsFor: 'adding' stamp: 'EB 5/25/2019 21:39:47'!
+addParent: aPortfolio
+	parentPortfolios add: aPortfolio.! !
+
+
+!Portfolio methodsFor: 'testing' stamp: 'EB 5/25/2019 21:42:40'!
+hasAccount: anAccount
+	^ accountsAndPortfolios anySatisfy: [ :accountable | accountable hasAccount: anAccount ].! !
+
+!Portfolio methodsFor: 'testing' stamp: 'EB 5/25/2019 21:54:15'!
+hasRegistered: aTransaction 
+	^ accountsAndPortfolios anySatisfy: [ :accountable | accountable hasRegistered: aTransaction ].! !
+
+!Portfolio methodsFor: 'testing' stamp: 'EB 5/25/2019 21:42:34'!
 hasRepeatedAccountsWith: anAccountable
-	^ accountsAndPortfolios anySatisfy: [ :accountable| accountable hasRepeatedAccountsWith: anAccountable ].! !
+	^ accountsAndPortfolios anySatisfy: [ :accountable | accountable hasRepeatedAccountsWith: anAccountable ]
+	! !
+
+!Portfolio methodsFor: 'testing' stamp: 'EB 5/25/2019 21:43:05'!
+parentsHaveRepeatedAccountsWith: anAccountable
+	parentPortfolios ifEmpty: [
+		^ self hasRepeatedAccountsWith: anAccountable.
+	].
+	^ parentPortfolios anySatisfy: [ :parentPortfolio | parentPortfolio parentsHaveRepeatedAccountsWith: anAccountable ] .! !
+
+
+!Portfolio methodsFor: 'transactions' stamp: 'EB 5/25/2019 22:09:36'!
+transactions
+
+	| totalTransactions |
+	totalTransactions _ OrderedCollection new.
+	accountsAndPortfolios do: [ :accountable |
+			totalTransactions addAll: accountable transactions ].
+	^totalTransactions.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -317,7 +480,7 @@ with: aReceptiveAccount
 
 
 !classDefinition: #ReceptiveAccount category: #'Portfolio-Ejercicio'!
-Object subclass: #ReceptiveAccount
+Accountable subclass: #ReceptiveAccount
 	instanceVariableNames: 'transactions'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -329,10 +492,6 @@ initialize
 	super initialize.
 	transactions := OrderedCollection new.! !
 
-
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'nsm 5/23/2019 21:37:48'!
-hasAccount: anAccount
-	^ self = anAccount .! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
@@ -354,8 +513,21 @@ balance
 	] ! !
 
 
-!ReceptiveAccount methodsFor: 'testing' stamp: 'HAW 10/11/2018 16:53:54'!
-hasRegistered: aTtransaction
+!ReceptiveAccount methodsFor: 'testing' stamp: 'nsm 5/25/2019 18:05:58'!
+hasAccount: anAccount
+	^ self = anAccount.! !
 
-	^ transactions includes: aTtransaction 
+!ReceptiveAccount methodsFor: 'testing' stamp: 'EB 5/25/2019 22:26:37'!
+hasRegistered: aTransaction
+
+	^ transactions includes: aTransaction 
 ! !
+
+!ReceptiveAccount methodsFor: 'testing' stamp: 'EB 5/25/2019 22:27:11'!
+hasRepeatedAccountsWith: anAccountable
+	^ anAccountable hasAccount: self.! !
+
+
+!ReceptiveAccount methodsFor: 'adding' stamp: 'nsm 5/25/2019 18:16:33'!
+addParent: aPortfolio
+	.! !

@@ -12,6 +12,11 @@ actuales, por lo menos en Cuis-University.
 - Rename de variable de bloque cuando ya hay un bloque en el mismo método
 con ese nombre.
 - Cuando buscas actualSenders de value en ejericio 30 (Portfolio) Error: My subclass should have overridden #typesIn:addingIncompleteTypeInfoTo: 
+- El references to it no parece funcionar.
+- hacer control z después de tener errores de sintaxis
+- Eliminar una variable temporaria de un bloque
+- TemporaryToInstanceVariable con variable de bloque cuando hay otro bloque con el mismo nombre.
+- RenameTemporary con variable de bloque cuando hay otro bloque con el mismo nombre.
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
@@ -35,6 +40,8 @@ Si, para poder agregar otros métodos a ella. Igual, estaría bueno preguntar al
 eliminar el último método de la categoría si se quiere eliminar la categoría
 también.
 - Multiple selection.
+- Un browser de tests que te los numere y esas cosas.
+- undo para refactors (el versiones sirve pero solo para cuando guardaste antes de hacerlo)
 - Seleccionar un wallpaper desde el FileList.
 - Rotar por Wallpapers de un directorio cada x tiempo.
 - Seleccionar más de un archivo en el FileList (en cualquier lado en realidad).
