@@ -61,6 +61,7 @@ estamos adentro de un block.
 - Coso para poder dibujar con el mouse.
 - No sé si hay redo.
 - Shortcuts para abrir cada browser.
+- Formatter de código (espacio después del selector, enters en mensajes largos, etc.)
 
 Arreglados:
 - Tratar de guardar un morph.
