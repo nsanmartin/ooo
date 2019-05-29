@@ -60,19 +60,42 @@ Por lo tanto, entender una parte del software no facilita a entender el resto. A
 * Pregunta 3
 
 ** diferencia entre adapter y decorator
+
 Si bien ambos funcionan como un wrapper que envuelve otro objeto, el
-decorator es diferente que el adapter en que el cambia las
-responsabilidades del objeto (le otorga más responsabilidades), pero
-no su interfaz, mientras que el adapter modifica por completo su
-interfaz.
+decorator es diferente que el adapter en que él otorga mayor 
+funcionalidad al objeto, pero
+no cambia su interfaz, mientras que el adapter modifica por completo su
+interfaz. Un resultado de esto es que el Decorator es más transparente al
+resto del programa, y que soporta composición
+recursiva, mientras que el Adapter no.
 
 ** ventajas de un proxy polimórfico sobre uno no polimórfico
 
 El hecho de que un proxy sea polimórfico permite que se le envíen
 mensajes como si se tratara del objeto que está subrogando, lo cual lo
-vuelve transparente para el cliente.
+vuelve transparente para el cliente. El cliente no necesita conocer 
+entonces nuevo protocolo para manejar el proxy, y por lo tanto no hace
+falta modificarlo para que lo comience a utilizar.
 
-** 
+Por otro lado, hacer el proxy polimórfico hace que se deban encontrar
+formas especiales de manejar mensajes que el Proxy no sabe responder.
+Una de estas formas, en SmallTalk, es implementar el mensaje
+#doesNotUnderstand:. Lo malo de esto es que el method lookup puede ser
+más lento, y que algunos mensajes que podría optmizar el compilador no
+serán recibidos por el #doesNotUnderstand:, y entonces el Proxy no podrá
+ser polimórfico en esos mensajes. Esto, de todas formas, depende de la
+variante de SmallTalk que se esté utilizando.
+
+Otra manera es implementar todos los mensajes que describe el protocolo 
+del objeto siendo subrogado, pero entonces el Proxy se vuelve más frágil;
+si cambia el protocolo del objeto subrogado debe cambiar el protocolo
+del Proxy.
+
+** ¿Qué es el problema de la “identidad” o de “self”? ¿En cuáles de estos patrones aplica?
+
+¿Será lo del become: que estaban hablando en el grupo de Telegram, o
+lo de que el == no está haciendo lo que tiene que hacer cuando 
+usás un Proxy polimórfico? Yo me tiro por la segunda.
 
 * pregunta 4
 
