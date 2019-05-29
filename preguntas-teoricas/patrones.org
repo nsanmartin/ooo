@@ -100,7 +100,23 @@ usás un Proxy polimórfico? Yo me tiro por la segunda.
 * pregunta 4
 
 ** el future se utiliza para
+[] Obtener una referencia a un resultado que es inmediato.
+[X] Poder programar asincronicamente, paralelizando la ejecución y sincronizando los resultados.
+[] Ninguna de las anteriores.
+[] Las respuestas a y b son válidas.
 
 ** Explique por qué son importantes las promesas en un lenguaje fuertemente basado en eventos como Javascript
 
+Como los eventos no son elementos sincrónicos de la ejecución, sino que pueden ser emitidos en 
+cualquier momento y tardar mucho tiempo, el lenguaje debe estar preparado para reaccionar recién
+cuando el evento ocurre, pero también evitar posponer la ejecución a la espera del mismo, para no
+dar la imagen de que el programa se colgó. Este problema es exactamente el que resuelven las promesas
+o los Futures. 
+
 ** Explique es un future transparente o polimórfico. ¿Qué ventajas tiene con respecto a uno que no comparte el mismo protocolo que el objeto a proxiar?
+
+Es un Future que sabe responder a los mismos mensajes que el elemento proxiado de manera polimórfica.
+Esto hace que el usuario del Future no necesite conocer protocolo nuevo para utilizarlo, y entonces
+que no haga falta modificar su comportamiento si es que se estaba utilizando antes el objeto 
+sin proxiar. Además, utilizar un Future polimórfico no involucra aprender nuevos mensajes, y entonces
+la complejidad para el programador disminuye.
