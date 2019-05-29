@@ -17,18 +17,18 @@ Un ejemplo distinto puede ser el de obtener el tamaño de un objeto
 (por ejemplo el tamaño ocupado por un directorio y sus archivos y
 subdirectorios, o cualquier objeto en realidad). Al solicitar el tamaño
 de un directorio, el mismo obtiene de sus elementos, que son
-polimóficos con él, su tamaño, y luego realiza la sum. Por su puesto
+polimóficos con él, su tamaño, y luego realiza la suma. Por supuesto
 que si el elemento en cuestión es un subdirectorio, a su vez aplicará
 la recursión.
 
 ** Cómo se relaciona con el patrón decorator?
 
-Si bien comparten el hecho de que ambos delegan a sus elementos un
+Si bien comparten el hecho de que ambos delegan a sus elementos una
 solicitud, el decorator lo hace porque es él quien implementa el
 método en cuestión (le pasa el mensaje simplemente) mientras que en
 Object Recursion este traspaso se realiza recursivamente las veces que
-sea necesario hasta que llegar a los elementos básicos. En este
-sentido, puede decirse, según Woolf, que mientras que el primero es
+sea necesario hasta llegar a los elementos básicos. En este
+sentido puede decirse, según Woolf, que mientras que el primero es
 estructural, el segundo es comportamental.
 
 * pregunta 2
@@ -42,7 +42,7 @@ Según Brooks, son inalienables al software:
 + la conformidad: mucha de la complejidad proviene de la necesidad de
   conformidad a interfaces que vienen dadas.
 + la cambiabilidad: necesariamente todo software está sujeto al
-  cambio. Por un lado, a l resultar útil un software, puede surgir la
+  cambio. Por un lado, al resultar útil un software, puede surgir la
   idea de extenderlo o aplicarlo a casos que iban más allá de su
   dominio original. Por otra parte, el hecho de que persista su uso
   hace que por el mero paso del tiempo surjan nuevas situaciones que
@@ -52,12 +52,10 @@ Según Brooks, son inalienables al software:
   como el de comunicación.
   
 
-** Porqué es esencialmente complejo 
+** Por qué es esencialmente complejo 
 
-Que sea esencialmente complejo significa que dicha característica es
-inseparable del software (a diferencia de las características
-accidentales). Las características mencionadas hacen que el software
-sea esencialmente algo complejo.
+Porque no hay dos partes que sean iguales en un sistema de software; si las hubiese, esas dos partes se unirían en una subrutina o algo parecido.
+Por lo tanto, entender una parte del software no facilita a entender el resto. Además, la combinación de nuevas abstracciones no produce un crecimiento lineal de la complejidad, ya que cualquier abstracción anterior podría estar interactuando con la nueva para crear cada una un estado nuevo del programa.
 
 * Pregunta 3
 
