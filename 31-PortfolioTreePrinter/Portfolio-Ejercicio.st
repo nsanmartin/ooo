@@ -5,7 +5,7 @@ TestCase subclass: #AccountSummaryTest
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 18:14:10'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:41:39'!
 test01SummaryOfAnAccountWithoutTransactions
 	| account expectedReport summary |
 	account _ ReceptiveAccount new.
@@ -14,7 +14,7 @@ test01SummaryOfAnAccountWithoutTransactions
 	self assert: summary report equals: expectedReport.
 	! !
 
-!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 18:22:13'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:41:39'!
 test02SummaryOfAnAccountWithDeposit
 	| account expectedReport summary |
 	account _ ReceptiveAccount new.
@@ -24,7 +24,7 @@ test02SummaryOfAnAccountWithDeposit
 	self assert: expectedReport equals: summary report.
 	! !
 
-!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 18:22:20'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:41:39'!
 test03SummaryOfAnAccountWithWithdraw
 	| account expectedReport summary |
 	account _ ReceptiveAccount new.
@@ -34,7 +34,7 @@ test03SummaryOfAnAccountWithWithdraw
 	self assert: expectedReport equals: summary report.
 	! !
 
-!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 23:40:03'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:41:39'!
 test04SummaryOfAnAccountWithTransferDeposit
 	| expectedReport summary account1 account2 |
 	account1 _ ReceptiveAccount new.
@@ -47,7 +47,7 @@ test04SummaryOfAnAccountWithTransferDeposit
 	self assert: expectedReport equals: summary report.
 	! !
 
-!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 23:51:44'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:41:39'!
 test05SummaryOfAnAccountWithTransferWithdraw
 	| expectedReport summary account1 account2 |
 	account1 _ ReceptiveAccount new.
@@ -60,7 +60,7 @@ test05SummaryOfAnAccountWithTransferWithdraw
 	self assert: expectedReport equals: summary report.
 	! !
 
-!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 13:11:02'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:41:39'!
 test06SummaryOfAnAccountWithMultipleTransactions
 	| expectedReport summary account1 account2 |
 	account1 _ ReceptiveAccount new.
@@ -359,86 +359,60 @@ test08TransferBetweenTwoAccounts
 	self assert: 100 equals: account2 balance.! !
 
 
-!classDefinition: #AccountSummary category: #'Portfolio-Ejercicio'!
-Object subclass: #AccountSummary
-	instanceVariableNames: 'accountable'
+!classDefinition: #TransferNetTest category: #'Portfolio-Ejercicio'!
+TestCase subclass: #TransferNetTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!AccountSummary methodsFor: 'intialization' stamp: 'EB 5/29/2019 18:13:05'!
-initializeWithAccountable: anAccountable 
-	accountable _ anAccountable.! !
-
-
-!AccountSummary methodsFor: 'reporting' stamp: 'EB 5/29/2019 23:21:02'!
-report
-	| visitor |
-	visitor _ AccountSummaryVisitor new.
-	accountable transactions do: [ :transaction | transaction accept: visitor ].
-	^visitor report, 'Balance = ', accountable balance asString.
+!TransferNetTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:34:49'!
+test01NetWithoutTransfers
+	| account expectedReport summary |
+	account _ ReceptiveAccount new.
+	summary _ TransferNet of: account.
+	expectedReport _ 0.
+	self assert: summary report equals: expectedReport.
 	! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+!TransferNetTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:34:49'!
+test02NetWithTransferTransaction
+	| account1 expectedReport summary account2 |
+	account1 _ ReceptiveAccount new.
+	account2 _ ReceptiveAccount new.
+	Transfer value: 42 from: account1 to: account2.
+	
+	summary _ TransferNet of: account1.
+	
+	expectedReport _ -42.
+	self assert: summary report equals: expectedReport.
+	! !
 
-!classDefinition: 'AccountSummary class' category: #'Portfolio-Ejercicio'!
-AccountSummary class
-	instanceVariableNames: ''!
+!TransferNetTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:34:49'!
+test03NetWithOtherTransactionShouldNotAffectBalance
+	| account expectedReport summary |
+	account _ ReceptiveAccount new.
+	Deposit register: 42 on: account.
+	
+	summary _ TransferNet of: account.
+	
+	expectedReport _ 0.
+	self assert: expectedReport equals: summary report.
+	! !
 
-!AccountSummary class methodsFor: 'instance creation' stamp: 'EB 5/29/2019 18:12:32'!
-of: anAccountable 
-	^self new initializeWithAccountable: anAccountable.! !
-
-
-!classDefinition: #AccountSummaryVisitor category: #'Portfolio-Ejercicio'!
-Object subclass: #AccountSummaryVisitor
-	instanceVariableNames: 'report'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Portfolio-Ejercicio'!
-
-!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:15:23'!
-visitDeposit: aDeposit
-	self addTransactionValueToReport: aDeposit withPrefix: 'Depósito por '.! !
-
-!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:53:03'!
-visitTransferDeposit: aTransferDeposit 
-	self addTransactionValueToReport: aTransferDeposit withPrefix: 'Entrada por transferencia de '.! !
-
-!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/30/2019 13:05:03'!
-visitTransferWithdraw: aTransferWithdraw 
-	self addTransactionValueToReport: aTransferWithdraw withPrefix: 'Salida por transferencia de '.! !
-
-!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:15:41'!
-visitWithdraw: aWithdraw
-	self addTransactionValueToReport: aWithdraw withPrefix: 'Extracción por '.! !
-
-
-!AccountSummaryVisitor methodsFor: 'report building' stamp: 'EB 5/29/2019 23:14:54'!
-addTransactionValueToReport: aTransaction withPrefix: aPrefix
-	report _ report, (
-		String streamContents: [ :stream |
-			self nextPutValueOfTransaction: aTransaction inStream: stream withPrefix: aPrefix.
-		]
-	)! !
-
-!AccountSummaryVisitor methodsFor: 'report building' stamp: 'EB 5/29/2019 23:11:17'!
-nextPutValueOfTransaction: aTransaction inStream: aStream withPrefix: aPrefix
-	aStream
-		nextPutAll: aPrefix;
-		nextPutAll: aTransaction value asString;
-		nextPut: $.;
-		newLine.! !
-
-
-!AccountSummaryVisitor methodsFor: 'report' stamp: 'EB 5/29/2019 23:15:50'!
-report
-	^report.! !
-
-
-!AccountSummaryVisitor methodsFor: 'initialization' stamp: 'EB 5/29/2019 23:17:42'!
-initialize
-	report _ ''.! !
+!TransferNetTest methodsFor: 'testing' stamp: 'EB 5/30/2019 14:34:49'!
+test04ReportWithManyTransferTransactions
+	| account1 expectedReport summary account2 |
+	account1 _ ReceptiveAccount new.
+	account2 _ ReceptiveAccount new.
+	Transfer value: 24 from: account1 to: account2.
+	Transfer value: 10 from: account2 to: account1.
+	
+	summary _ TransferNet of: account1.
+	
+	expectedReport _ -14.
+	self assert: expectedReport equals: summary report.
+	! !
 
 
 !classDefinition: #AccountTransaction category: #'Portfolio-Ejercicio'!
@@ -458,8 +432,8 @@ value
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:26:00'!
-accept: aVisitor
+!AccountTransaction methodsFor: 'reporting' stamp: 'EB 5/30/2019 14:44:01'!
+reportOn: anAccountableReport
 	self subclassResponsibility.! !
 
 
@@ -510,9 +484,9 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'visiting' stamp: 'EB 5/29/2019 22:56:52'!
-accept: aVisitor
-	aVisitor visitDeposit: self.! !
+!Deposit methodsFor: 'reporting' stamp: 'EB 5/30/2019 14:45:45'!
+reportOn: anAccountableReport
+	anAccountableReport addDepositToReport: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -549,9 +523,9 @@ value
 	^ value! !
 
 
-!Withdraw methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:19:17'!
-accept: aVisitor
-	aVisitor visitWithdraw: self.! !
+!Withdraw methodsFor: 'reporting' stamp: 'EB 5/30/2019 14:46:15'!
+reportOn: anAccountableReport
+	anAccountableReport addWithdrawToReport: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -572,14 +546,19 @@ AccountTransaction subclass: #TransferTransaction
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!TransferTransaction methodsFor: 'value' stamp: 'EB 5/29/2019 17:59:02'!
-value
-	^transfer value.! !
-
-
 !TransferTransaction methodsFor: 'initialization' stamp: 'EB 5/29/2019 17:59:06'!
 initializeFor: aTransfer
 	transfer _ aTransfer! !
+
+
+!TransferTransaction methodsFor: 'transfer' stamp: 'EB 5/30/2019 14:47:47'!
+transfer
+	^transfer! !
+
+
+!TransferTransaction methodsFor: 'value' stamp: 'EB 5/29/2019 17:59:02'!
+value
+	^transfer value.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -604,9 +583,9 @@ affectBalance: aBalance
 	^aBalance + self value.! !
 
 
-!TransferDeposit methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:52:13'!
-accept: aVisitor 
-	aVisitor visitTransferDeposit: self.! !
+!TransferDeposit methodsFor: 'reporting' stamp: 'EB 5/30/2019 14:45:55'!
+reportOn: anAccountableReport 
+	anAccountableReport addTransferDepositToReport: self.! !
 
 
 !classDefinition: #TransferWithdraw category: #'Portfolio-Ejercicio'!
@@ -621,9 +600,9 @@ affectBalance: aBalance
 	^aBalance - self value.! !
 
 
-!TransferWithdraw methodsFor: 'visiting' stamp: 'EB 5/30/2019 13:05:03'!
-accept: aVisitor 
-	aVisitor visitTransferWithdraw: self.! !
+!TransferWithdraw methodsFor: 'reporting' stamp: 'EB 5/30/2019 14:46:05'!
+reportOn: anAccountableReport 
+	anAccountableReport addTransferWithdrawToReport: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -800,6 +779,123 @@ addParent: aPortfolio
 	.! !
 
 
+!classDefinition: #AccountableReport category: #'Portfolio-Ejercicio'!
+Object subclass: #AccountableReport
+	instanceVariableNames: 'report accountable'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!AccountableReport methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:45:45'!
+addDepositToReport: aDeposit! !
+
+!AccountableReport methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:45:55'!
+addTransferDepositToReport: aTransferDeposit! !
+
+!AccountableReport methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:46:05'!
+addTransferWithdrawToReport: aTransferWithdraw! !
+
+!AccountableReport methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:46:15'!
+addWithdrawToReport: aWithdraw! !
+
+
+!AccountableReport methodsFor: 'report' stamp: 'EB 5/30/2019 14:43:28'!
+report
+	accountable transactions do: [ :transaction | transaction reportOn: self ].
+	^report.! !
+
+
+!AccountableReport methodsFor: 'initialization' stamp: 'EB 5/30/2019 14:31:19'!
+initializeWithAccountable: anAccountable 
+	accountable _ anAccountable.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'AccountableReport class' category: #'Portfolio-Ejercicio'!
+AccountableReport class
+	instanceVariableNames: ''!
+
+!AccountableReport class methodsFor: 'as yet unclassified' stamp: 'EB 5/30/2019 14:31:01'!
+of: anAccountable 
+	^self new initializeWithAccountable: anAccountable.! !
+
+
+!classDefinition: #AccountSummary category: #'Portfolio-Ejercicio'!
+AccountableReport subclass: #AccountSummary
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!AccountSummary methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:45:45'!
+addDepositToReport: aDeposit
+	self addTransactionValueToReport: aDeposit withPrefix: 'Depósito por '.! !
+
+!AccountSummary methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:45:55'!
+addTransferDepositToReport: aTransferDeposit 
+	self addTransactionValueToReport: aTransferDeposit withPrefix: 'Entrada por transferencia de '.! !
+
+!AccountSummary methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:46:05'!
+addTransferWithdrawToReport: aTransferWithdraw 
+	self addTransactionValueToReport: aTransferWithdraw withPrefix: 'Salida por transferencia de '.! !
+
+!AccountSummary methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:46:15'!
+addWithdrawToReport: aWithdraw
+	self addTransactionValueToReport: aWithdraw withPrefix: 'Extracción por '.! !
+
+
+!AccountSummary methodsFor: 'report building' stamp: 'EB 5/29/2019 23:14:54'!
+addTransactionValueToReport: aTransaction withPrefix: aPrefix
+	report _ report, (
+		String streamContents: [ :stream |
+			self nextPutValueOfTransaction: aTransaction inStream: stream withPrefix: aPrefix.
+		]
+	)! !
+
+!AccountSummary methodsFor: 'report building' stamp: 'EB 5/29/2019 23:11:17'!
+nextPutValueOfTransaction: aTransaction inStream: aStream withPrefix: aPrefix
+	aStream
+		nextPutAll: aPrefix;
+		nextPutAll: aTransaction value asString;
+		nextPut: $.;
+		newLine.! !
+
+
+!AccountSummary methodsFor: 'initialization' stamp: 'EB 5/29/2019 23:17:42'!
+initialize
+	report _ ''.! !
+
+
+!AccountSummary methodsFor: 'report' stamp: 'EB 5/30/2019 14:40:59'!
+report
+	^super report, 'Balance = ', accountable balance asString.! !
+
+
+!classDefinition: #TransferNet category: #'Portfolio-Ejercicio'!
+AccountableReport subclass: #TransferNet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!TransferNet methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:45:55'!
+addTransferDepositToReport: aTransferDeposit
+	self visitTransferTransaction: aTransferDeposit.! !
+
+!TransferNet methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:46:05'!
+addTransferWithdrawToReport: aTransferWithdraw
+	self visitTransferTransaction: aTransferWithdraw.! !
+
+!TransferNet methodsFor: 'adding transactions' stamp: 'EB 5/30/2019 14:27:27'!
+visitTransferTransaction: aTransferTransaction
+	report _ aTransferTransaction affectBalance: report.! !
+
+
+!TransferNet methodsFor: 'initialization' stamp: 'EB 5/30/2019 14:28:39'!
+initialize
+	report _ 0.! !
+
+
 !classDefinition: #Transfer category: #'Portfolio-Ejercicio'!
 Object subclass: #Transfer
 	instanceVariableNames: 'withdraw deposit value'
@@ -807,9 +903,17 @@ Object subclass: #Transfer
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!Transfer methodsFor: 'value' stamp: 'EB 5/29/2019 17:34:23'!
+!Transfer methodsFor: 'accessing' stamp: 'EB 5/30/2019 14:49:27'!
+deposit
+	^deposit.! !
+
+!Transfer methodsFor: 'accessing' stamp: 'EB 5/29/2019 17:34:23'!
 value
 	^value! !
+
+!Transfer methodsFor: 'accessing' stamp: 'EB 5/30/2019 14:49:19'!
+withdraw
+	^withdraw.! !
 
 
 !Transfer methodsFor: 'initialization' stamp: 'EB 5/29/2019 17:37:43'!
@@ -827,6 +931,6 @@ initializeWithValue: aTransactionValue from: originReceptiveAccount to: destinat
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 17:20:42'!
+!Transfer class methodsFor: 'instance creation' stamp: 'EB 5/29/2019 17:20:42'!
 value: aTransactionValue from: originReceptiveAccount to: destinationReceptiveAccount 
 	^self new initializeWithValue: aTransactionValue from: originReceptiveAccount to: destinationReceptiveAccount.! !
