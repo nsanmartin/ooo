@@ -5,7 +5,7 @@ TestCase subclass: #AccountSummaryTest
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 18:14:10'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 18:14:10'!
 test01SummaryOfAnAccountWithoutTransactions
 	| account expectedReport summary |
 	account _ ReceptiveAccount new.
@@ -14,7 +14,7 @@ test01SummaryOfAnAccountWithoutTransactions
 	self assert: summary report equals: expectedReport.
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 18:22:13'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 18:22:13'!
 test02SummaryOfAnAccountWithDeposit
 	| account expectedReport summary |
 	account _ ReceptiveAccount new.
@@ -24,13 +24,54 @@ test02SummaryOfAnAccountWithDeposit
 	self assert: expectedReport equals: summary report.
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 18:22:20'!
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 18:22:20'!
 test03SummaryOfAnAccountWithWithdraw
 	| account expectedReport summary |
 	account _ ReceptiveAccount new.
 	Withdraw register: 145 on: account.
 	summary _ AccountSummary of: account.
 	expectedReport _ 'Extracción por 145.', String newLineString, 'Balance = -145'.
+	self assert: expectedReport equals: summary report.
+	! !
+
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 23:40:03'!
+test04SummaryOfAnAccountWithTransferDeposit
+	| expectedReport summary account1 account2 |
+	account1 _ ReceptiveAccount new.
+	account2 _ ReceptiveAccount new.
+	Transfer value: 23 from: account1 to: account2. 
+	
+	summary _ AccountSummary of: account1.
+	expectedReport _ 'Salida por transferencia de 23.', String newLineString, 'Balance = -23'.
+	
+	self assert: expectedReport equals: summary report.
+	! !
+
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/29/2019 23:51:44'!
+test05SummaryOfAnAccountWithTransferWithdraw
+	| expectedReport summary account1 account2 |
+	account1 _ ReceptiveAccount new.
+	account2 _ ReceptiveAccount new.
+	Transfer value: 23 from: account1 to: account2. 
+	
+	summary _ AccountSummary of: account2.
+	expectedReport _ 'Entrada por transferencia de 23.', String newLineString, 'Balance = 23'.
+	
+	self assert: expectedReport equals: summary report.
+	! !
+
+!AccountSummaryTest methodsFor: 'testing' stamp: 'EB 5/30/2019 13:11:02'!
+test06SummaryOfAnAccountWithMultipleTransactions
+	| expectedReport summary account1 account2 |
+	account1 _ ReceptiveAccount new.
+	account2 _ ReceptiveAccount new.
+	Transfer value: 23 from: account1 to: account2. 
+	Deposit register: 45 on: account1.
+	
+	summary _ AccountSummary of: account1.
+	expectedReport _ 'Salida por transferencia de 23.', String newLineString,
+	'Depósito por 45.', String newLineString, 'Balance = 22'.
+	
 	self assert: expectedReport equals: summary report.
 	! !
 
@@ -330,29 +371,13 @@ initializeWithAccountable: anAccountable
 	accountable _ anAccountable.! !
 
 
-!AccountSummary methodsFor: 'reporting' stamp: 'EB 5/29/2019 18:36:03'!
-nextPutValueOfTransaction: aTransaction inStream: aStream withPrefix: aPrefix
-	aStream
-		nextPutAll: aPrefix;
-		nextPutAll: aTransaction value asString;
-		nextPut: $.;
-		newLine.! !
-
-!AccountSummary methodsFor: 'reporting' stamp: 'EB 5/29/2019 18:36:47'!
+!AccountSummary methodsFor: 'reporting' stamp: 'EB 5/29/2019 23:21:02'!
 report
-	^String streamContents: [ :stream |
-		accountable transactions do: [ :transaction |
-			(transaction isKindOf: Deposit) ifTrue: [
-				self nextPutValueOfTransaction: transaction inStream: stream withPrefix: 'Depósito por '.
-			] ifFalse: [
-				self nextPutValueOfTransaction: transaction inStream: stream withPrefix: 'Extracción por '.
-			]
-		].
-	
-		stream 
-			nextPutAll: 'Balance = ';
-		 	nextPutAll: accountable balance asString.
-	].! !
+	| visitor |
+	visitor _ AccountSummaryVisitor new.
+	accountable transactions do: [ :transaction | transaction accept: visitor ].
+	^visitor report, 'Balance = ', accountable balance asString.
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -363,6 +388,57 @@ AccountSummary class
 !AccountSummary class methodsFor: 'instance creation' stamp: 'EB 5/29/2019 18:12:32'!
 of: anAccountable 
 	^self new initializeWithAccountable: anAccountable.! !
+
+
+!classDefinition: #AccountSummaryVisitor category: #'Portfolio-Ejercicio'!
+Object subclass: #AccountSummaryVisitor
+	instanceVariableNames: 'report'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:15:23'!
+visitDeposit: aDeposit
+	self addTransactionValueToReport: aDeposit withPrefix: 'Depósito por '.! !
+
+!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:53:03'!
+visitTransferDeposit: aTransferDeposit 
+	self addTransactionValueToReport: aTransferDeposit withPrefix: 'Entrada por transferencia de '.! !
+
+!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/30/2019 13:05:03'!
+visitTransferWithdraw: aTransferWithdraw 
+	self addTransactionValueToReport: aTransferWithdraw withPrefix: 'Salida por transferencia de '.! !
+
+!AccountSummaryVisitor methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:15:41'!
+visitWithdraw: aWithdraw
+	self addTransactionValueToReport: aWithdraw withPrefix: 'Extracción por '.! !
+
+
+!AccountSummaryVisitor methodsFor: 'report building' stamp: 'EB 5/29/2019 23:14:54'!
+addTransactionValueToReport: aTransaction withPrefix: aPrefix
+	report _ report, (
+		String streamContents: [ :stream |
+			self nextPutValueOfTransaction: aTransaction inStream: stream withPrefix: aPrefix.
+		]
+	)! !
+
+!AccountSummaryVisitor methodsFor: 'report building' stamp: 'EB 5/29/2019 23:11:17'!
+nextPutValueOfTransaction: aTransaction inStream: aStream withPrefix: aPrefix
+	aStream
+		nextPutAll: aPrefix;
+		nextPutAll: aTransaction value asString;
+		nextPut: $.;
+		newLine.! !
+
+
+!AccountSummaryVisitor methodsFor: 'report' stamp: 'EB 5/29/2019 23:15:50'!
+report
+	^report.! !
+
+
+!AccountSummaryVisitor methodsFor: 'initialization' stamp: 'EB 5/29/2019 23:17:42'!
+initialize
+	report _ ''.! !
 
 
 !classDefinition: #AccountTransaction category: #'Portfolio-Ejercicio'!
@@ -381,13 +457,26 @@ value
 
 	self subclassResponsibility ! !
 
+
+!AccountTransaction methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:26:00'!
+accept: aVisitor
+	self subclassResponsibility.! !
+
+
+!classDefinition: #SingleAccountTransaction category: #'Portfolio-Ejercicio'!
+AccountTransaction subclass: #SingleAccountTransaction
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'AccountTransaction class' category: #'Portfolio-Ejercicio'!
-AccountTransaction class
+!classDefinition: 'SingleAccountTransaction class' category: #'Portfolio-Ejercicio'!
+SingleAccountTransaction class
 	instanceVariableNames: ''!
 
-!AccountTransaction class methodsFor: 'instance creation' stamp: 'nsm 5/23/2019 20:16:52'!
+!SingleAccountTransaction class methodsFor: 'instance creation' stamp: 'EB 5/29/2019 23:29:21'!
 register: aValue on: account
 
 	| withdraw |
@@ -399,7 +488,7 @@ register: aValue on: account
 
 
 !classDefinition: #Deposit category: #'Portfolio-Ejercicio'!
-AccountTransaction subclass: #Deposit
+SingleAccountTransaction subclass: #Deposit
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -420,6 +509,11 @@ value
 
 	^ value! !
 
+
+!Deposit methodsFor: 'visiting' stamp: 'EB 5/29/2019 22:56:52'!
+accept: aVisitor
+	aVisitor visitDeposit: self.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Deposit class' category: #'Portfolio-Ejercicio'!
@@ -433,7 +527,7 @@ for: aValue
 
 
 !classDefinition: #Withdraw category: #'Portfolio-Ejercicio'!
-AccountTransaction subclass: #Withdraw
+SingleAccountTransaction subclass: #Withdraw
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -454,6 +548,11 @@ value
 
 	^ value! !
 
+
+!Withdraw methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:19:17'!
+accept: aVisitor
+	aVisitor visitWithdraw: self.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Withdraw class' category: #'Portfolio-Ejercicio'!
@@ -464,6 +563,77 @@ Withdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #TransferTransaction category: #'Portfolio-Ejercicio'!
+AccountTransaction subclass: #TransferTransaction
+	instanceVariableNames: 'transfer'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!TransferTransaction methodsFor: 'value' stamp: 'EB 5/29/2019 17:59:02'!
+value
+	^transfer value.! !
+
+
+!TransferTransaction methodsFor: 'initialization' stamp: 'EB 5/29/2019 17:59:06'!
+initializeFor: aTransfer
+	transfer _ aTransfer! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TransferTransaction class' category: #'Portfolio-Ejercicio'!
+TransferTransaction class
+	instanceVariableNames: ''!
+
+!TransferTransaction class methodsFor: 'instance creation' stamp: 'EB 5/29/2019 17:59:10'!
+for: aTransfer
+	^self new initializeFor: aTransfer! !
+
+
+!classDefinition: #TransferDeposit category: #'Portfolio-Ejercicio'!
+TransferTransaction subclass: #TransferDeposit
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!TransferDeposit methodsFor: 'value' stamp: 'EB 5/29/2019 17:58:01'!
+affectBalance: aBalance
+	^aBalance + self value.! !
+
+
+!TransferDeposit methodsFor: 'visiting' stamp: 'EB 5/29/2019 23:52:13'!
+accept: aVisitor 
+	aVisitor visitTransferDeposit: self.! !
+
+
+!classDefinition: #TransferWithdraw category: #'Portfolio-Ejercicio'!
+TransferTransaction subclass: #TransferWithdraw
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!TransferWithdraw methodsFor: 'value' stamp: 'EB 5/29/2019 17:59:26'!
+affectBalance: aBalance
+	^aBalance - self value.! !
+
+
+!TransferWithdraw methodsFor: 'visiting' stamp: 'EB 5/30/2019 13:05:03'!
+accept: aVisitor 
+	aVisitor visitTransferWithdraw: self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TransferWithdraw class' category: #'Portfolio-Ejercicio'!
+TransferWithdraw class
+	instanceVariableNames: ''!
+
+!TransferWithdraw class methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 17:31:18'!
+for: aTransfer
+	^self new initializeFor: aTransfer.! !
 
 
 !classDefinition: #Accountable category: #'Portfolio-Ejercicio'!
@@ -660,68 +830,3 @@ Transfer class
 !Transfer class methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 17:20:42'!
 value: aTransactionValue from: originReceptiveAccount to: destinationReceptiveAccount 
 	^self new initializeWithValue: aTransactionValue from: originReceptiveAccount to: destinationReceptiveAccount.! !
-
-
-!classDefinition: #TransferTransaction category: #'Portfolio-Ejercicio'!
-Object subclass: #TransferTransaction
-	instanceVariableNames: 'transfer'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Portfolio-Ejercicio'!
-
-!TransferTransaction methodsFor: 'value' stamp: 'EB 5/29/2019 18:00:10'!
-affectBalance: aBalance
-	self subclassResponsibility.! !
-
-!TransferTransaction methodsFor: 'value' stamp: 'EB 5/29/2019 17:59:02'!
-value
-	^transfer value.! !
-
-
-!TransferTransaction methodsFor: 'initialization' stamp: 'EB 5/29/2019 17:59:06'!
-initializeFor: aTransfer
-	transfer _ aTransfer! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'TransferTransaction class' category: #'Portfolio-Ejercicio'!
-TransferTransaction class
-	instanceVariableNames: ''!
-
-!TransferTransaction class methodsFor: 'instance creation' stamp: 'EB 5/29/2019 17:59:10'!
-for: aTransfer
-	^self new initializeFor: aTransfer! !
-
-
-!classDefinition: #TransferDeposit category: #'Portfolio-Ejercicio'!
-TransferTransaction subclass: #TransferDeposit
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Portfolio-Ejercicio'!
-
-!TransferDeposit methodsFor: 'value' stamp: 'EB 5/29/2019 17:58:01'!
-affectBalance: aBalance
-	^aBalance + self value.! !
-
-
-!classDefinition: #TransferWithdraw category: #'Portfolio-Ejercicio'!
-TransferTransaction subclass: #TransferWithdraw
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Portfolio-Ejercicio'!
-
-!TransferWithdraw methodsFor: 'value' stamp: 'EB 5/29/2019 17:59:26'!
-affectBalance: aBalance
-	^aBalance - self value.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'TransferWithdraw class' category: #'Portfolio-Ejercicio'!
-TransferWithdraw class
-	instanceVariableNames: ''!
-
-!TransferWithdraw class methodsFor: 'as yet unclassified' stamp: 'EB 5/29/2019 17:31:18'!
-for: aTransfer
-	^self new initializeFor: aTransfer.! !
