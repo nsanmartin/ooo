@@ -93,9 +93,11 @@ del Proxy.
 
 ** ¿Qué es el problema de la “identidad” o de “self”? ¿En cuáles de estos patrones aplica?
 
-¿Será lo del become: que estaban hablando en el grupo de Telegram, o
-lo de que el == no está haciendo lo que tiene que hacer cuando 
-usás un Proxy polimórfico? Yo me tiro por la segunda.
+Aplica en el patrón Decorator. Es el problema de no poder intervenir en algunos envíos
+de mensajes luego de derivar la responsabilidad al decoratee, ya que self pasa a ser
+el decoratee en vez del decorator. Por lo tanto, es posible que algunas funcionalidades
+decoradoras no puedan realizarse sin recurrir a métodos más sofisticados, como el uso
+del #become:.
 
 * pregunta 4
 
