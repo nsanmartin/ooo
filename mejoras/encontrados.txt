@@ -12,10 +12,8 @@ actuales, por lo menos en Cuis-University.
 - Rename de variable de bloque cuando ya hay un bloque en el mismo método
 con ese nombre.
 - Cuando buscas actualSenders de value en ejericio 30 (Portfolio) Error: My subclass should have overridden #typesIn:addingIncompleteTypeInfoTo: 
-- El references to it no parece funcionar.
 - hacer control z después de tener errores de sintaxis
 - Eliminar una variable temporaria de un bloque
-- TemporaryToInstanceVariable con variable de bloque cuando hay otro bloque con el mismo nombre.
 - RenameTemporary con variable de bloque cuando hay otro bloque con el mismo nombre.
 
 Features:
@@ -33,6 +31,8 @@ te haga la acción.
 	- implement method object? (te crea una clase sólo con el método actual)
 	- Cambiar superclase a Object llevándose las instance variables necesarias.
 	- Mensaje de clase a mensaje de instancia?
+	- Insert abstract superclass
+	- Insert abstract method in superclass
 - Que sea fácil cambiar/agregar shortcuts.
 - find/replace in class/category/system.
 - si no hay mensajes para la categoría, debería existir la categoría?
@@ -62,9 +62,13 @@ estamos adentro de un block.
 - No sé si hay redo.
 - Shortcuts para abrir cada browser.
 - Formatter de código (espacio después del selector, enters en mensajes largos, etc.)
+- Cambiar categoría de mensajes de a muchos mensajes (con lo de multiple selección de mensajes debería ayudar)
 
 Arreglados:
 - Tratar de guardar un morph.
 - Renombrar un mensaje que no está siendo enviado por nadie.
 - No funciona el ctrl-shift-c para mostrar categoria
 - [https://github.com/hernanwilkinson/Cuis-Smalltalk-DenotativeObject/issues/34] Te deja poner objetos nuevos con nombre | (pipe), que rompe el programa
+- TemporaryToInstanceVariable con variable de bloque cuando hay otro bloque con el mismo nombre.
+- El syntax highlighter se caga cuando ponés || al principio. 
+- El references to it no parece funcionar (en realidad no funcionaba para instvars, lo cual está bien porque estaba para referencias a clases)
