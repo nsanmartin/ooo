@@ -15,6 +15,7 @@ con ese nombre.
 - hacer control z después de tener errores de sintaxis
 - Eliminar una variable temporaria de un bloque
 - RenameTemporary con variable de bloque cuando hay otro bloque con el mismo nombre.
+- Create inexistent class no actualiza la vista de clases en un Browser
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
@@ -33,6 +34,7 @@ te haga la acción.
 	- Mensaje de clase a mensaje de instancia?
 	- Insert abstract superclass
 	- Insert abstract method in superclass
+	- Create test for class, o create test class
 - Que sea fácil cambiar/agregar shortcuts.
 - find/replace in class/category/system.
 - si no hay mensajes para la categoría, debería existir la categoría?
