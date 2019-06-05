@@ -4,18 +4,14 @@ Bugs:
 - [No lo puedo reproducir] renombrar no elimina el nombre del registro de nombres o algo así.
 - [No sé qué quise decir] No podes poner explore it en el denotative object browser.
 - En Aconcagua -> baseunit -> initialization hay un mensaje intializeNameFomOne.
-- Tratar de hacer una variable de instancia cuando antes
-era una local, aunque hayas borrado la local.
 - FileList no soporta nombres con tilde.
-- Crear una clase inexistente desde el editor cuando te pregunta no actualiza vista de clases
-actuales, por lo menos en Cuis-University.
-- Rename de variable de bloque cuando ya hay un bloque en el mismo método
-con ese nombre.
 - Cuando buscas actualSenders de value en ejericio 30 (Portfolio) Error: My subclass should have overridden #typesIn:addingIncompleteTypeInfoTo: 
-- hacer control z después de tener errores de sintaxis
+- hacer control z después de tener errores de sintaxis cuando tenés un selector no
+reconocido en el código.
 - Eliminar una variable temporaria de un bloque
-- RenameTemporary con variable de bloque cuando hay otro bloque con el mismo nombre.
+- RenameTemporary con variable o argumento de bloque cuando hay otro bloque con el mismo nombre.
 - Create inexistent class no actualiza la vista de clases en un Browser
+- El Syntax Highlighter se rompe cuando creas un método con nombre ||
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
@@ -74,3 +70,5 @@ Arreglados:
 - TemporaryToInstanceVariable con variable de bloque cuando hay otro bloque con el mismo nombre.
 - El syntax highlighter se caga cuando ponés || al principio. 
 - El references to it no parece funcionar (en realidad no funcionaba para instvars, lo cual está bien porque estaba para referencias a clases)
+- Tratar de hacer una variable de instancia cuando antes
+era una local, aunque hayas borrado la local (Se semi arregló con el nuevo refactor)
