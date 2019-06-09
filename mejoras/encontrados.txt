@@ -10,6 +10,8 @@ Bugs:
 reconocido en el código.
 - Eliminar una variable temporaria de un bloque
 - RenameTemporary con variable o argumento de bloque cuando hay otro bloque con el mismo nombre.
+- RenameTemporary de argumento con variable temporaria adentro de otro bloque.
+(Estos dos son un quilombo de arreglar, el Encoder es el que devuelve mal las positionsForTemporaryVariable)
 - Create inexistent class no actualiza la vista de clases en un Browser
 - El Syntax Highlighter se rompe cuando creas un método con nombre ||
 
@@ -61,6 +63,7 @@ estamos adentro de un block.
 - Shortcuts para abrir cada browser.
 - Formatter de código (espacio después del selector, enters en mensajes largos, etc.)
 - Cambiar categoría de mensajes de a muchos mensajes (con lo de multiple selección de mensajes debería ayudar)
+- El browseIt deberia darse cuenta que hay un selector que tiene más de una palabra y browsear ese selector, como lo hace implementors of (o quizá no lo debería hacer y en eso se diferencia?)
 
 Arreglados:
 - Tratar de guardar un morph.
