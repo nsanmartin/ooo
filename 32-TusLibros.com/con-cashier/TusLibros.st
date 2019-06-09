@@ -5,36 +5,36 @@ TestCase subclass: #CartTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:14:53'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:28:48'!
 test01NewCartShouldBeEmpty
 	| cart |
-	cart _ Cart withCatalog: {}.
+	cart _ Cart withPriceList: {} asDictionary.
 	
 	self assert: cart isEmpty.! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:15:26'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:29:13'!
 test02CartWithAddedBookShouldContainBook
-	| cart bookIsbn catalog |
+	| cart bookIsbn priceList |
 	bookIsbn _ 123.
-	catalog _ {bookIsbn}.
-	cart _ Cart withCatalog: catalog.
+	priceList _ {bookIsbn -> 23} asDictionary.
+	cart _ Cart withPriceList: priceList.
 	
 	cart add: bookIsbn.
 	
 	self deny: cart isEmpty.
 	self assert: (cart containsBook: bookIsbn).! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:18:40'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:30:11'!
 test03EmptyCartShouldNotContainAnyBook
 	| cart |
-	cart _ Cart withCatalog: {}.
+	cart _ Cart withPriceList: {} asDictionary.
 	
 	self deny: (cart containsBook: 123).! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:22:16'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:30:27'!
 test04CantAddBookThatIsntInTheCatalog
 	| cart |
-	cart _ Cart withCatalog: {}.
+	cart _ Cart withPriceList: {} asDictionary.
 
 	self 
 		should: [cart add: 123]
@@ -46,10 +46,10 @@ test04CantAddBookThatIsntInTheCatalog
 			self deny: (cart containsBook: 123). 
 		].! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:27:53'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:07'!
 test05CartWithMoreThanOneBookAddedShouldContainAll
 	| cart |
-	cart _ Cart withCatalog: {1. 2}.
+	cart _ Cart withPriceList: {1 -> 1. 2 -> 2} asDictionary.
 	
 	cart add: 1.
 	cart add: 2.
@@ -58,10 +58,10 @@ test05CartWithMoreThanOneBookAddedShouldContainAll
 	self assert: (cart containsBook: 1).
 	self assert: (cart containsBook: 2).! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:31:46'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:21'!
 test06AddingABookMoreThanOnceShouldIncrementBookCount
 	| cart |
-	cart _ Cart withCatalog: {1. 2}.
+	cart _ Cart withPriceList: {1 -> 1. 2 -> 2} asDictionary.
 	
 	cart add: 1.
 	cart add: 1.
@@ -70,18 +70,18 @@ test06AddingABookMoreThanOnceShouldIncrementBookCount
 	self assert: (cart containsBook: 1).
 	self assert: 2 equals: (cart bookCount: 1).! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:37:04'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:37'!
 test07EmptyCartShouldHaveBookCount0ForAnyBook
 	| cart |
-	cart _ Cart withCatalog: {}.
+	cart _ Cart withPriceList: {} asDictionary.
 	 
 	self assert: cart isEmpty.
 	self assert: 0 equals: (cart bookCount: 1).! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:37:41'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:50'!
 test08CartWithOneBookShouldHaveBookCount1ForThatBook
 	| cart |
-	cart _ Cart withCatalog: {1. 2}.
+	cart _ Cart withPriceList: {1 -> 1. 2 -> 2} asDictionary.
 	
 	cart add: 1.
 	
@@ -89,10 +89,10 @@ test08CartWithOneBookShouldHaveBookCount1ForThatBook
 	self assert: 1 equals: (cart bookCount: 1).
 	self assert: 0 equals: (cart bookCount: 2).! !
 
-!CartTest methodsFor: 'tests' stamp: 'EB 5/31/2019 17:44:51'!
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:32:05'!
 test09ContentsOfCartShouldContainAllBooks
 	| cart contents |
-	cart _ Cart withCatalog: {1. 2. 3}.
+	cart _ Cart withPriceList: {1 -> 1. 2 -> 2. 3 -> 3} asDictionary.
 	
 	cart add: 1.
 	cart add: 2.
@@ -105,6 +105,28 @@ test09ContentsOfCartShouldContainAllBooks
 	self assert: 1 equals: (contents occurrencesOf: 2).
 	self assert: 0 equals: (contents occurrencesOf: 3).! !
 
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:34:04'!
+test10TotalPriceWithNoProductsShouldBe0
+
+	| cart |
+
+	cart _ Cart withPriceList: {} asDictionary.
+	
+	self assert: 0 equals: cart totalPrice.! !
+
+!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:38:45'!
+test11TotalPriceWithProductsShouldBeTheSumOfThePrices
+
+	| cart |
+
+	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
+	
+	cart add: 1.
+	cart add: 1.
+	cart add: 2.
+	
+	self assert: 7 equals: cart totalPrice.! !
+
 
 !classDefinition: #CashierTest category: #TusLibros!
 TestCase subclass: #CashierTest
@@ -113,80 +135,75 @@ TestCase subclass: #CashierTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 02:49:14'!
+!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:41:40'!
 test01CantCheckoutAnEmptyCart
-	| cart cashier |
-	cart _ Cart withCatalog: {}.
-	cashier _ Cashier withPriceList: Dictionary new.
 	
-	self should: [ cashier checkout: cart withBankAccount: BankAccountForTesting new ]
+	| cart cashier creditCard date |
+	
+	cart _ Cart withPriceList: {} asDictionary.
+	creditCard _ self sampleCreditCard. 
+	cashier _ Cashier forCart: cart withMerchantProcessor: {}.
+	
+	date _ FixedGregorianDate today.
+	
+	self should: [ cashier checkoutWithCreditCard: creditCard onDate: date ] 
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :exception |
 			self assert: Cashier cantCheckoutAnEmptyCartErrorMessage equals: exception messageText ]! !
 
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/4/2019 22:34:51'!
-test02CantCheckoutACartWithProductNotInPriceList
-	| cart cashier |
-	cart _ Cart withCatalog: {1}.
+!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:45:22'!
+test02CheckoutWithProductsShouldDebitTheRightAmountUsingTheCreditCard
+
+	| cart cashier creditCard merchantProcessor date |
+
+	cart _ Cart withPriceList: {1 -> 23. 2 -> 123} asDictionary.
 	cart add: 1.
-	cashier _ Cashier withPriceList: Dictionary new.
+	cart add: 1.
+	cart add: 2.
 	
-	self should: [ cashier checkout: cart withBankAccount: BankAccountForTesting new ]
+	merchantProcessor _ MerchantProcessorForTesting new.
+	cashier _ Cashier forCart: cart withMerchantProcessor: merchantProcessor. 
+	
+	creditCard _ self sampleCreditCardWithExpiration: (June of: 2019).
+	date _ FixedGregorianDate yearNumber: 2019 month: June dayNumber: 1.
+	
+	cashier checkoutWithCreditCard: creditCard onDate: date.
+	
+	self assert: cart totalPrice equals: merchantProcessor debitedAmount.
+	self assert: 1 equals: merchantProcessor usedCreditCards size.
+	self assert: creditCard equals: merchantProcessor usedCreditCards first.! !
+
+!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:46:39'!
+test03CantCheckoutWithExpiredCreditCard
+
+	| cart cashier creditCard merchantProcessor date |
+
+	cart _ Cart withPriceList: {1 -> 23. 2 -> 123} asDictionary.
+	cart add: 1.
+	cart add: 1.
+	cart add: 2.
+	
+	merchantProcessor _ MerchantProcessorForTesting new.
+	cashier _ Cashier forCart: cart withMerchantProcessor: merchantProcessor. 
+	
+	creditCard _ self sampleCreditCardWithExpiration: (June of: 2019).
+	date _ FixedGregorianDate yearNumber: 2020 month: January dayNumber: 1.
+	
+	self should: [ cashier checkoutWithCreditCard: creditCard onDate: date ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :exception |
-			self assert: (Cashier cartHasProductNotInPriceListErrorMessage: 1) equals: exception messageText ]! !
+			self assert: Cashier expiredCreditCardErrorMessage equals: exception messageText.
+			
+			self assert: 0 equals: merchantProcessor debitedAmount. ]! !
 
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/4/2019 22:35:21'!
-test03CheckoutWithProductsShouldDebitTheRightAmount
 
-	| cart cashier bankAccount |
+!CashierTest methodsFor: 'sample credit cards' stamp: 'EB 6/9/2019 19:44:02'!
+sampleCreditCard
+	^self sampleCreditCardWithExpiration: GregorianMonthOfYear current.! !
 
-	cart _ Cart withCatalog: {1. 2}.
-	cart add: 1.
-	cart add: 1.
-	cart add: 2.
-	cashier _ Cashier withPriceList: {1 -> 23. 2 -> 123} asDictionary.
-	
-	bankAccount _ BankAccountForTesting new.
-	cashier checkout: cart withBankAccount: bankAccount.
-	
-	self assert: 169 equals: bankAccount debited.	! !
-
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/4/2019 22:35:15'!
-test04CheckoutWithAProductNotInPriceListShouldNotDebitForAnyProduct
-
-	| cart cashier bankAccount |
-
-	cart _ Cart withCatalog: {1. 2}.
-	cart add: 2.
-	cart add: 2.
-	cart add: 1.
-	cashier _ Cashier withPriceList: {2 -> 23} asDictionary.
-	
-	bankAccount _ BankAccountForTesting new.
-	
-	self should: [ cashier checkout: cart withBankAccount: bankAccount ]
-		raise: Error - MessageNotUnderstood.
-	
-	self assert: 0 equals: bankAccount debited.! !
-
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/4/2019 22:35:08'!
-test05CheckoutShouldDebitJustOnce
-
-	| cart cashier bankAccount |
-
-	cart _ Cart withCatalog: {1. 2}.
-	cart add: 2.
-	cart add: 2.
-	cart add: 1.
-	cashier _ Cashier withPriceList: {1 -> 45. 2 -> 23} asDictionary.
-	
-	bankAccount _ BankAccountForTesting new.
-	
-	cashier checkout: cart withBankAccount: bankAccount.
-	
-	self assert: 91 equals: bankAccount debited.
-	self assert: bankAccount wasDebitedOnlyOnce.! !
+!CashierTest methodsFor: 'sample credit cards' stamp: 'EB 6/9/2019 19:29:32'!
+sampleCreditCardWithExpiration: anExpiration 
+	^CreditCard numbered: '1234567890123456' withOwner: 'JOSEFINA SMITH' andExpiration: anExpiration. ! !
 
 
 !classDefinition: #CreditCardTest category: #TusLibros!
@@ -240,38 +257,19 @@ test04CreditCardShouldNotBeExpiredBeforeExpirationYearMonth
 	
 	self deny: (creditCard isExpiredOnDate: notExpiredDate). ! !
 
-
-!classDefinition: #BankAccountForTesting category: #TusLibros!
-Object subclass: #BankAccountForTesting
-	instanceVariableNames: 'debited timesDebited'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
+!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/9/2019 17:59:30'!
+test05CantCreateCreditCardWithNumberLengthDifferentFrom16
 
-!BankAccountForTesting methodsFor: 'debiting' stamp: 'EB 6/4/2019 22:30:51'!
-debit: anAmount
-	timesDebited _ timesDebited + 1.
-	debited _ debited + anAmount.! !
-
-!BankAccountForTesting methodsFor: 'debiting' stamp: 'EB 6/4/2019 22:00:52'!
-debited
-	^debited! !
-
-
-!BankAccountForTesting methodsFor: 'initialization' stamp: 'EB 6/4/2019 22:30:29'!
-initialize
-	debited _ 0.
-	timesDebited _ 0.! !
-
-
-!BankAccountForTesting methodsFor: 'testing' stamp: 'EB 6/4/2019 22:31:05'!
-wasDebitedOnlyOnce
-	^timesDebited = 1.! !
+	self should: [ CreditCard numbered: '1' withOwner: 'PEPE SANCHEZ' andExpiration: (June of: 2019) ]
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: (CreditCard invalidNumberLengthErrorMessage: '1') equals: exception messageText ].
+	! !
 
 
 !classDefinition: #Cart category: #TusLibros!
 Object subclass: #Cart
-	instanceVariableNames: 'catalog books'
+	instanceVariableNames: 'books priceList'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -293,18 +291,27 @@ isEmpty
 	^books isEmpty.! !
 
 
-!Cart methodsFor: 'initialization' stamp: 'EB 5/31/2019 17:35:17'!
+!Cart methodsFor: 'initialization' stamp: 'EB 6/9/2019 18:35:51'!
 initializeWithCatalog: aCatalog 
-	catalog _ aCatalog.
+	priceList _ aCatalog.
 	books _ Bag new.! !
 
 
-!Cart methodsFor: 'adding books' stamp: 'EB 5/31/2019 17:29:56'!
+!Cart methodsFor: 'adding books' stamp: 'EB 6/9/2019 18:35:51'!
 add: aBookIsbn
-
-	(catalog includes: aBookIsbn) ifFalse: [
+	(priceList includesKey: aBookIsbn) ifFalse: [
 		self error: (self class bookNotInCatalogErrorMessage: 123) ].
 	books add: aBookIsbn.! !
+
+
+!Cart methodsFor: 'price' stamp: 'EB 6/9/2019 18:37:51'!
+totalPrice
+	^books sum: [ :book | priceList at: book ] ifEmpty: [0].! !
+
+
+!Cart methodsFor: 'accessing' stamp: 'EB 6/9/2019 18:43:19'!
+priceList
+	^priceList.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -312,8 +319,8 @@ add: aBookIsbn
 Cart class
 	instanceVariableNames: ''!
 
-!Cart class methodsFor: 'instance creation' stamp: 'EB 5/31/2019 16:56:15'!
-withCatalog: aCatalog 
+!Cart class methodsFor: 'instance creation' stamp: 'EB 6/9/2019 18:28:39'!
+withPriceList: aCatalog 
 	^self new initializeWithCatalog: aCatalog.! !
 
 
@@ -324,48 +331,36 @@ bookNotInCatalogErrorMessage: aBookIsbn
 
 !classDefinition: #Cashier category: #TusLibros!
 Object subclass: #Cashier
-	instanceVariableNames: 'priceList'
+	instanceVariableNames: 'priceList cart merchantProcessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'initialization' stamp: 'EB 6/4/2019 22:07:22'!
-initializeWithPriceList: aPriceList
+!Cashier methodsFor: 'initialization' stamp: 'EB 6/9/2019 19:08:43'!
+initializeForCart: aCart withMerchantProcessor: aMerchantProcessor 
+	cart _ aCart.
+	merchantProcessor _ aMerchantProcessor.! !
 
-	priceList _ aPriceList.! !
+
+!Cashier methodsFor: 'checkout' stamp: 'EB 6/9/2019 19:49:31'!
+checkoutWithCreditCard: aCreditCard onDate: aDate
+	self assertCartIsNotEmpty.
+	self assertCreditCard: aCreditCard isNotExpiredOnDate: aDate.
+	
+	merchantProcessor debit: cart totalPrice with: aCreditCard.
+! !
 
 
-!Cashier methodsFor: 'checkout' stamp: 'EB 6/4/2019 22:25:49'!
-calculateDebitAmountFor: aCart
+!Cashier methodsFor: 'assertions' stamp: 'EB 6/9/2019 19:47:44'!
+assertCartIsNotEmpty
 	
-	| products |
-	
-	products _ aCart contents.
-	self assertProductsInPriceList: products.
-	
-	^products sum: [ :product | priceList at: product ].! !
-
-!Cashier methodsFor: 'checkout' stamp: 'EB 6/4/2019 22:20:28'!
-checkout: aCart withBankAccount: aBankAccount
-	
-	self assertCartIsNotEmpty: aCart.
-	
-	aBankAccount debit: (self calculateDebitAmountFor: aCart).
-	
+	cart isEmpty ifTrue: [
+		self error: self class cantCheckoutAnEmptyCartErrorMessage ]. 
 	! !
 
-
-!Cashier methodsFor: 'assertions' stamp: 'EB 6/4/2019 22:07:18'!
-assertCartIsNotEmpty: aCart
-
-	aCart isEmpty ifTrue: [ self error: self class cantCheckoutAnEmptyCartErrorMessage ].! !
-
-!Cashier methodsFor: 'assertions' stamp: 'EB 6/4/2019 22:23:41'!
-assertProductsInPriceList: products
-	products do: [ :product |
-		(priceList includesKey: product) ifFalse: [
-			self error: (self class cartHasProductNotInPriceListErrorMessage: product) ].
-	].! !
+!Cashier methodsFor: 'assertions' stamp: 'EB 6/9/2019 19:49:55'!
+assertCreditCard: aCreditCard isNotExpiredOnDate: aDate
+	(aCreditCard isExpiredOnDate: aDate) ifTrue: [self error: self class expiredCreditCardErrorMessage ].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -373,26 +368,18 @@ assertProductsInPriceList: products
 Cashier class
 	instanceVariableNames: ''!
 
-!Cashier class methodsFor: 'instance creation' stamp: 'EB 6/4/2019 21:06:41'!
-withPriceList: aPriceList
-	^self new initializeWithPriceList: aPriceList.! !
+!Cashier class methodsFor: 'instance creation' stamp: 'EB 6/9/2019 18:40:55'!
+forCart: aCart withMerchantProcessor: aMerchantProcessor 
+	^self new initializeForCart: aCart withMerchantProcessor: aMerchantProcessor.! !
 
 
 !Cashier class methodsFor: 'error messages' stamp: 'EB 6/4/2019 21:02:44'!
 cantCheckoutAnEmptyCartErrorMessage
 	^'The cart is empty, there is nothing to checkout.'.! !
 
-!Cashier class methodsFor: 'error messages' stamp: 'EB 6/4/2019 21:12:27'!
-cartHasProductNotInPriceListErrorMessage: aProduct
-	^'The product ', aProduct asString, ' is not in the price list.'.! !
-
-!Cashier class methodsFor: 'error messages' stamp: 'EB 6/4/2019 21:10:53'!
-cartHasProductsNotInPriceListErrorMessage: anArray 
-	self shouldBeImplemented.! !
-
-!Cashier class methodsFor: 'error messages' stamp: 'EB 6/4/2019 21:27:55'!
-creditCardIsInvalidErrorMessage
-	^'The credit card supplied is invalid.'.! !
+!Cashier class methodsFor: 'error messages' stamp: 'EB 6/9/2019 19:39:13'!
+expiredCreditCardErrorMessage
+	^'The credit card is expired.'.! !
 
 
 !classDefinition: #CreditCard category: #TusLibros!
@@ -432,6 +419,42 @@ owner
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'instance creation' stamp: 'EB 6/9/2019 02:22:10'!
+!CreditCard class methodsFor: 'instance creation' stamp: 'EB 6/9/2019 18:02:53'!
 numbered: aCreditCardNumber withOwner: anOwner andExpiration: anExpirationMonthOfYear 
+	aCreditCardNumber size = 16 ifFalse: [
+		self error: (self invalidNumberLengthErrorMessage: aCreditCardNumber).
+		].
 	^self new initializeNumbered: aCreditCardNumber withOwner: anOwner andExpiration: anExpirationMonthOfYear.! !
+
+
+!CreditCard class methodsFor: 'error messages' stamp: 'EB 6/9/2019 18:04:00'!
+invalidNumberLengthErrorMessage: aCreditCardNumber
+	^'The credit card number must have 16 digits. The one provided was: ', aCreditCardNumber.! !
+
+
+!classDefinition: #MerchantProcessorForTesting category: #TusLibros!
+Object subclass: #MerchantProcessorForTesting
+	instanceVariableNames: 'debited creditCardsUsed'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!MerchantProcessorForTesting methodsFor: 'debiting' stamp: 'EB 6/9/2019 19:13:34'!
+debit: anAmount with: aCreditCard 
+	debited _ debited + anAmount.
+	creditCardsUsed add: aCreditCard.! !
+
+
+!MerchantProcessorForTesting methodsFor: 'initialization' stamp: 'EB 6/9/2019 19:14:31'!
+initialize
+	debited _ 0.
+	creditCardsUsed _ OrderedCollection new.! !
+
+
+!MerchantProcessorForTesting methodsFor: 'accessing' stamp: 'EB 6/9/2019 19:14:59'!
+debitedAmount
+	^debited! !
+
+!MerchantProcessorForTesting methodsFor: 'accessing' stamp: 'EB 6/9/2019 19:15:18'!
+usedCreditCards
+	^creditCardsUsed.! !
