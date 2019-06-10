@@ -266,6 +266,18 @@ test05CantCreateCreditCardWithNumberLengthDifferentFrom16
 			self assert: (CreditCard invalidNumberLengthErrorMessage: '1') equals: exception messageText ].
 	! !
 
+!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/10/2019 12:31:41'!
+test06NumberShouldHaveAllDigits
+
+	| number |
+	number _ '1234567890AB3456'.
+
+	self should: [ CreditCard numbered: number withOwner: 'PEPE SANCHEZ' andExpiration: (June of: 2019) ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :exception |
+			self assert: (CreditCard numberShouldConsistOfDigitsErrorMessage: number) equals: exception messageText ].
+	! !
+
 
 !classDefinition: #Cart category: #TusLibros!
 Object subclass: #Cart
@@ -419,17 +431,32 @@ owner
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'instance creation' stamp: 'EB 6/9/2019 18:02:53'!
+!CreditCard class methodsFor: 'instance creation' stamp: 'EB 6/10/2019 12:34:03'!
 numbered: aCreditCardNumber withOwner: anOwner andExpiration: anExpirationMonthOfYear 
-	aCreditCardNumber size = 16 ifFalse: [
-		self error: (self invalidNumberLengthErrorMessage: aCreditCardNumber).
-		].
+
+	self assertCreditCardNumberHasCorrectLength: aCreditCardNumber.
+	self assertCreditCardNumberIsAllDigits: aCreditCardNumber.
 	^self new initializeNumbered: aCreditCardNumber withOwner: anOwner andExpiration: anExpirationMonthOfYear.! !
 
 
 !CreditCard class methodsFor: 'error messages' stamp: 'EB 6/9/2019 18:04:00'!
 invalidNumberLengthErrorMessage: aCreditCardNumber
 	^'The credit card number must have 16 digits. The one provided was: ', aCreditCardNumber.! !
+
+!CreditCard class methodsFor: 'error messages' stamp: 'EB 6/10/2019 13:08:58'!
+numberShouldConsistOfDigitsErrorMessage: aCreditCardNumber
+	^'The number ', aCreditCardNumber, ' has characters that aren''t digits.'. ! !
+
+
+!CreditCard class methodsFor: 'assertions' stamp: 'EB 6/10/2019 12:32:53'!
+assertCreditCardNumberHasCorrectLength: aCreditCardNumber
+	aCreditCardNumber size = 16 ifFalse: [
+		self error: (self invalidNumberLengthErrorMessage: aCreditCardNumber) ].! !
+
+!CreditCard class methodsFor: 'assertions' stamp: 'EB 6/10/2019 12:33:46'!
+assertCreditCardNumberIsAllDigits: aCreditCardNumber
+	aCreditCardNumber allSatisfy: [ :character | character isDigit ] :: ifFalse: [
+		self error: (self numberShouldConsistOfDigitsErrorMessage: aCreditCardNumber) ].! !
 
 
 !classDefinition: #MerchantProcessorForTesting category: #TusLibros!
