@@ -135,21 +135,23 @@ TestCase subclass: #CashierTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:41:40'!
+!CashierTest methodsFor: 'tests' stamp: 'EB 6/10/2019 15:03:07'!
 test01CantCheckoutAnEmptyCart
 	
-	| cart cashier creditCard date |
+	| cart cashier creditCard date merchantProcessor |
 	
 	cart _ Cart withPriceList: {} asDictionary.
-	creditCard _ self sampleCreditCard. 
-	cashier _ Cashier forCart: cart withMerchantProcessor: {}.
+	merchantProcessor _ MerchantProcessorForTesting new.
+	cashier _ Cashier forCart: cart withMerchantProcessor: merchantProcessor.
 	
+	creditCard _ self sampleCreditCard. 
 	date _ FixedGregorianDate today.
 	
 	self should: [ cashier checkoutWithCreditCard: creditCard onDate: date ] 
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :exception |
-			self assert: Cashier cantCheckoutAnEmptyCartErrorMessage equals: exception messageText ]! !
+			self assert: Cashier cantCheckoutAnEmptyCartErrorMessage equals: exception messageText.
+			self assert: 0 equals: merchantProcessor debitedAmount. ]! !
 
 !CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:45:22'!
 test02CheckoutWithProductsShouldDebitTheRightAmountUsingTheCreditCard
