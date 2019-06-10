@@ -280,6 +280,15 @@ test06NumberShouldHaveAllDigits
 			self assert: (CreditCard numberShouldConsistOfDigitsErrorMessage: number) equals: exception messageText ].
 	! !
 
+!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/10/2019 15:27:14'!
+test07OwnerCantBeEmpty
+
+	self should: [ CreditCard numbered: '1234567890123456' withOwner: '' andExpiration: (June of: 2019) ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :exception |
+			self assert: CreditCard ownerEmptyErrorMessage equals: exception messageText ].
+	! !
+
 
 !classDefinition: #Cart category: #TusLibros!
 Object subclass: #Cart
@@ -433,11 +442,12 @@ owner
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'instance creation' stamp: 'EB 6/10/2019 12:34:03'!
+!CreditCard class methodsFor: 'instance creation' stamp: 'EB 6/10/2019 15:42:41'!
 numbered: aCreditCardNumber withOwner: anOwner andExpiration: anExpirationMonthOfYear 
 
 	self assertCreditCardNumberHasCorrectLength: aCreditCardNumber.
 	self assertCreditCardNumberIsAllDigits: aCreditCardNumber.
+	self assertOwnerNotEmpty: anOwner.
 	^self new initializeNumbered: aCreditCardNumber withOwner: anOwner andExpiration: anExpirationMonthOfYear.! !
 
 
@@ -449,6 +459,10 @@ invalidNumberLengthErrorMessage: aCreditCardNumber
 numberShouldConsistOfDigitsErrorMessage: aCreditCardNumber
 	^'The number ', aCreditCardNumber, ' has characters that aren''t digits.'. ! !
 
+!CreditCard class methodsFor: 'error messages' stamp: 'EB 6/10/2019 15:30:14'!
+ownerEmptyErrorMessage
+	^'The owner can''t be empty.'.! !
+
 
 !CreditCard class methodsFor: 'assertions' stamp: 'EB 6/10/2019 12:32:53'!
 assertCreditCardNumberHasCorrectLength: aCreditCardNumber
@@ -459,6 +473,11 @@ assertCreditCardNumberHasCorrectLength: aCreditCardNumber
 assertCreditCardNumberIsAllDigits: aCreditCardNumber
 	aCreditCardNumber allSatisfy: [ :character | character isDigit ] :: ifFalse: [
 		self error: (self numberShouldConsistOfDigitsErrorMessage: aCreditCardNumber) ].! !
+
+!CreditCard class methodsFor: 'assertions' stamp: 'EB 6/10/2019 15:42:53'!
+assertOwnerNotEmpty: anOwner
+
+	anOwner isEmpty ifTrue: [ self error: self ownerEmptyErrorMessage ].! !
 
 
 !classDefinition: #MerchantProcessorForTesting category: #TusLibros!
