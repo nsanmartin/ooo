@@ -127,6 +127,51 @@ test11TotalPriceWithProductsShouldBeTheSumOfThePrices
 	
 	self assert: 7 equals: cart totalPrice.! !
 
+!CartTest methodsFor: 'tests' stamp: 'EB 6/11/2019 17:04:25'!
+test12AddOfWithOneBookShouldAddIt
+
+	| cart |
+
+	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
+	
+	cart add: 1 of: 1.
+	
+	self deny: cart isEmpty.
+	self assert: (cart containsBook: 1).
+	self assert: 1 equals: (cart bookCount: 1).! !
+
+!CartTest methodsFor: 'tests' stamp: 'EB 6/11/2019 17:06:36'!
+test13AddOfWithMoreThanOneBookShouldAddAllBooks
+
+	| cart |
+
+	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
+	
+	cart add: 2 of: 1.
+	cart add: 3 of: 2.
+	
+	self deny: cart isEmpty.
+	self assert: (cart containsBook: 1).
+	self assert: (cart containsBook: 2).
+	self assert: 2 equals: (cart bookCount: 1).
+	self assert: 3 equals: (cart bookCount: 2).! !
+
+!CartTest methodsFor: 'tests' stamp: 'EB 6/11/2019 17:17:08'!
+test14CantAddBooksWithNegativeAmount
+
+	| cart |
+
+	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
+	
+	self should: [ cart add: -1 of: 1 ]
+		raise: Error
+		withExceptionDo: [ :exception |
+			self assert: Cart cantAddANegativeAmountOfProductsErrorMessage equals: exception messageText.
+			
+			self assert: cart isEmpty.
+			self deny: (cart containsBook: 1).
+			self assert: 0 equals: (cart bookCount: 1). ].! !
+
 
 !classDefinition: #CashierTest category: #TusLibros!
 TestCase subclass: #CashierTest
@@ -320,11 +365,18 @@ initializeWithCatalog: aCatalog
 	books _ Bag new.! !
 
 
-!Cart methodsFor: 'adding books' stamp: 'EB 6/9/2019 18:35:51'!
+!Cart methodsFor: 'adding books' stamp: 'EB 6/11/2019 17:11:29'!
 add: aBookIsbn
+	self add: 1 of: aBookIsbn.! !
+
+!Cart methodsFor: 'adding books' stamp: 'EB 6/11/2019 17:18:20'!
+add: anAmount of: aBookIsbn 
 	(priceList includesKey: aBookIsbn) ifFalse: [
 		self error: (self class bookNotInCatalogErrorMessage: 123) ].
-	books add: aBookIsbn.! !
+	anAmount < 0 ifTrue: [
+		self error: self class cantAddANegativeAmountOfProductsErrorMessage ].
+	books add: aBookIsbn withOccurrences: anAmount.
+	! !
 
 
 !Cart methodsFor: 'price' stamp: 'EB 6/9/2019 18:37:51'!
@@ -350,6 +402,10 @@ withPriceList: aCatalog
 !Cart class methodsFor: 'error messages' stamp: 'EB 5/31/2019 17:25:26'!
 bookNotInCatalogErrorMessage: aBookIsbn 
 	^'The book with ISBN ', aBookIsbn asString, ' isn''t present in the catalog.'.! !
+
+!Cart class methodsFor: 'error messages' stamp: 'EB 6/11/2019 17:19:28'!
+cantAddANegativeAmountOfProductsErrorMessage
+	^'Can''t add a negative amount of books.'.! !
 
 
 !classDefinition: #Cashier category: #TusLibros!
