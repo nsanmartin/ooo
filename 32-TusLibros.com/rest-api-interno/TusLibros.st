@@ -734,7 +734,7 @@ test23TwoDifferentCheckoutsShouldHaveDifferentTransactionIds
 	
 	self deny: firstTransactionId = secondTransactionId. ! !
 
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:20:45'!
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 14:02:12'!
 test24CantCheckoutSameCartTwice
 
 	| api cartId |
@@ -747,11 +747,11 @@ test24CantCheckoutSameCartTwice
 	
 	extendedAssertions
 		should: [ self checkout: cartId withValidCreditCardInApi: api ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: cartId)
+		raiseErrorWithMessageText: (TusLibrosApi cartAlreadyCheckedOutErrorMessage: cartId)
 		withExceptionDo: [ :exception |
 			self assert: 2 equals: merchantProcessor debitedAmount ].! !
 
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 14:28:33'!
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:48:26'!
 test25CantAddToCartAfter30MinutesHavePassed
 
 	| api cartId |
@@ -763,9 +763,9 @@ test25CantAddToCartAfter30MinutesHavePassed
 	
 	extendedAssertions
 		should: [ api add: 1 ofBookWithIsbn: 1 toCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: cartId)! !
+		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
 
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 14:28:41'!
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:57:37'!
 test26CantCheckoutCartAfter30MinutesHavePassedSinceCreation
 
 	| api cartId |
@@ -778,10 +778,10 @@ test26CantCheckoutCartAfter30MinutesHavePassedSinceCreation
 	
 	extendedAssertions
 		should: [ self checkout: cartId withValidCreditCardInApi: api ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: cartId)! !
+		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
 
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 14:28:55'!
-test27CanCheckoutCartWhenUsingTheCartBeforeThe30MinutesHavePassed
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:46:09'!
+test27AddingToCartResets30MinuteDeleteTimer
 
 	| api cartId |
 
@@ -797,8 +797,8 @@ test27CanCheckoutCartWhenUsingTheCartBeforeThe30MinutesHavePassed
 	
 	self assert: 2 equals: merchantProcessor debitedAmount.! !
 
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 14:29:09'!
-test28CantCheckoutCartAfter30MinutesHavePassed
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:57:45'!
+test28CantCheckoutCartAfter30MinutesHavePassedSinceAdding
 
 	| api cartId |
 
@@ -812,9 +812,9 @@ test28CantCheckoutCartAfter30MinutesHavePassed
 	
 	extendedAssertions
 		should: [ self checkout: cartId withValidCreditCardInApi: api ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: cartId)! !
+		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
 
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 22:40:57'!
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:57:51'!
 test29CantListCartAfter30MinutesHavePassed
 
 	| api cartId |
@@ -825,7 +825,7 @@ test29CantListCartAfter30MinutesHavePassed
 	
 	extendedAssertions
 		should: [ api listCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: cartId)! !
+		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
 
 !TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 22:43:49'!
 test30ListingCartResets30MinuteDeleteTimer
@@ -1194,12 +1194,12 @@ usedCreditCards
 
 !classDefinition: #TusLibrosApi category: #TusLibros!
 Object subclass: #TusLibrosApi
-	instanceVariableNames: 'userAuthenticator lastCartId carts priceList clock merchantProcessor clientIdPerCart purchasesPerClient lastTransactionId lastUsePerCart'
+	instanceVariableNames: 'userAuthenticator lastCartId carts priceList clock merchantProcessor clientIdPerCart purchasesPerClient lastTransactionId lastUsePerCart checkedOutCarts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosApi methodsFor: 'initialization' stamp: 'EB 6/15/2019 20:37:42'!
+!TusLibrosApi methodsFor: 'initialization' stamp: 'EB 6/18/2019 14:07:44'!
 initializeAuthenticatingWith: anUserAuthenticator debitingFrom: aMerchantProcessor withPriceList: aPriceList andClock: aClock  
 	userAuthenticator _ anUserAuthenticator.
 	merchantProcessor _ aMerchantProcessor.
@@ -1211,16 +1211,17 @@ initializeAuthenticatingWith: anUserAuthenticator debitingFrom: aMerchantProcess
 	carts _ Dictionary new.
 	purchasesPerClient _ Dictionary new.
 	clientIdPerCart _ Dictionary new.
-	lastUsePerCart _ Dictionary new.! !
+	lastUsePerCart _ Dictionary new.
+	checkedOutCarts _ Set new.! !
 
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:46:39'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 13:53:20'!
 add: anAmount ofBookWithIsbn: aBookIsbn toCart: aCartId 
 	
 	| cart |
 	
 	self assertAmountIsGreaterThanZero: anAmount.
-	self removeCartIf30MinutesHavePassedSinceLastUse: aCartId.
+	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
 	self logLastUsedTimeForCart: aCartId.
 	
 	cart _ self cartWithId: aCartId.
@@ -1236,13 +1237,15 @@ addCartContentsToClientPurchases: aCartId
 	cart _ self cartWithId: aCartId.
 	clientPurchases addFromCart: cart.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:49:49'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:11:01'!
 checkout: aCartId withCreditCard: aCreditCard
 
-	self removeCartIf30MinutesHavePassedSinceLastUse: aCartId.
+	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
+	self assertCartHasntBeenCheckedOut: aCartId.
+	
 	self debitCart: aCartId withCreditCard: aCreditCard.
 	self addCartContentsToClientPurchases: aCartId.
-	self removeCart: aCartId.
+	checkedOutCarts add: aCartId.
 	
 	^self nextTransactionId.! !
 
@@ -1270,49 +1273,37 @@ debitCart: aCartId withCreditCard: aCreditCard
 	cashier checkoutWithCreditCard: aCreditCard onDate: clock now.
 ! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:46:39'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:00:32'!
 listCart: aCartId 
 	
-	self removeCartIf30MinutesHavePassedSinceLastUse: aCartId.
+	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
 	self logLastUsedTimeForCart: aCartId.
-	^ (self cartWithId: aCartId) contents.! !
+	
+	^(self cartWithId: aCartId) contents.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:46:39'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:00:45'!
 logLastUsedTimeForCart: aCartId
+
 	lastUsePerCart at: aCartId put: clock now.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:47:52'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:00:51'!
 nextCartId
+
 	^lastCartId _ lastCartId + 1.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:49:31'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:00:54'!
 nextTransactionId
+
 	^lastTransactionId _ lastTransactionId + 1.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:24:59'!
-removeCart: aCartId
 
-	carts removeKey: aCartId.
-	lastUsePerCart removeKey: aCartId.
-	clientIdPerCart removeKey: aCartId.! !
-
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:23:39'!
-removeCartIf30MinutesHavePassedSinceLastUse: aCartId
+!TusLibrosApi methodsFor: 'assertions' stamp: 'EB 6/18/2019 13:53:20'!
+assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId
 	lastUsePerCart at: aCartId ifPresent: [ :lastUsed |
 		(self thirtyMinutesHavePassedSince: lastUsed) ifTrue: [ 
-			self removeCart: aCartId.
+			self error: (self class cartHasExpiredErrorMessage: aCartId).
 		]
 	].! !
-
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:21:19'!
-thirtyMinutesHavePassedSince: aTimePoint
-	
-	| thirtyMinutes |
-	
-	thirtyMinutes _ 30 * TimeUnits minute.
-	^(aTimePoint distanceTo: clock now) >= thirtyMinutes.
-! !
-
 
 !TusLibrosApi methodsFor: 'assertions' stamp: 'EB 6/15/2019 17:14:42'!
 assertAmountIsGreaterThanZero: anAmount
@@ -1323,6 +1314,21 @@ assertAmountIsGreaterThanZero: anAmount
 assertCanAuthenticateClient: aClientId withPassword: aPassword
 	(userAuthenticator authenticate: aClientId withPassword: aPassword) ifFalse: [
 		self error: self class invalidUserCredentialsErrorMessage ].
+! !
+
+!TusLibrosApi methodsFor: 'assertions' stamp: 'EB 6/18/2019 14:10:38'!
+assertCartHasntBeenCheckedOut: aCartId
+	(checkedOutCarts includes: aCartId) ifTrue: [
+		self error: (self class cartAlreadyCheckedOutErrorMessage: aCartId) ].
+	! !
+
+!TusLibrosApi methodsFor: 'assertions' stamp: 'EB 6/16/2019 22:21:19'!
+thirtyMinutesHavePassedSince: aTimePoint
+	
+	| thirtyMinutes |
+	
+	thirtyMinutes _ 30 * TimeUnits minute.
+	^(aTimePoint distanceTo: clock now) >= thirtyMinutes.
 ! !
 
 
@@ -1369,9 +1375,17 @@ authenticatingWith: anUserAuthenticator debitingFrom: aMerchantProcessor withPri
 amountToAddCantBeLessThan1ErrorMessage: anAmount
 	^'Can''t add ', anAmount asString, ' books to cart; the amount must be greater than zero.'.! !
 
+!TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/18/2019 14:03:19'!
+cartAlreadyCheckedOutErrorMessage: aCartId 
+	^'The cart with ID ', aCartId asString, ' has already been checked out; it can''t be checked out again.'.! !
+
 !TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/11/2019 20:08:55'!
 cartDoesNotExistErrorMessage: aCartId 
 	^'The cart with ID ', aCartId asString, ' does not exist.'.! !
+
+!TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/18/2019 13:50:35'!
+cartHasExpiredErrorMessage: aCartId 
+	^'30 minutes have passed from the last use of the cart with ID ', aCartId asString, '; it has expired.'.! !
 
 !TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/11/2019 17:38:05'!
 invalidUserCredentialsErrorMessage
