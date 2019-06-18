@@ -65,6 +65,9 @@ estamos adentro de un block.
 - Cambiar categoría de mensajes de a muchos mensajes (con lo de multiple selección de mensajes debería ayudar)
 - El browseIt deberia darse cuenta que hay un selector que tiene más de una palabra y browsear ese selector, como lo hace implementors of (o quizá no lo debería hacer y en eso se diferencia?)
 - El undo no hace undo por palabra, sino que hace por tiempo. Todos los otros editores lo hacen por palabra. Creo que no hay ninguno que lo haga por tiempo.
+- FileList con posibilidad de escribir el path al archivo.
+- Search en el popup de seleccionar un selector, cuando te dice de crear uno el debugger, por ejemplo.
+- Agregar selector #- en las clases de GregorianDateTime que te diga la diferencia entre dos (básicamente el #distanceTo: pero con otro nombre).
 
 Arreglados:
 - Tratar de guardar un morph.
