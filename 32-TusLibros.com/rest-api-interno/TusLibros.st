@@ -847,6 +847,40 @@ test30ListingCartResets30MinuteDeleteTimer
 	self assert: 1 equals: (contents occurrencesOf: 1).
 	! !
 
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/22/2019 00:33:16'!
+test31CantListCartAfterCheckout
+
+	| api cartId |
+	
+	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
+	cartId _ self createCartWithValidCredentialsInApi: api.
+	api add: 1 ofBookWithIsbn: 1 toCart: cartId. 	
+	
+	self checkout: cartId withValidCreditCardInApi: api.
+	
+	extendedAssertions
+		should: [ api listCart: cartId ]
+		raiseErrorWithMessageText: (TusLibrosApi cartAlreadyCheckedOutErrorMessage: cartId)
+		withExceptionDo: [ :exception |
+			self assert: 2 equals: merchantProcessor debitedAmount ].! !
+
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/22/2019 00:33:42'!
+test32CantAddToCartAfterCheckout
+
+	| api cartId |
+	
+	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
+	cartId _ self createCartWithValidCredentialsInApi: api.
+	api add: 1 ofBookWithIsbn: 1 toCart: cartId. 	
+	
+	self checkout: cartId withValidCreditCardInApi: api.
+	
+	extendedAssertions
+		should: [ api add: 1 ofBookWithIsbn: 1 toCart: cartId ]
+		raiseErrorWithMessageText: (TusLibrosApi cartAlreadyCheckedOutErrorMessage: cartId)
+		withExceptionDo: [ :exception |
+			self assert: 2 equals: merchantProcessor debitedAmount ].! !
+
 
 !TusLibrosApiTest methodsFor: 'simulating' stamp: 'EB 6/15/2019 19:21:08'!
 authenticate: aClient withPassword: aPassword
@@ -1215,12 +1249,13 @@ initializeAuthenticatingWith: anUserAuthenticator debitingFrom: aMerchantProcess
 	checkedOutCarts _ Set new.! !
 
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 13:53:20'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/22/2019 00:34:09'!
 add: anAmount ofBookWithIsbn: aBookIsbn toCart: aCartId 
 	
 	| cart |
 	
 	self assertAmountIsGreaterThanZero: anAmount.
+	self assertCartHasntBeenCheckedOut: aCartId.
 	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
 	self logLastUsedTimeForCart: aCartId.
 	
@@ -1237,11 +1272,11 @@ addCartContentsToClientPurchases: aCartId
 	cart _ self cartWithId: aCartId.
 	clientPurchases addFromCart: cart.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:11:01'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/22/2019 00:34:38'!
 checkout: aCartId withCreditCard: aCreditCard
 
-	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
 	self assertCartHasntBeenCheckedOut: aCartId.
+	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
 	
 	self debitCart: aCartId withCreditCard: aCreditCard.
 	self addCartContentsToClientPurchases: aCartId.
@@ -1273,9 +1308,10 @@ debitCart: aCartId withCreditCard: aCreditCard
 	cashier checkoutWithCreditCard: aCreditCard onDate: clock now.
 ! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/18/2019 14:00:32'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/22/2019 00:34:52'!
 listCart: aCartId 
 	
+	self assertCartHasntBeenCheckedOut: aCartId.
 	self assert30MinutesHaventPassedSinceLastUseOfCartWithId: aCartId.
 	self logLastUsedTimeForCart: aCartId.
 	
@@ -1375,9 +1411,9 @@ authenticatingWith: anUserAuthenticator debitingFrom: aMerchantProcessor withPri
 amountToAddCantBeLessThan1ErrorMessage: anAmount
 	^'Can''t add ', anAmount asString, ' books to cart; the amount must be greater than zero.'.! !
 
-!TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/18/2019 14:03:19'!
+!TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/22/2019 00:32:32'!
 cartAlreadyCheckedOutErrorMessage: aCartId 
-	^'The cart with ID ', aCartId asString, ' has already been checked out; it can''t be checked out again.'.! !
+	^'The cart with ID ', aCartId asString, ' has already been checked out; it can''t be operated on.'.! !
 
 !TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/11/2019 20:08:55'!
 cartDoesNotExistErrorMessage: aCartId 
