@@ -6,8 +6,6 @@ Bugs:
 - En Aconcagua -> baseunit -> initialization hay un mensaje intializeNameFomOne.
 - FileList no soporta nombres con tilde.
 - Cuando buscas actualSenders de value en ejericio 30 (Portfolio) Error: My subclass should have overridden #typesIn:addingIncompleteTypeInfoTo: 
-- hacer control z después de tener errores de sintaxis cuando tenés un selector no
-reconocido en el código.
 - Eliminar una variable temporaria de un bloque
 - RenameTemporary con variable o argumento de bloque cuando hay otro bloque con el mismo nombre.
 - RenameTemporary de argumento con variable temporaria adentro de otro bloque.
@@ -68,6 +66,7 @@ estamos adentro de un block.
 - FileList con posibilidad de escribir el path al archivo.
 - Search en el popup de seleccionar un selector, cuando te dice de crear uno el debugger, por ejemplo.
 - Agregar selector #- en las clases de GregorianDateTime que te diga la diferencia entre dos (básicamente el #distanceTo: pero con otro nombre).
+- Zoomear con la ruedita (que se agrande la letra o algo así).
 
 Arreglados:
 - Tratar de guardar un morph.
@@ -79,3 +78,5 @@ Arreglados:
 - El references to it no parece funcionar (en realidad no funcionaba para instvars, lo cual está bien porque estaba para referencias a clases)
 - Tratar de hacer una variable de instancia cuando antes
 era una local, aunque hayas borrado la local (Se semi arregló con el nuevo refactor)
+- hacer control z después de tener errores de sintaxis cuando tenés un selector no
+reconocido en el código.
