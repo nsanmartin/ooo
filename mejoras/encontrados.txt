@@ -50,6 +50,8 @@ también.
 	- Seleccionar línea
 	- Comentar línea
 	- Indentar/desindentar línea
+	- Ir al matching bracket
+	- Ir al metodo en un browser
 - Mensaje contains: para Set.
 - Hacer que el ChangeList no te borre los cambios que querés ignorar en este
 ChangeSet, para poder agregarlos en el próximo.
@@ -67,6 +69,19 @@ estamos adentro de un block.
 - Search en el popup de seleccionar un selector, cuando te dice de crear uno el debugger, por ejemplo.
 - Agregar selector #- en las clases de GregorianDateTime que te diga la diferencia entre dos (básicamente el #distanceTo: pero con otro nombre).
 - Zoomear con la ruedita (que se agrande la letra o algo así).
+- No mostrar como editado en el SmallTalkEditor cuando no quedan undos por hacer (para eso quizá habría que poder hacer undo de refactors).
+- Regla horizontal para no pasarse de la línea 80 cuando se está escribiendo.
+- Doble click en la parte de arriba de una ventana para agrandarla.
+- El autocomplete no toma en cuenta la parte anterior del mensaje. Por ejemplo, si está tipo
+self should: 'hola' rai
+y querés autocompletar el rai, no te lo autocompleta bien.
+- El autocomplete te borra la palabra hasta el final. si por ejemplo estás autocompletando
+self shouself
+y estás después de la u, te queda
+self should:
+- El ctrl+m si estás en un bloque y hay un mensaje en la misma línea se fija el mensaje antes del bloque. Por ejemplo, si estás en
+self should: [self mensaje]
+y hacés ctrl+m en mensaje, te va a mostrar implementors de should:
 
 Arreglados:
 - Tratar de guardar un morph.

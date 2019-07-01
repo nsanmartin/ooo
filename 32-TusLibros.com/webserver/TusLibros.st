@@ -1,996 +1,3 @@
-!classDefinition: #CartTest category: #TusLibros!
-TestCase subclass: #CartTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:28:48'!
-test01NewCartShouldBeEmpty
-	| cart |
-	cart _ Cart withPriceList: {} asDictionary.
-	
-	self assert: cart isEmpty.! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:29:13'!
-test02CartWithAddedBookShouldContainBook
-	| cart bookIsbn priceList |
-	bookIsbn _ 123.
-	priceList _ {bookIsbn -> 23} asDictionary.
-	cart _ Cart withPriceList: priceList.
-	
-	cart add: bookIsbn.
-	
-	self deny: cart isEmpty.
-	self assert: (cart containsBook: bookIsbn).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:30:11'!
-test03EmptyCartShouldNotContainAnyBook
-	| cart |
-	cart _ Cart withPriceList: {} asDictionary.
-	
-	self deny: (cart containsBook: 123).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:30:27'!
-test04CantAddBookThatIsntInTheCatalog
-	| cart |
-	cart _ Cart withPriceList: {} asDictionary.
-
-	self 
-		should: [cart add: 123]
-		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (Cart bookNotInCatalogErrorMessage: 123) equals: exception messageText.
-			
-			self assert: cart isEmpty.
-			self deny: (cart containsBook: 123). 
-		].! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:07'!
-test05CartWithMoreThanOneBookAddedShouldContainAll
-	| cart |
-	cart _ Cart withPriceList: {1 -> 1. 2 -> 2} asDictionary.
-	
-	cart add: 1.
-	cart add: 2.
-	 
-	self deny: cart isEmpty.
-	self assert: (cart containsBook: 1).
-	self assert: (cart containsBook: 2).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:21'!
-test06AddingABookMoreThanOnceShouldIncrementBookCount
-	| cart |
-	cart _ Cart withPriceList: {1 -> 1. 2 -> 2} asDictionary.
-	
-	cart add: 1.
-	cart add: 1.
-	 
-	self deny: cart isEmpty.
-	self assert: (cart containsBook: 1).
-	self assert: 2 equals: (cart bookCount: 1).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:37'!
-test07EmptyCartShouldHaveBookCount0ForAnyBook
-	| cart |
-	cart _ Cart withPriceList: {} asDictionary.
-	 
-	self assert: cart isEmpty.
-	self assert: 0 equals: (cart bookCount: 1).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:31:50'!
-test08CartWithOneBookShouldHaveBookCount1ForThatBook
-	| cart |
-	cart _ Cart withPriceList: {1 -> 1. 2 -> 2} asDictionary.
-	
-	cart add: 1.
-	
-	self deny: cart isEmpty.
-	self assert: 1 equals: (cart bookCount: 1).
-	self assert: 0 equals: (cart bookCount: 2).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:32:05'!
-test09ContentsOfCartShouldContainAllBooks
-	| cart contents |
-	cart _ Cart withPriceList: {1 -> 1. 2 -> 2. 3 -> 3} asDictionary.
-	
-	cart add: 1.
-	cart add: 2.
-	cart add: 1.
-	
-	contents _ cart contents.
-	
-	self deny: cart isEmpty.
-	self assert: 2 equals: (contents occurrencesOf: 1).
-	self assert: 1 equals: (contents occurrencesOf: 2).
-	self assert: 0 equals: (contents occurrencesOf: 3).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:34:04'!
-test10TotalPriceWithNoProductsShouldBe0
-
-	| cart |
-
-	cart _ Cart withPriceList: {} asDictionary.
-	
-	self assert: 0 equals: cart totalPrice.! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/9/2019 18:38:45'!
-test11TotalPriceWithProductsShouldBeTheSumOfThePrices
-
-	| cart |
-
-	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
-	
-	cart add: 1.
-	cart add: 1.
-	cart add: 2.
-	
-	self assert: 7 equals: cart totalPrice.! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/11/2019 17:04:25'!
-test12AddOfWithOneBookShouldAddIt
-
-	| cart |
-
-	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
-	
-	cart add: 1 of: 1.
-	
-	self deny: cart isEmpty.
-	self assert: (cart containsBook: 1).
-	self assert: 1 equals: (cart bookCount: 1).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/11/2019 17:06:36'!
-test13AddOfWithMoreThanOneBookShouldAddAllBooks
-
-	| cart |
-
-	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
-	
-	cart add: 2 of: 1.
-	cart add: 3 of: 2.
-	
-	self deny: cart isEmpty.
-	self assert: (cart containsBook: 1).
-	self assert: (cart containsBook: 2).
-	self assert: 2 equals: (cart bookCount: 1).
-	self assert: 3 equals: (cart bookCount: 2).! !
-
-!CartTest methodsFor: 'tests' stamp: 'EB 6/11/2019 17:17:08'!
-test14CantAddBooksWithNegativeAmount
-
-	| cart |
-
-	cart _ Cart withPriceList: {1 -> 2. 2 -> 3} asDictionary. 
-	
-	self should: [ cart add: -1 of: 1 ]
-		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: Cart cantAddANegativeAmountOfProductsErrorMessage equals: exception messageText.
-			
-			self assert: cart isEmpty.
-			self deny: (cart containsBook: 1).
-			self assert: 0 equals: (cart bookCount: 1). ].! !
-
-
-!classDefinition: #CashierTest category: #TusLibros!
-TestCase subclass: #CashierTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/10/2019 15:03:07'!
-test01CantCheckoutAnEmptyCart
-	
-	| cart cashier creditCard date merchantProcessor |
-	
-	cart _ Cart withPriceList: {} asDictionary.
-	merchantProcessor _ MerchantProcessorForTesting new.
-	cashier _ Cashier forCart: cart withMerchantProcessor: merchantProcessor.
-	
-	creditCard _ self sampleCreditCard. 
-	date _ FixedGregorianDate today.
-	
-	self should: [ cashier checkoutWithCreditCard: creditCard onDate: date ] 
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :exception |
-			self assert: Cashier cantCheckoutAnEmptyCartErrorMessage equals: exception messageText.
-			self assert: 0 equals: merchantProcessor debitedAmount. ]! !
-
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:45:22'!
-test02CheckoutWithProductsShouldDebitTheRightAmountUsingTheCreditCard
-
-	| cart cashier creditCard merchantProcessor date |
-
-	cart _ Cart withPriceList: {1 -> 23. 2 -> 123} asDictionary.
-	cart add: 1.
-	cart add: 1.
-	cart add: 2.
-	
-	merchantProcessor _ MerchantProcessorForTesting new.
-	cashier _ Cashier forCart: cart withMerchantProcessor: merchantProcessor. 
-	
-	creditCard _ self sampleCreditCardWithExpiration: (June of: 2019).
-	date _ FixedGregorianDate yearNumber: 2019 month: June dayNumber: 1.
-	
-	cashier checkoutWithCreditCard: creditCard onDate: date.
-	
-	self assert: cart totalPrice equals: merchantProcessor debitedAmount.
-	self assert: 1 equals: merchantProcessor usedCreditCards size.
-	self assert: creditCard equals: merchantProcessor usedCreditCards first.! !
-
-!CashierTest methodsFor: 'tests' stamp: 'EB 6/9/2019 19:46:39'!
-test03CantCheckoutWithExpiredCreditCard
-
-	| cart cashier creditCard merchantProcessor date |
-
-	cart _ Cart withPriceList: {1 -> 23. 2 -> 123} asDictionary.
-	cart add: 1.
-	cart add: 1.
-	cart add: 2.
-	
-	merchantProcessor _ MerchantProcessorForTesting new.
-	cashier _ Cashier forCart: cart withMerchantProcessor: merchantProcessor. 
-	
-	creditCard _ self sampleCreditCardWithExpiration: (June of: 2019).
-	date _ FixedGregorianDate yearNumber: 2020 month: January dayNumber: 1.
-	
-	self should: [ cashier checkoutWithCreditCard: creditCard onDate: date ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :exception |
-			self assert: Cashier expiredCreditCardErrorMessage equals: exception messageText.
-			
-			self assert: 0 equals: merchantProcessor debitedAmount. ]! !
-
-
-!CashierTest methodsFor: 'sample credit cards' stamp: 'EB 6/9/2019 19:44:02'!
-sampleCreditCard
-	^self sampleCreditCardWithExpiration: GregorianMonthOfYear current.! !
-
-!CashierTest methodsFor: 'sample credit cards' stamp: 'EB 6/9/2019 19:29:32'!
-sampleCreditCardWithExpiration: anExpiration 
-	^CreditCard numbered: '1234567890123456' withOwner: 'JOSEFINA SMITH' andExpiration: anExpiration. ! !
-
-
-!classDefinition: #CreditCardTest category: #TusLibros!
-TestCase subclass: #CreditCardTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/9/2019 02:44:38'!
-test01NewCreditCardShouldHaveAllAttributesSet
-
-	| creditCard expiration number owner |
-	
-	number _ '1234567890123456'.
-	owner _ 'PEPE SANCHEZ'.
-	expiration _ May of: 2019.
-	creditCard _ CreditCard numbered: number withOwner: owner andExpiration: expiration.  
-
-	self assert: number equals: creditCard number.
-	self assert: owner equals: creditCard owner.
-	self assert: expiration equals: creditCard expiration.! !
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/9/2019 02:24:12'!
-test02ExpiredCreditCardShouldBeExpired
-
-	| creditCard expiredDate |
-	
-	creditCard _ CreditCard numbered: '1234567890123456' withOwner: 'PEPE SANCHEZ' andExpiration: (May of: 2019).  
-	expiredDate _ FixedGregorianDate yearNumber: 2019 month: June dayNumber: 1.
-	
-	self assert: (creditCard isExpiredOnDate: expiredDate). ! !
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/9/2019 02:33:31'!
-test03CreditCardShouldNotBeExpiredOnSameYearMonthAsExpiration
-
-	| creditCard notExpiredDate |
-	
-	creditCard _ CreditCard numbered: '1234567890123456' withOwner: 'PEPE SANCHEZ' andExpiration: (June of: 2019).  
-	notExpiredDate _ FixedGregorianDate yearNumber: 2019 month: June dayNumber: 1.
-	
-	self deny: (creditCard isExpiredOnDate: notExpiredDate). ! !
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/9/2019 02:42:24'!
-test04CreditCardShouldNotBeExpiredBeforeExpirationYearMonth
-
-	| creditCard notExpiredDate |
-	
-	creditCard _ CreditCard numbered: '1234567890123456' withOwner: 'PEPE SANCHEZ' andExpiration: (June of: 2019).  
-	notExpiredDate _ FixedGregorianDate yearNumber: 2019 month: May dayNumber: 24.
-	
-	self deny: (creditCard isExpiredOnDate: notExpiredDate). ! !
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/9/2019 17:59:30'!
-test05CantCreateCreditCardWithNumberLengthDifferentFrom16
-
-	self should: [ CreditCard numbered: '1' withOwner: 'PEPE SANCHEZ' andExpiration: (June of: 2019) ]
-		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: (CreditCard invalidNumberLengthErrorMessage: '1') equals: exception messageText ].
-	! !
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/10/2019 12:31:41'!
-test06NumberShouldHaveAllDigits
-
-	| number |
-	number _ '1234567890AB3456'.
-
-	self should: [ CreditCard numbered: number withOwner: 'PEPE SANCHEZ' andExpiration: (June of: 2019) ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :exception |
-			self assert: (CreditCard numberShouldConsistOfDigitsErrorMessage: number) equals: exception messageText ].
-	! !
-
-!CreditCardTest methodsFor: 'tests' stamp: 'EB 6/10/2019 15:27:14'!
-test07OwnerCantBeEmpty
-
-	self should: [ CreditCard numbered: '1234567890123456' withOwner: '' andExpiration: (June of: 2019) ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :exception |
-			self assert: CreditCard ownerEmptyErrorMessage equals: exception messageText ].
-	! !
-
-
-!classDefinition: #TusLibrosApiTest category: #TusLibros!
-TestCase subclass: #TusLibrosApiTest
-	instanceVariableNames: 'extendedAssertions registeredClientId registeredClientPassword unregisteredClientId apiWithEmptyPriceList merchantProcessor secondRegisteredClientId secondRegisteredClientPassword now'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 14:28:16'!
-advanceMinutesAmount: anAmountOfMinutes
-	now _ now next: anAmountOfMinutes * TimeUnits minute.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:09:37'!
-checkout: aCartId andListPurchasesInApi: aTusLibrosApi
-	
-	self checkout: aCartId withValidCreditCardInApi: aTusLibrosApi.
-	^aTusLibrosApi listPurchasesOfClient: registeredClientId withPassword: registeredClientPassword.
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:09:37'!
-checkout: aCartId withValidCreditCardInApi: aTusLibrosApi
-	
-	^aTusLibrosApi checkout: aCartId withCreditCard: (CreditCardsForTestingFactory new nonExpiredCreditCard).
-		! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:50:14'!
-setUp
-	merchantProcessor _ MerchantProcessorForTesting new.
-	apiWithEmptyPriceList _ self apiWithPriceList: Dictionary new.
-	extendedAssertions _ ExtendedAssertions for: self.
-	registeredClientId _ 'registered'.
-	registeredClientPassword _ 'registeredPassword'.
-	registeredClientId _ 'secondRegistered'.
-	registeredClientPassword _ 'secondRegisteredPassword'.
-	unregisteredClientId _ 'unregistered'.
-	now _ GregorianDateTime now. 
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/13/2019 20:35:23'!
-test01CantCreateCartWithInvalidCredentials
-	
-	extendedAssertions 
-		should: [ apiWithEmptyPriceList createCartWithClientId: unregisteredClientId andPassword: '' ]
-		raiseErrorWithMessageText: TusLibrosApi invalidUserCredentialsErrorMessage.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/13/2019 20:35:23'!
-test02ListCartCreatedWithValidCredentialsIsEmpty
-	
-	| cartContents cartId |
-	
-	cartId _ self createCartWithValidCredentials.
-	
-	cartContents _ apiWithEmptyPriceList listCart: cartId.
-	self assert: cartContents isEmpty.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/13/2019 20:35:23'!
-test03CantListANonCreatedCart
-	
-	extendedAssertions 	
-		should: [ apiWithEmptyPriceList listCart: 23 ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: 23).! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/11/2019 21:28:01'!
-test04DifferentCreatedCartsShouldHaveDifferentId
-
-	| firstCartId secondCartId |
-	
-	firstCartId _ self createCartWithValidCredentials.
-	secondCartId _ self createCartWithValidCredentials. 
-
-	self deny: firstCartId = secondCartId.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/13/2019 20:35:23'!
-test05WhenListingManyCreatedCartsAllShouldBeEmpty
-
-	| firstCartContents firstCartId secondCartContents secondCartId |
-	
-	firstCartId _ self createCartWithValidCredentials. 
-	secondCartId _ self createCartWithValidCredentials. 
-	
-	firstCartContents _ apiWithEmptyPriceList listCart: firstCartId.
-	secondCartContents _ apiWithEmptyPriceList listCart: secondCartId.
-	
-	self assert: firstCartContents isEmpty.
-	self assert: secondCartContents isEmpty.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:07:01'!
-test06CantAddAProductToNonCreatedCart
-
-	| api |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.
-	
-	extendedAssertions 
-		should: [ api add: 1 ofBookWithIsbn: 123 toCart: 42 ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: 42).
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:08:44'!
-test07AddedProductToExistingCartAppearsInList
-
-	| api bookIsbn cartId contents |
-	
-	bookIsbn _ 1.
-	api _ self apiWithPriceList: {bookIsbn -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	api add: 1 ofBookWithIsbn: bookIsbn toCart: cartId.
-
-	contents _ api listCart: cartId.
-	
-	self deny: contents isEmpty.
-	self assert: (contents includes: bookIsbn).
-	self assert: 1 equals: (contents occurrencesOf: bookIsbn).! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:08:44'!
-test08ProductAddedWithAmountGreaterThanOneShouldAppearInListWithRightAmount
-
-	| api bookIsbn cartId contents |
-	
-	bookIsbn _ 1.
-	api _ self apiWithPriceList: {bookIsbn -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	api add: 42 ofBookWithIsbn: bookIsbn toCart: cartId.
-
-	contents _ api listCart: cartId.
-	
-	self deny: contents isEmpty.
-	self assert: (contents includes: bookIsbn).
-	self assert: 42 equals: (contents occurrencesOf: bookIsbn).! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:08:44'!
-test09ManyProductsAddedToSameCartShouldBeListed
-
-	| api cartId contents firstBookIsbn secondBookIsbn |
-	
-	firstBookIsbn _ 1.
-	secondBookIsbn _ 2.
-	api _ self apiWithPriceList: {firstBookIsbn -> 2. secondBookIsbn -> 34} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	api add: 42 ofBookWithIsbn: firstBookIsbn toCart: cartId.
-	api add: 25 ofBookWithIsbn: secondBookIsbn toCart: cartId.
-	contents _ api listCart: cartId.
-	
-	self deny: contents isEmpty.
-	self assert: (contents includes: firstBookIsbn).
-	self assert: 42 equals: (contents occurrencesOf: firstBookIsbn).
-	self assert: (contents includes: secondBookIsbn).
-	self assert: 25 equals: (contents occurrencesOf: secondBookIsbn).! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:11:13'!
-test10ProductsAddedToDifferentCartsShouldBeListedSeparated
-
-	| api firstCartId firstContents firstBookIsbn secondBookIsbn secondCartId secondContents |
-	
-	firstBookIsbn _ 1.
-	secondBookIsbn _ 2.
-	api _ self apiWithPriceList: {firstBookIsbn -> 2. secondBookIsbn -> 34} asDictionary.
-	firstCartId _ self createCartWithValidCredentialsInApi: api.
-	secondCartId _ self createCartWithValidCredentialsInApi: api.
-	
-	api add: 42 ofBookWithIsbn: firstBookIsbn toCart: firstCartId.
-	api add: 25 ofBookWithIsbn: secondBookIsbn toCart: secondCartId.
-	
-	firstContents _ api listCart: firstCartId.
-	secondContents _ api listCart: secondCartId.
-	
-	self deny: firstContents isEmpty.
-	self assert: (firstContents includes: firstBookIsbn).
-	self assert: 42 equals: (firstContents occurrencesOf: firstBookIsbn).
-	self deny: (firstContents includes: secondBookIsbn).
-	
-	self deny: secondContents isEmpty.
-	self assert: (secondContents includes: secondBookIsbn).
-	self assert: 25 equals: (secondContents occurrencesOf: secondBookIsbn).
-	self deny: (secondContents includes: firstBookIsbn).! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:21:36'!
-test11CantAddLessThanOneBook
-
-	| api cartId bookIsbn |
-	
-	bookIsbn _ 1.
-	api _ self apiWithPriceList: {bookIsbn -> 2.} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	extendedAssertions 
-		should: [ api add: 0 ofBookWithIsbn: bookIsbn toCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi amountToAddCantBeLessThan1ErrorMessage: 0)
-		withExceptionDo: [ :exception | self assert: (api listCart: cartId) isEmpty ].		! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/14/2019 01:27:48'!
-test12CantAddProductNotInPriceList
-
-	| cartId |
-	
-	cartId _ self createCartWithValidCredentials.
-	
-	self 
-		should: [ apiWithEmptyPriceList add: 1 ofBookWithIsbn: 1 toCart: cartId ]
-		raise: Error.		! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 17:22:38'!
-test13CantCheckoutANonCreatedCart
-
-	| creditCard |
-	
-	creditCard _ CreditCardsForTestingFactory new nonExpiredCreditCard.
-	
-	extendedAssertions 
-		should: [ apiWithEmptyPriceList checkout: 1 withCreditCard: creditCard ]
-		raiseErrorWithMessageText: (TusLibrosApi cartDoesNotExistErrorMessage: 1)
-		withExceptionDo: [ :exception |
-			self assert: 0 equals: merchantProcessor debitedAmount ].! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 17:08:23'!
-test14CheckingOutAValidCartShouldDebitTheRightAmount
-
-	| creditCard api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2. 2 -> 3} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	api add: 2 ofBookWithIsbn: 1 toCart: cartId.
-	api add: 3 ofBookWithIsbn: 2 toCart: cartId.
-		
-	creditCard _ CreditCardsForTestingFactory new nonExpiredCreditCard.
-	
-	api checkout: cartId withCreditCard: creditCard.
-	
-	self assert: 13 equals: merchantProcessor debitedAmount.
-	self assert: 1 equals: merchantProcessor usedCreditCards size.
-	self assert: creditCard equals: merchantProcessor usedCreditCards first.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 17:21:54'!
-test15CantCheckoutCartWithExpiredCreditCard
-
-	| creditCard api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId.
-	
-	creditCard _ CreditCardsForTestingFactory new expiredCreditCard.
-		
-	self
-		should: [ api checkout: cartId withCreditCard: creditCard ]
-		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: 0 equals: merchantProcessor debitedAmount ].! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 17:24:34'!
-test16CantCheckoutAnEmptyCart
-	| creditCard api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	creditCard _ CreditCardsForTestingFactory new nonExpiredCreditCard.
-		
-	self
-		should: [ api checkout: cartId withCreditCard: creditCard ]
-		raise: Error
-		withExceptionDo: [ :exception |
-			self assert: 0 equals: merchantProcessor debitedAmount ].! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 17:40:13'!
-test17ListingPurchasesWithoutAnyPurchasesShouldReturnAnEmptyList
-	
-	| purchases |
-	
-	purchases _ apiWithEmptyPriceList listPurchasesOfClient: registeredClientId withPassword: registeredClientPassword.
-	
-	self assert: Bag new equals: purchases amountPerBook.
-	self assert: 0 equals: purchases totalAmount.
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 19:10:23'!
-test18ListingPurchasesWithOnePurchaseShouldReturnTheCorrectPurchaseAmount
-	
-	| purchases api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId.
-	
-	purchases _ self checkout: cartId andListPurchasesInApi: api.
-	
-	self assert: (Bag with: 1) equals: purchases amountPerBook.
-	self assert: 1 equals: purchases totalAmount.
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 19:10:23'!
-test19ListingPurchasesWithManyBooksShouldReturnTheCorrectPurchaseAmount
-	
-	| purchases api cartId resultingAmountsPerBook |
-	
-	api _ self apiWithPriceList: {1 -> 2. 2 -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 3 ofBookWithIsbn: 1 toCart: cartId.
-	api add: 1 ofBookWithIsbn: 2 toCart: cartId.
-	
-	purchases _ self checkout: cartId andListPurchasesInApi: api.
-	
-	resultingAmountsPerBook _ Bag new.
-	resultingAmountsPerBook add: 1 withOccurrences: 3. 
-	resultingAmountsPerBook add: 2.
-	
-	self assert: resultingAmountsPerBook equals: purchases amountPerBook.
-	self assert: 4 equals: purchases totalAmount.
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:09:37'!
-test20ListingPurchasesWithManyCheckoutsShouldReturnTheCorrectPurchaseAmount
-	
-	| purchases api cartId resultingAmountsPerBook |
-	
-	api _ self apiWithPriceList: {1 -> 2. 2 -> 2} asDictionary.
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 3 ofBookWithIsbn: 1 toCart: cartId.
-	
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 2 ofBookWithIsbn: 1 toCart: cartId.
-	api add: 1 ofBookWithIsbn: 2 toCart: cartId.
-	
-	purchases _ self checkout: cartId andListPurchasesInApi: api.
-	
-	resultingAmountsPerBook _ Bag new.
-	resultingAmountsPerBook add: 1 withOccurrences: 5. 
-	resultingAmountsPerBook add: 2.
-	
-	self assert: resultingAmountsPerBook equals: purchases amountPerBook.
-	self assert: 6 equals: purchases totalAmount.
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:09:37'!
-test21ListingPurchasesOfDifferentClientsShouldListCorrespondingPurchases
-	
-	| api cartId firstResultingAmountsPerBook firstPurchases secondPurchases secondResultingAmountsPerBook |
-	
-	api _ self apiWithPriceList: {1 -> 2. 2 -> 2} asDictionary.
-	
-	cartId _ api createCartWithClientId: registeredClientId andPassword: registeredClientPassword.
-	api add: 5 ofBookWithIsbn: 1 toCart: cartId.
-	
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	cartId _ api createCartWithClientId: secondRegisteredClientId andPassword: secondRegisteredClientPassword.
-	api add: 2 ofBookWithIsbn: 1 toCart: cartId.
-	api add: 1 ofBookWithIsbn: 2 toCart: cartId.
-	
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	firstPurchases _ api listPurchasesOfClient: registeredClientId withPassword: registeredClientPassword.
-	secondPurchases _ api listPurchasesOfClient: secondRegisteredClientId withPassword: secondRegisteredClientPassword.
-	
-	firstResultingAmountsPerBook _ Bag new.
-	firstResultingAmountsPerBook add: 1 withOccurrences: 5. 
-	
-	self assert: firstResultingAmountsPerBook equals: firstPurchases amountPerBook.
-	self assert: 5 equals: firstPurchases totalAmount.
-	firstPurchases _ api listPurchasesOfClient: registeredClientId withPassword: registeredClientPassword.
-	
-	secondResultingAmountsPerBook _ Bag new.
-	secondResultingAmountsPerBook add: 1 withOccurrences: 2. 
-	secondResultingAmountsPerBook add: 2.
-	
-	self assert: secondResultingAmountsPerBook equals: secondPurchases amountPerBook.
-	self assert: 3 equals: secondPurchases totalAmount.
-	
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 19:58:27'!
-test22CantListPurchasesOfNonRegisteredClient
-	
-	extendedAssertions 
-		should: [ apiWithEmptyPriceList listPurchasesOfClient: unregisteredClientId withPassword: '' ]
-		raiseErrorWithMessageText: TusLibrosApi invalidUserCredentialsErrorMessage.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/15/2019 20:09:37'!
-test23TwoDifferentCheckoutsShouldHaveDifferentTransactionIds
-
-	| api cartId firstTransactionId secondCartId secondTransactionId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	secondCartId _ self createCartWithValidCredentialsInApi: api.
-	
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId. 
-	api add: 2 ofBookWithIsbn: 1 toCart: secondCartId.
-	
-	firstTransactionId _ self checkout: cartId withValidCreditCardInApi: api.
-	secondTransactionId _ self checkout: secondCartId withValidCreditCardInApi: api.
-	
-	self deny: firstTransactionId = secondTransactionId. ! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 14:02:12'!
-test24CantCheckoutSameCartTwice
-
-	| api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId. 
-	
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	extendedAssertions
-		should: [ self checkout: cartId withValidCreditCardInApi: api ]
-		raiseErrorWithMessageText: (TusLibrosApi cartAlreadyCheckedOutErrorMessage: cartId)
-		withExceptionDo: [ :exception |
-			self assert: 2 equals: merchantProcessor debitedAmount ].! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:48:26'!
-test25CantAddToCartAfter30MinutesHavePassed
-
-	| api cartId |
-
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	self advanceMinutesAmount: 30.
-	
-	extendedAssertions
-		should: [ api add: 1 ofBookWithIsbn: 1 toCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:57:37'!
-test26CantCheckoutCartAfter30MinutesHavePassedSinceCreation
-
-	| api cartId |
-
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId.
-
-	self advanceMinutesAmount: 30.
-	
-	extendedAssertions
-		should: [ self checkout: cartId withValidCreditCardInApi: api ]
-		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:46:09'!
-test27AddingToCartResets30MinuteDeleteTimer
-
-	| api cartId |
-
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-
-	self advanceMinutesAmount: 25.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId.
-
-	self advanceMinutesAmount: 25.	
-
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	self assert: 2 equals: merchantProcessor debitedAmount.! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:57:45'!
-test28CantCheckoutCartAfter30MinutesHavePassedSinceAdding
-
-	| api cartId |
-
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-
-	self advanceMinutesAmount: 25.	
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId.
-
-	self advanceMinutesAmount: 30.
-	
-	extendedAssertions
-		should: [ self checkout: cartId withValidCreditCardInApi: api ]
-		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/18/2019 13:57:51'!
-test29CantListCartAfter30MinutesHavePassed
-
-	| api cartId |
-
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	self advanceMinutesAmount: 30.
-	
-	extendedAssertions
-		should: [ api listCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi cartHasExpiredErrorMessage: cartId)! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/16/2019 22:43:49'!
-test30ListingCartResets30MinuteDeleteTimer
-
-	| api cartId contents |
-
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	
-	self advanceMinutesAmount: 25.
-	api listCart: cartId.
-	
-	self advanceMinutesAmount: 25.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId.
-	
-	contents _ api listCart: cartId.
-	
-	self assert: (contents includes: 1).
-	self assert: 1 equals: (contents occurrencesOf: 1).
-	! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/22/2019 00:33:16'!
-test31CantListCartAfterCheckout
-
-	| api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId. 	
-	
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	extendedAssertions
-		should: [ api listCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi cartAlreadyCheckedOutErrorMessage: cartId)
-		withExceptionDo: [ :exception |
-			self assert: 2 equals: merchantProcessor debitedAmount ].! !
-
-!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 6/22/2019 00:33:42'!
-test32CantAddToCartAfterCheckout
-
-	| api cartId |
-	
-	api _ self apiWithPriceList: {1 -> 2} asDictionary.	
-	cartId _ self createCartWithValidCredentialsInApi: api.
-	api add: 1 ofBookWithIsbn: 1 toCart: cartId. 	
-	
-	self checkout: cartId withValidCreditCardInApi: api.
-	
-	extendedAssertions
-		should: [ api add: 1 ofBookWithIsbn: 1 toCart: cartId ]
-		raiseErrorWithMessageText: (TusLibrosApi cartAlreadyCheckedOutErrorMessage: cartId)
-		withExceptionDo: [ :exception |
-			self assert: 2 equals: merchantProcessor debitedAmount ].! !
-
-
-!TusLibrosApiTest methodsFor: 'simulating' stamp: 'EB 6/15/2019 19:21:08'!
-authenticate: aClient withPassword: aPassword
-	^(aClient = registeredClientId and: aPassword = registeredClientPassword)
-		or: (aClient = secondRegisteredClientId and: aPassword = secondRegisteredClientPassword).! !
-
-!TusLibrosApiTest methodsFor: 'simulating' stamp: 'EB 6/15/2019 20:50:23'!
-now
-	^now.! !
-
-
-!TusLibrosApiTest methodsFor: 'test objects creation' stamp: 'EB 6/15/2019 17:06:57'!
-apiWithPriceList: aPriceList
-	^TusLibrosApi 
-		authenticatingWith: self
-		debitingFrom: merchantProcessor 
-		withPriceList: aPriceList 
-		andClock: self.
-	! !
-
-!TusLibrosApiTest methodsFor: 'test objects creation' stamp: 'EB 6/14/2019 01:08:44'!
-createCartWithValidCredentials
-	^self createCartWithValidCredentialsInApi: apiWithEmptyPriceList.
-	! !
-
-!TusLibrosApiTest methodsFor: 'test objects creation' stamp: 'EB 6/14/2019 01:08:44'!
-createCartWithValidCredentialsInApi: aTusLibrosApi
-	^aTusLibrosApi createCartWithClientId: registeredClientId andPassword: registeredClientPassword. 
-	! !
-
-
-!classDefinition: #TusLibrosWebServerTest category: #TusLibros!
-TestCase subclass: #TusLibrosWebServerTest
-	instanceVariableNames: 'port'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!TusLibrosWebServerTest methodsFor: 'tests' stamp: 'EB 6/25/2019 17:36:54'!
-test01CreateCartWithoutParametersShouldReturnBadRequestError
-
-	| response api |
-
-	api _ self tusLibrosApiWithRegisteredCredentials: Dictionary new.
-		
-	TusLibrosWebServer for: api listeningOn: self port.
-	response _ self getCreateCartWithParams: {}.
-	
-	self assert: 400 equals: response code.! !
-
-!TusLibrosWebServerTest methodsFor: 'tests' stamp: 'EB 6/25/2019 17:45:15'!
-test02CanListACreatedCartWithValidUserAndPassword
-
-	| response api password user |
-	user _ 'Juan'.
-	password _ 'hunter2'.
-	api _ self tusLibrosApiWithRegisteredCredentials: {user -> password} asDictionary.
-	
-	TusLibrosWebServer for: api listeningOn: self port.
-	response _ self getCreateCartWithParams: {'clientId' -> user. 'password' -> password}.
-	
-	self assert: 200 equals: response code.
-	
-	response _ self getService: 'listCart' withParams: {'cartId' -> response content}. 
-	
-	self assert: '0|' equals: response content.! !
-
-!TusLibrosWebServerTest methodsFor: 'tests' stamp: 'EB 6/25/2019 17:19:31'!
-test99CanDestroyServer
-
-	TusLibrosWebServer for: api listeningOn: self port.
-	TusLibrosWebServer destroy.
-	
-	self should: [ WebClient httpGet: self localHostUrl, '/createCart' ]
-		raise: ConnectionTimedOut.! !
-
-
-!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 17:25:56'!
-getCreateCartWithParams: someParams
-	^self getService: 'createCart' withParams: someParams.! !
-
-!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 17:22:47'!
-getService: aService withParams: someParams
-	^WebClient htmlSubmit: self localHostUrl, '/', aService fields: someParams.! !
-
-!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 14:56:15'!
-localHostUrl
-	^'http://localhost:', self port asString! !
-
-!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 14:54:46'!
-port
-	"Use a random port to minimise chances of concurrently running test suites clashing."
-	^ port
-		ifNil: [port := (10000 to: 50000) atRandom]! !
-
-
-!TusLibrosWebServerTest methodsFor: 'test objects creation' stamp: 'EB 6/25/2019 17:35:31'!
-tusLibrosApiWithRegisteredCredentials: someRegisteredCredentials
-	
-	| authenticator |
-	
-	authenticator _ CredentialsDictionaryUserAuthenticator 
-		withRegisteredCredentials: someRegisteredCredentials.
-	^TusLibrosApi 
-		authenticatingWith: authenticator
-		debitingFrom: MerchantProcessorForTesting new
-		withPriceList: Dictionary new
-		andClock: ManualClock startingNow.! !
-
-
 !classDefinition: #Cart category: #TusLibros!
 Object subclass: #Cart
 	instanceVariableNames: 'books priceList'
@@ -1143,35 +150,6 @@ initialize
 	amountPerBook _ Bag new.! !
 
 
-!classDefinition: #CredentialsDictionaryUserAuthenticator category: #TusLibros!
-Object subclass: #CredentialsDictionaryUserAuthenticator
-	instanceVariableNames: 'registeredCredentials'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!CredentialsDictionaryUserAuthenticator methodsFor: 'initialization' stamp: 'EB 6/25/2019 16:53:52'!
-initializeWithRegisteredCredentials: someRegisteredCredentials
-	registeredCredentials _ someRegisteredCredentials.! !
-
-
-!CredentialsDictionaryUserAuthenticator methodsFor: 'authenticating' stamp: 'EB 6/25/2019 16:56:43'!
-authenticate: aClient withPassword: aPassword 
-	^(registeredCredentials includesKey: aClient) and: 
-		(registeredCredentials at: aClient) = aPassword.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'CredentialsDictionaryUserAuthenticator class' category: #TusLibros!
-CredentialsDictionaryUserAuthenticator class
-	instanceVariableNames: ''!
-
-!CredentialsDictionaryUserAuthenticator class methodsFor: 'instance creation' stamp: 'EB 6/25/2019 16:51:52'!
-withRegisteredCredentials: someRegisteredCredentials
-	"UserAuthenticatorForTesting withRegisteredCredentials: {'Juan' -> 'hunter2'} asDictionary"
-	^self new initializeWithRegisteredCredentials: someRegisteredCredentials.! !
-
-
 !classDefinition: #CreditCard category: #TusLibros!
 Object subclass: #CreditCard
 	instanceVariableNames: 'number owner expiration'
@@ -1202,6 +180,18 @@ number
 !CreditCard methodsFor: 'accessing' stamp: 'EB 6/9/2019 02:30:55'!
 owner
 	^owner! !
+
+
+!CreditCard methodsFor: 'comparing' stamp: 'EB 6/30/2019 19:02:46'!
+= anObject
+	^(anObject isKindOf: self class) and: [
+		self expiration = anObject expiration and: [
+			self owner = anObject owner and: [
+				self number = anObject number
+			]
+		]
+	]
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1247,127 +237,70 @@ assertOwnerNotEmpty: anOwner
 	anOwner isEmpty ifTrue: [ self error: self ownerEmptyErrorMessage ].! !
 
 
-!classDefinition: #CreditCardsForTestingFactory category: #TusLibros!
-Object subclass: #CreditCardsForTestingFactory
+!classDefinition: #GregorianMonthOfYearHTTPDecoder category: #TusLibros!
+Object subclass: #GregorianMonthOfYearHTTPDecoder
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCardsForTestingFactory methodsFor: 'instance creation' stamp: 'EB 6/15/2019 16:58:01'!
-creditCardWithExpiration: anExpiration
-	^CreditCard numbered: '1234567890123456' withOwner: 'PEPE SANCHEZ' andExpiration: anExpiration. ! !
-
-!CreditCardsForTestingFactory methodsFor: 'instance creation' stamp: 'EB 6/15/2019 16:58:13'!
-expiredCreditCard
-	^self creditCardWithExpiration: GregorianMonthOfYear current previous.  ! !
-
-!CreditCardsForTestingFactory methodsFor: 'instance creation' stamp: 'EB 6/15/2019 16:58:24'!
-nonExpiredCreditCard
-	^self creditCardWithExpiration: GregorianMonthOfYear current next. ! !
-
-
-!classDefinition: #ExtendedAssertions category: #TusLibros!
-Object subclass: #ExtendedAssertions
-	instanceVariableNames: 'testCase'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!ExtendedAssertions methodsFor: 'initialization' stamp: 'EB 6/11/2019 19:45:09'!
-initializeFor: aTestCase
-	testCase _ aTestCase.! !
+!GregorianMonthOfYearHTTPDecoder methodsFor: 'decoding' stamp: 'EB 6/30/2019 18:18:04'!
+decode: anEncodedMonthOfYear 
+	
+	| monthNumber yearNumber |
+	
+	self assertIsValidEncodedMonthOfYear: anEncodedMonthOfYear.
+	
+	monthNumber _ (anEncodedMonthOfYear copyFrom: 1 to: 2) asNumber.
+	yearNumber _ (anEncodedMonthOfYear copyFrom: 3 to: 6) asNumber.
+	
+	^GregorianMonthOfYear yearNumber: yearNumber monthNumber: monthNumber.! !
 
 
-!ExtendedAssertions methodsFor: 'assertions' stamp: 'EB 6/11/2019 19:55:46'!
-should: aTestBlock raiseErrorWithMessageText: aMessageText
-	self
-		should: aTestBlock 
-		raiseErrorWithMessageText: aMessageText
-		withExceptionDo: [ :exception | ].! !
+!GregorianMonthOfYearHTTPDecoder methodsFor: 'assertions' stamp: 'EB 6/30/2019 18:24:10'!
+assertIsValidEncodedMonthOfYear: anEncodedMonthOfYear
+	(self isValidEncodedMonthOfYear: anEncodedMonthOfYear) ifTrue: [
+		self error: (self class badlyEncodedMonthOfYearErrorMessage: anEncodedMonthOfYear) 
+	].
+	! !
 
-!ExtendedAssertions methodsFor: 'assertions' stamp: 'EB 6/11/2019 19:51:43'!
-should: aTestBlock raiseErrorWithMessageText: aMessageText withExceptionDo: aDoBlock
-	testCase 
-		should: aTestBlock
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :exception |
-			testCase assert: aMessageText equals: exception messageText.
-			aDoBlock value: exception. ].! !
+!GregorianMonthOfYearHTTPDecoder methodsFor: 'assertions' stamp: 'EB 6/30/2019 18:22:38'!
+isAnyNotDigit: aCollection
+	^aCollection anySatisfy: [ :character | character isDigit not ]! !
+
+!GregorianMonthOfYearHTTPDecoder methodsFor: 'assertions' stamp: 'EB 6/30/2019 18:23:40'!
+isValidEncodedMonthOfYear: anEncodedMonthOfYear
+	^(self isAnyNotDigit: anEncodedMonthOfYear) or: [ anEncodedMonthOfYear size ~= 6 ]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'ExtendedAssertions class' category: #TusLibros!
-ExtendedAssertions class
+!classDefinition: 'GregorianMonthOfYearHTTPDecoder class' category: #TusLibros!
+GregorianMonthOfYearHTTPDecoder class
 	instanceVariableNames: ''!
 
-!ExtendedAssertions class methodsFor: 'instance creation' stamp: 'EB 6/11/2019 19:44:48'!
-for: aTestCase
-	^self new initializeFor: aTestCase.! !
+!GregorianMonthOfYearHTTPDecoder class methodsFor: 'error messages' stamp: 'EB 6/30/2019 18:15:27'!
+badlyEncodedMonthOfYearErrorMessage: anEncodedMonthOfYear 
+	^anEncodedMonthOfYear, ' is not a valid encoded month of year.'.! !
 
 
-!classDefinition: #ManualClock category: #TusLibros!
-Object subclass: #ManualClock
-	instanceVariableNames: 'currentDateTime'
+!classDefinition: #GregorianMonthOfYearHTTPEncoder category: #TusLibros!
+Object subclass: #GregorianMonthOfYearHTTPEncoder
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!ManualClock methodsFor: 'accessing' stamp: 'EB 6/25/2019 17:10:59'!
-now
-	^currentDateTime! !
-
-
-!ManualClock methodsFor: 'advancing time' stamp: 'EB 6/25/2019 17:12:02'!
-advance: aTimeMeasure
-	currentDateTime _ currentDateTime next: aTimeMeasure.! !
-
-
-!ManualClock methodsFor: 'initialization' stamp: 'EB 6/25/2019 17:13:31'!
-initializeOn: aTimePoint
-	currentDateTime _ aTimePoint.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'ManualClock class' category: #TusLibros!
-ManualClock class
-	instanceVariableNames: ''!
-
-!ManualClock class methodsFor: 'instance creation' stamp: 'EB 6/25/2019 17:13:07'!
-startingAt: aTimePoint
-	^self new initializeOn: aTimePoint.! !
-
-!ManualClock class methodsFor: 'instance creation' stamp: 'EB 6/25/2019 17:14:59'!
-startingNow
-	^self startingAt: GregorianDateTime now.! !
-
-
-!classDefinition: #MerchantProcessorForTesting category: #TusLibros!
-Object subclass: #MerchantProcessorForTesting
-	instanceVariableNames: 'debited creditCardsUsed'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!MerchantProcessorForTesting methodsFor: 'debiting' stamp: 'EB 6/9/2019 19:13:34'!
-debit: anAmount with: aCreditCard 
-	debited _ debited + anAmount.
-	creditCardsUsed add: aCreditCard.! !
-
-
-!MerchantProcessorForTesting methodsFor: 'initialization' stamp: 'EB 6/9/2019 19:14:31'!
-initialize
-	debited _ 0.
-	creditCardsUsed _ OrderedCollection new.! !
-
-
-!MerchantProcessorForTesting methodsFor: 'accessing' stamp: 'EB 6/9/2019 19:14:59'!
-debitedAmount
-	^debited! !
-
-!MerchantProcessorForTesting methodsFor: 'accessing' stamp: 'EB 6/9/2019 19:15:18'!
-usedCreditCards
-	^creditCardsUsed.! !
+!GregorianMonthOfYearHTTPEncoder methodsFor: 'encoding' stamp: 'EB 6/29/2019 21:11:11'!
+encode: aGregorianMonthOfYear 
+	
+	| monthNumber yearNumber |
+	
+	monthNumber _ aGregorianMonthOfYear month number.
+	yearNumber _ aGregorianMonthOfYear year number.
+	
+	^String streamContents: [ :stream |
+		monthNumber printOn: stream integerDigits: 2 fractionDigits: 0.
+		yearNumber printOn: stream integerDigits: 4 fractionDigits: 0 ].! !
 
 
 !classDefinition: #TusLibrosApi category: #TusLibros!
@@ -1428,13 +361,13 @@ checkout: aCartId withCreditCard: aCreditCard
 	
 	^self nextTransactionId.! !
 
-!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/16/2019 22:48:27'!
+!TusLibrosApi methodsFor: 'cart management' stamp: 'EB 6/28/2019 15:10:08'!
 createCartWithClientId: aClientId andPassword: aPassword 
 
 	| cart cartId |
 
 	self assertCanAuthenticateClient: aClientId withPassword: aPassword.
-
+	
 	cartId _ self nextCartId.
 	cart _ Cart withPriceList: priceList.
 	carts at: cartId put: cart.
@@ -1574,10 +507,223 @@ invalidUserCredentialsErrorMessage
 
 !classDefinition: #TusLibrosWebServer category: #TusLibros!
 Object subclass: #TusLibrosWebServer
-	instanceVariableNames: ''
+	instanceVariableNames: 'tusLibrosApi webServer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!TusLibrosWebServer methodsFor: 'initialization' stamp: 'EB 6/28/2019 13:42:21'!
+initializeFor: aTusLibrosApi
+	tusLibrosApi _ aTusLibrosApi.
+	webServer _ WebServer new.
+	
+	self addTusLibrosApiServices.
+	! !
+
+
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 6/28/2019 15:15:28'!
+do: aBlock handlingFailureWithRequest: aRequest
+	aBlock
+		on: Error
+		do: [ :error | self sendFailureResponse: error messageText withRequest: aRequest ].
+	! !
+
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 6/29/2019 15:06:00'!
+handleAddToCartRequest: aRequest
+	
+	| bookIsbn cartId quantity |
+	
+	quantity _ self getNumberField: 'bookQuantity' fromRequest: aRequest.
+	bookIsbn _ self getNumberField: 'bookIsbn' fromRequest: aRequest.
+	cartId _ self getNumberField: 'cartId' fromRequest: aRequest.
+	
+	self do: [ tusLibrosApi add: quantity ofBookWithIsbn: bookIsbn toCart: cartId ] 
+		handlingFailureWithRequest: aRequest.
+	
+	self sendSuccessResponse: 'OK' withRequest: aRequest.! !
+
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 6/30/2019 19:17:06'!
+handleCheckoutCartRequest: aRequest
+
+	| cartId creditCard transactionId |
+
+	cartId _ self getNumberField: 'cartId' fromRequest: aRequest.
+	creditCard _ self getCreditCardFromRequest: aRequest.
+	
+	self 
+		do: [ transactionId _ tusLibrosApi checkout: cartId withCreditCard: creditCard ] 
+		handlingFailureWithRequest: aRequest.
+	
+	self sendSuccessResponse: transactionId asString withRequest: aRequest. ! !
+
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 6/29/2019 15:07:03'!
+handleCreateCartRequest: aRequest
+
+	| clientId password cartId |
+
+	clientId _ self getStringField: 'clientId' fromRequest: aRequest.
+	password _ self getStringField: 'password' fromRequest: aRequest.
+	
+	self do: [ cartId _ tusLibrosApi createCartWithClientId: clientId andPassword: password ]
+		handlingFailureWithRequest: aRequest.
+	
+	self sendSuccessResponse: cartId asString withRequest: aRequest.! !
+
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 7/1/2019 02:02:51'!
+handleListCartRequest: aRequest
+
+	| cartId contents contentsString |
+	
+	cartId _ self getNumberField: 'cartId' fromRequest: aRequest.
+	
+	self do: [ contents _ tusLibrosApi listCart: cartId ]
+		handlingFailureWithRequest: aRequest.
+	
+	contentsString _ self parseBagContents: contents.
+	
+	self sendSuccessResponse: contentsString withRequest: aRequest.! !
+
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 7/1/2019 02:09:48'!
+handleListPurchasesRequest: aRequest
+	
+	| clientId password purchases contentsString |
+	
+	clientId _ self getStringField: 'clientId' fromRequest: aRequest.
+	password _ self getStringField: 'password' fromRequest: aRequest.
+	
+	self
+		do: [ purchases _ tusLibrosApi listPurchasesOfClient: clientId withPassword: password ]
+		 handlingFailureWithRequest: aRequest.
+	
+	contentsString _ self parseClientPurchases: purchases.
+	
+	self sendSuccessResponse: contentsString withRequest: aRequest.! !
+
+
+!TusLibrosWebServer methodsFor: 'listening' stamp: 'EB 6/28/2019 13:21:11'!
+listenOn: aPortNumber
+	webServer listenOn: aPortNumber.! !
+
+
+!TusLibrosWebServer methodsFor: 'destroying' stamp: 'EB 6/28/2019 13:24:06'!
+destroy
+	webServer destroy.! !
+
+
+!TusLibrosWebServer methodsFor: 'adding services' stamp: 'EB 6/28/2019 13:36:16'!
+addService: aServiceString actionSelector: aSelector
+	webServer addService: aServiceString action:
+		(MessageSend receiver: self selector: aSelector).
+	! !
+
+!TusLibrosWebServer methodsFor: 'adding services' stamp: 'EB 7/1/2019 01:40:23'!
+addTusLibrosApiServices
+	self addService: '/createCart' actionSelector: #handleCreateCartRequest:.
+	self addService: '/listCart' actionSelector: #handleListCartRequest:.
+	self addService: '/addToCart' actionSelector: #handleAddToCartRequest:.
+	self addService: '/checkoutCart' actionSelector: #handleCheckoutCartRequest:.
+	self addService: '/listPurchases' actionSelector: #handleListPurchasesRequest:.! !
+
+
+!TusLibrosWebServer methodsFor: 'responding' stamp: 'EB 6/28/2019 13:32:06'!
+sendFailureResponse: aResponseContent withRequest: aRequest
+	self 
+		sendResponse: aResponseContent 
+		withStatus: '1' 
+		withRequest: aRequest! !
+
+!TusLibrosWebServer methodsFor: 'responding' stamp: 'EB 6/28/2019 13:55:05'!
+sendInvalidUserCredentialsFailureResponseWithRequest: aRequest
+	self 
+		sendFailureResponse: self class invalidUserCredentialsErrorMessage 
+		withRequest: aRequest! !
+
+!TusLibrosWebServer methodsFor: 'responding' stamp: 'EB 6/28/2019 13:32:32'!
+sendResponse: aResponseContent 
+withStatus: aResponseStatus 
+withRequest: aRequest
+
+	aRequest send200Response: aResponseStatus, '|', aResponseContent.! !
+
+!TusLibrosWebServer methodsFor: 'responding' stamp: 'EB 6/28/2019 13:32:17'!
+sendSuccessResponse: aResponseContent withRequest: aRequest
+	self 
+		sendResponse: aResponseContent 
+		withStatus: '0'
+		withRequest: aRequest! !
+
+
+!TusLibrosWebServer methodsFor: 'parsing return values' stamp: 'EB 7/1/2019 02:03:16'!
+parseBagContents: aBag
+	
+	| contentsString |
+	
+	contentsString _ ''.
+	aBag sortedElements collect: [ :element | | key value |
+		key _ element key.
+		value _ element value.
+		contentsString _ contentsString, '|', key asString, '|', value asString ].
+		
+	contentsString ifNotEmpty: [
+		contentsString _ contentsString allButFirst ].
+	^contentsString! !
+
+!TusLibrosWebServer methodsFor: 'parsing return values' stamp: 'EB 7/1/2019 02:05:02'!
+parseClientPurchases: aClientPurchases
+	
+	| contentsString |
+	
+	contentsString _ self parseBagContents: aClientPurchases amountPerBook.
+	contentsString ifNotEmpty: [ contentsString _ contentsString, '|' ]. 
+	^contentsString, aClientPurchases totalAmount asString.! !
+
+
+!TusLibrosWebServer methodsFor: 'parsing request' stamp: 'EB 6/29/2019 16:07:30'!
+do: aBlock onErrorSend400ResponseWith: aRequest
+	aBlock on: Error do: [ ^aRequest send400Response ].! !
+
+!TusLibrosWebServer methodsFor: 'parsing request' stamp: 'EB 6/30/2019 22:47:32'!
+getCreditCardFromRequest: aRequest
+	
+	| creditCardExpirationDate creditCardOwner creditCartNumber |
+	
+	creditCartNumber _ self getStringField: 'ccn' fromRequest: aRequest.
+	creditCardOwner _ self getStringField: 'cco' fromRequest: aRequest.
+	creditCardExpirationDate _ self getMonthOfYearField: 'cced' fromRequest: aRequest.
+	
+	self
+		do: [
+			^CreditCard 
+				numbered: creditCartNumber
+				withOwner: creditCardOwner
+				andExpiration: creditCardExpirationDate ]
+		onErrorSend400ResponseWith: aRequest.! !
+
+!TusLibrosWebServer methodsFor: 'parsing request' stamp: 'EB 6/30/2019 23:18:02'!
+getMonthOfYearField: aFieldName fromRequest: aRequest
+	
+	| monthOfYearString |
+	
+	monthOfYearString _ self getStringField: aFieldName fromRequest: aRequest.
+	self do: [ ^GregorianMonthOfYearHTTPDecoder new decode: monthOfYearString ]
+		onErrorSend400ResponseWith: aRequest.! !
+
+!TusLibrosWebServer methodsFor: 'parsing request' stamp: 'EB 6/29/2019 16:09:05'!
+getNumberField: aFieldName fromRequest: aRequest
+	
+	| field |
+	
+	field _ self getStringField: aFieldName fromRequest: aRequest.
+	self 
+		do: [ ^field asNumber ]
+		onErrorSend400ResponseWith: aRequest.! !
+
+!TusLibrosWebServer methodsFor: 'parsing request' stamp: 'EB 6/29/2019 16:09:40'!
+getStringField: aFieldName fromRequest: aRequest
+
+	^self
+		do: [ ^aRequest fields at: aFieldName ]
+		onErrorSend400ResponseWith: aRequest.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1585,14 +731,17 @@ Object subclass: #TusLibrosWebServer
 TusLibrosWebServer class
 	instanceVariableNames: ''!
 
-!TusLibrosWebServer class methodsFor: 'instance creation' stamp: 'EB 6/25/2019 17:44:20'!
+!TusLibrosWebServer class methodsFor: 'instance creation' stamp: 'EB 6/28/2019 13:22:30'!
 for: aTusLibrosApi listeningOn: aPortNumber 
 
-	| server |
+	| instance |
 	
-	server _ WebServer new listenOn: aPortNumber.
-	server addService: '/createCart' action: [ :request |
-		request fields at: 'clientId' ifAbsent: [ ^request send400Response ].
-		request send200Response: '1' ]. 
-	server addService: '/listCart' action: [ :request |
-		request send200Response: '0|' ].! !
+	instance _ self new initializeFor: aTusLibrosApi.
+	instance listenOn: aPortNumber.
+	
+	^instance! !
+
+
+!TusLibrosWebServer class methodsFor: 'error messages' stamp: 'EB 6/28/2019 13:00:00'!
+invalidUserCredentialsErrorMessage
+	^TusLibrosApi  invalidUserCredentialsErrorMessage.! !
