@@ -473,6 +473,11 @@ purchasesForClient: aClientId
 	^purchasesPerClient at: aClientId ifAbsent: [ 
 		purchasesPerClient at: aClientId put: ClientPurchases new ].! !
 
+
+!TusLibrosApi methodsFor: 'listing prices' stamp: 'EB 7/1/2019 13:16:40'!
+listPrices
+	^priceList.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TusLibrosApi class' category: #TusLibros!
@@ -503,6 +508,176 @@ cartHasExpiredErrorMessage: aCartId
 !TusLibrosApi class methodsFor: 'error messages' stamp: 'EB 6/11/2019 17:38:05'!
 invalidUserCredentialsErrorMessage
 	^'The user credentials supplied are not valid.'.! !
+
+
+!classDefinition: #TusLibrosWebClient category: #TusLibros!
+Object subclass: #TusLibrosWebClient
+	instanceVariableNames: 'url webClient'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!TusLibrosWebClient methodsFor: 'initialization' stamp: 'EB 7/2/2019 00:15:22'!
+initializeUsingWebClient: aWebClient forUrl: anUrlString
+	webClient _ aWebClient.
+	url _ anUrlString.! !
+
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 14:52:58'!
+getAddToCartWithId: aCartId adding: aBookQuantity of: aBookIsbn 
+	self 
+		getService: '/addToCart'
+		withFields: {
+			'cartId' -> aCartId asString. 
+			'bookIsbn' -> aBookIsbn asString. 
+			'bookQuantity' -> aBookQuantity asString}.! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 23:13:59'!
+getCheckoutCartWithId: aCartId 
+withCreditCardNumbered: aCreditCardNumber
+withExpirationDate: anExpirationDate
+andOwner: anOwner 
+	
+	| encodedCced |
+	
+	encodedCced _ GregorianMonthOfYearHTTPEncoder new encode: anExpirationDate.
+	self 
+		getService: '/checkoutCart'
+		withFields: 
+			{'cartId' -> aCartId asString.
+			'ccn' -> aCreditCardNumber.
+			'cced' -> encodedCced.
+			'cco' -> anOwner}
+		onSuccessDoWithResponseContentMessageHandlingErrors: 
+			[ :responseContent | ^responseContent ]! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 21:22:00'!
+getCreateCartWithClientId: aClientId andPassword: aPassword		
+	self 
+		getService: '/createCart' 
+		withFields: {'clientId' -> aClientId. 'password' -> aPassword}
+		onSuccessDoWithResponseContentMessageHandlingErrors: [ :contentMessage |
+			^contentMessage asNumber ].! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 23:41:49'!
+getListCartWithId: aCartId
+	self 
+		getService: '/listCart' 
+		withFields: {'cartId' -> aCartId asString}
+		onSuccessDoWithResponseContentMessageHandlingErrors: [ :content |
+			^self responseContentMessageToBookIsbnBag: content ]. ! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 23:41:24'!
+getListPurchasesOfClientWithId: aClientId withPassword: aPassword 
+	self 
+		getService: '/listPurchases'
+		withFields: {'clientId' -> aClientId. 'password' -> aPassword}
+		onSuccessDoWithResponseContentMessageHandlingErrors: [ :contentMessage |
+			^self responseContentMessageToBookIsbnBag: contentMessage ].! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 14:57:34'!
+getService: aService withFields: someFields
+	self 
+		getService: aService
+		withFields: someFields
+		onSuccessDoWithResponse: [ :response | ].! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 14:57:34'!
+getService: aService withFields: someFields onSuccessDoWithResponse: aBlock
+	
+	| response |
+	
+	response _ self
+		htmlSubmitToService: aService fields: someFields. 
+	
+	self assertResponseCodeIs200: response.
+	self assertResponseHasPositiveStatus: response.
+	
+	^aBlock value: response
+	! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 21:17:17'!
+getService: aService 
+withFields: someFields 
+onSuccessDoWithResponseContentMessageHandlingErrors: aBlock
+	self 
+		getService: aService
+		withFields: someFields
+		onSuccessDoWithResponse: [ :response | | contentMessage |
+			contentMessage _ self responseContentMessage: response content.
+			[ aBlock value: contentMessage] 
+				on: Error 
+				do: [ self raiseBadResponseErrorForResponse: response ]
+		].
+		! !
+
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 14:15:28'!
+htmlSubmitToService: aServiceString fields: someFields
+	^webClient htmlSubmit: url, aServiceString fields: someFields.! !
+
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 21:11:15'!
+assertResponseCodeIs200: aResponse
+	aResponse code = 200 ifFalse: [
+		self raiseBadResponseErrorForResponse: aResponse ].! !
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 14:42:04'!
+assertResponseHasPositiveStatus: aResponse
+	
+	| responseContent status |
+	
+	responseContent _ aResponse content.
+	status _ self responseContentStatus: responseContent.
+	status = $1 ifTrue: [ self error: (self responseContentMessage: responseContent) ].! !
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 00:22:59'!
+responseContentMessage: aResponseContent
+	^aResponseContent copyFrom: 3 to: aResponseContent size! !
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 23:40:58'!
+responseContentMessageToBookIsbnBag: aResponseContentMessage
+	
+	| numbers |
+	
+	numbers _ aResponseContentMessage findTokens: '|'.
+	^self stringCollectionToBookIsbnBag: numbers! !
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 01:06:57'!
+responseContentStatus: aResponseContent 
+	^aResponseContent first.! !
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 21:28:12'!
+stringCollectionToBookIsbnBag: aCollection
+	
+	| bag |
+	
+	aCollection size even ifFalse: [ self error ].
+	
+	bag _ Bag new.
+	aCollection pairsDo: [ :element :quantity |
+		bag add: element asNumber withOccurrences: quantity asNumber ].
+	^bag
+			! !
+
+
+!TusLibrosWebClient methodsFor: 'error raising' stamp: 'EB 7/2/2019 21:10:27'!
+raiseBadResponseErrorForResponse: aResponse
+	self error: (self class badResponseErrorMessageForResponse: aResponse).! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TusLibrosWebClient class' category: #TusLibros!
+TusLibrosWebClient class
+	instanceVariableNames: ''!
+
+!TusLibrosWebClient class methodsFor: 'instance creation' stamp: 'EB 7/2/2019 00:14:17'!
+usingWebClient: aWebClient forUrl: anUrlString 
+	^self new initializeUsingWebClient: aWebClient forUrl: anUrlString.! !
+
+
+!TusLibrosWebClient class methodsFor: 'error messages' stamp: 'EB 7/2/2019 14:10:35'!
+badResponseErrorMessageForResponse: aResponse 
+	^'The server responded with error code ', aResponse code asString, ' and message: ''', aResponse content, ''''.! !
 
 
 !classDefinition: #TusLibrosWebServer category: #TusLibros!
@@ -583,6 +758,22 @@ handleListCartRequest: aRequest
 	
 	self sendSuccessResponse: contentsString withRequest: aRequest.! !
 
+!TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 7/1/2019 13:38:55'!
+handleListPricesRequest: aRequest
+	
+	| prices contentString contentCollection |
+	
+	prices _ tusLibrosApi listPrices.
+	
+	contentCollection _ OrderedCollection new.
+	prices keysAndValuesDo: [ :bookIsbn :price |
+		contentCollection add: bookIsbn.
+		contentCollection add: price ].
+	
+	contentString _ self joinWithPipes: contentCollection.
+	
+	self sendSuccessResponse: contentString withRequest: aRequest ! !
+
 !TusLibrosWebServer methodsFor: 'request handling' stamp: 'EB 7/1/2019 02:09:48'!
 handleListPurchasesRequest: aRequest
 	
@@ -616,13 +807,14 @@ addService: aServiceString actionSelector: aSelector
 		(MessageSend receiver: self selector: aSelector).
 	! !
 
-!TusLibrosWebServer methodsFor: 'adding services' stamp: 'EB 7/1/2019 01:40:23'!
+!TusLibrosWebServer methodsFor: 'adding services' stamp: 'EB 7/1/2019 13:24:30'!
 addTusLibrosApiServices
 	self addService: '/createCart' actionSelector: #handleCreateCartRequest:.
 	self addService: '/listCart' actionSelector: #handleListCartRequest:.
 	self addService: '/addToCart' actionSelector: #handleAddToCartRequest:.
 	self addService: '/checkoutCart' actionSelector: #handleCheckoutCartRequest:.
-	self addService: '/listPurchases' actionSelector: #handleListPurchasesRequest:.! !
+	self addService: '/listPurchases' actionSelector: #handleListPurchasesRequest:.
+	self addService: '/listPrices' actionSelector: #handleListPricesRequest:.! !
 
 
 !TusLibrosWebServer methodsFor: 'responding' stamp: 'EB 6/28/2019 13:32:06'!
@@ -653,20 +845,26 @@ sendSuccessResponse: aResponseContent withRequest: aRequest
 		withRequest: aRequest! !
 
 
-!TusLibrosWebServer methodsFor: 'parsing return values' stamp: 'EB 7/1/2019 02:03:16'!
+!TusLibrosWebServer methodsFor: 'parsing return values' stamp: 'EB 7/1/2019 13:37:11'!
+joinWithPipes: aCollection
+	
+	| joined |
+	
+	joined _ aCollection inject: '' into: [ :acum :element | acum, '|', element asString ].
+	joined ifNotEmpty: [ joined _ joined allButFirst ].
+	^joined! !
+
+!TusLibrosWebServer methodsFor: 'parsing return values' stamp: 'EB 7/1/2019 13:36:26'!
 parseBagContents: aBag
 	
-	| contentsString |
+	| contentsCollection |
 	
-	contentsString _ ''.
-	aBag sortedElements collect: [ :element | | key value |
-		key _ element key.
-		value _ element value.
-		contentsString _ contentsString, '|', key asString, '|', value asString ].
+	contentsCollection _ OrderedCollection new.
+	aBag sortedElements do: [ :element |
+		contentsCollection add: element key.
+		contentsCollection add: element value ].
 		
-	contentsString ifNotEmpty: [
-		contentsString _ contentsString allButFirst ].
-	^contentsString! !
+	^self joinWithPipes: contentsCollection.! !
 
 !TusLibrosWebServer methodsFor: 'parsing return values' stamp: 'EB 7/1/2019 02:05:02'!
 parseClientPurchases: aClientPurchases

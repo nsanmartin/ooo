@@ -966,6 +966,17 @@ test32CantAddToCartAfterCheckout
 		withExceptionDo: [ :exception |
 			self assert: 2 equals: merchantProcessor debitedAmount ].! !
 
+!TusLibrosApiTest methodsFor: 'tests' stamp: 'EB 7/1/2019 13:16:12'!
+test33ListPricesShouldReturnPriceList
+
+	| api expectedPriceList priceList |
+	
+	expectedPriceList _ {1 -> 2. 2 -> 3} asDictionary.
+	api _ self apiWithPriceList: expectedPriceList.
+	priceList _ api listPrices.
+	
+	self assert: expectedPriceList equals: priceList.! !
+
 
 !TusLibrosApiTest methodsFor: 'simulating' stamp: 'EB 6/15/2019 19:21:08'!
 authenticate: aClient withPassword: aPassword
@@ -995,6 +1006,372 @@ createCartWithValidCredentials
 createCartWithValidCredentialsInApi: aTusLibrosApi
 	^aTusLibrosApi createCartWithClientId: registeredClientId andPassword: registeredClientPassword. 
 	! !
+
+
+!classDefinition: #TusLibrosWebClientTest category: #'TusLibros-Tests'!
+TestCase subclass: #TusLibrosWebClientTest
+	instanceVariableNames: 'webServerWrapper extendedAssertions htmlSubmitBlock domainUrl tusLibrosWebClient'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros-Tests'!
+
+!TusLibrosWebClientTest methodsFor: 'tests - createCart' stamp: 'EB 7/2/2019 14:19:38'!
+test01CreateCartShouldPropagateResponsesWithStatus1
+	
+	| responseErrorMessage responseContent |
+	
+	responseErrorMessage _ 'There was an error.'.
+	responseContent _ '1|', responseErrorMessage.
+	self onHtmlSubmitToService: 'createCart' doWithParameters: [ :parameters |
+		WebResponseTestDouble withCode: 200 andContent: responseContent ].
+	
+	extendedAssertions
+		should: [ tusLibrosWebClient getCreateCartWithClientId: 'Juancito' andPassword: 'password' ]
+		raiseErrorWithMessageText: responseErrorMessage.
+		! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - createCart' stamp: 'EB 7/2/2019 01:01:11'!
+test02CreateCartShouldCallApiWithRightParameters
+
+	| clientId password expectedCartId responseContent cartId |
+
+	expectedCartId _ 123.
+	responseContent _ '0|', expectedCartId asString.
+	clientId _ 'Juancito'.
+	password _ 'password'.
+	self 
+		onHtmlSubmitToService: 'createCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'clientId' -> clientId. 'password' -> password} ifTrue: [
+				WebResponseTestDouble withCode: 200 andContent: responseContent ]
+		].
+
+	cartId _ tusLibrosWebClient getCreateCartWithClientId: clientId andPassword: password.
+	
+	self assert: expectedCartId equals: cartId.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - createCart' stamp: 'EB 7/2/2019 14:09:14'!
+test03CreateCartWithCodeDIfferentFrom200ShouldPropagateTheError
+
+	| clientId password response responseContent |
+
+	responseContent _ 'error message'.
+	clientId _ 'Juancito'.
+	password _ 'password'.
+	response _ WebResponseTestDouble withCode: 500 andContent: responseContent.
+	self 
+		onHtmlSubmitToService: 'createCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'clientId' -> clientId. 'password' -> password} ifTrue: [ response ]
+		].
+
+	extendedAssertions 
+		should: [ tusLibrosWebClient getCreateCartWithClientId: clientId andPassword: password ]
+		raiseErrorWithMessageText: 
+			(TusLibrosWebClient badResponseErrorMessageForResponse: response).! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - createCart' stamp: 'EB 7/2/2019 14:18:47'!
+test04CreateCartOnServerUnavailableShouldPropagateTheError
+
+	| clientId password |
+
+	clientId _ 'Juancito'.
+	password _ 'password'.
+	self 
+		onHtmlSubmitToService: 'createCart' 
+		doWithParameters: [ :parameters |
+			ConnectionTimedOut new signal.
+		].
+
+	self 
+		should: [ tusLibrosWebClient getCreateCartWithClientId: clientId andPassword: password ]
+		raise: ConnectionTimedOut.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - createCart' stamp: 'EB 7/2/2019 21:21:47'!
+test13CreateCartOnNonNumberServerResponseShouldRaiseError
+
+	| clientId password response |
+
+	clientId _ 'Juancito'.
+	password _ 'password'.
+	response _ WebResponseTestDouble withCode: 200 andContent: '0|eric'.
+	self 
+		onHtmlSubmitToService: 'createCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'clientId' -> clientId. 'password' -> password} ifTrue: [ response ]
+		].
+
+	extendedAssertions 
+		should: [ tusLibrosWebClient getCreateCartWithClientId: clientId andPassword: password ]
+		raiseErrorWithMessageText:
+			(TusLibrosWebClient badResponseErrorMessageForResponse: response).
+	! !
+
+
+!TusLibrosWebClientTest methodsFor: 'setUp' stamp: 'EB 7/2/2019 00:51:51'!
+setUp
+	domainUrl _ 'http://url.com'.
+	tusLibrosWebClient _ TusLibrosWebClient usingWebClient: self forUrl: domainUrl.
+	extendedAssertions _ ExtendedAssertions for: self.
+	htmlSubmitBlock _ [].
+
+! !
+
+
+!TusLibrosWebClientTest methodsFor: 'simulating' stamp: 'EB 7/1/2019 23:53:07'!
+htmlSubmit: anUrlString fields: someFields
+	^htmlSubmitBlock value: anUrlString value: someFields.! !
+
+!TusLibrosWebClientTest methodsFor: 'simulating' stamp: 'EB 7/2/2019 00:59:55'!
+onHtmlSubmitToService: aService doWithParameters: aBlock
+	
+	| expectedUrl |
+	
+	expectedUrl _ domainUrl, '/', aService.
+	htmlSubmitBlock _ [ :url :params |
+		url = expectedUrl ifTrue: [ aBlock value: params ] 
+	].! !
+
+
+!TusLibrosWebClientTest methodsFor: 'tests - addToCart' stamp: 'EB 7/2/2019 14:38:44'!
+test05AddToCartShouldSendAddToCartRequestOnlyOnce
+
+	| alreadyCalled bookIsbn cartId quantity |
+
+	cartId _ 1.
+	bookIsbn _ 1.
+	quantity _ 23.
+	alreadyCalled _ false.
+	self 
+		onHtmlSubmitToService: 'addToCart' 
+		doWithParameters: [ :parameters |
+			self assert: 
+					{'cartId' -> cartId asString. 
+					'bookIsbn' -> bookIsbn asString. 
+					'bookQuantity' -> quantity asString}
+				equals: parameters.
+			self deny: alreadyCalled description: 'Should add only once.'. 
+			alreadyCalled _ true.
+			WebResponseTestDouble withCode: 200 andContent: '0|OK'.
+		].
+
+	tusLibrosWebClient getAddToCartWithId: cartId adding: quantity of: bookIsbn.
+	
+	self assert: alreadyCalled description: 'getAddToCart should send the request.'.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - addToCart' stamp: 'EB 7/2/2019 14:34:33'!
+test06AddToCartShouldPropagateServerErrorsWhenResponseStatusIs1
+
+	| bookIsbn cartId quantity responseMessage |
+
+	cartId _ 1.
+	bookIsbn _ 1.
+	quantity _ 23.
+	responseMessage _ 'error message.'.
+	self 
+		onHtmlSubmitToService: 'addToCart' 
+		doWithParameters: [ :parameters |
+			WebResponseTestDouble withCode: 200 andContent: '1|', responseMessage. 
+		].
+
+	extendedAssertions 
+		should: [ tusLibrosWebClient getAddToCartWithId: cartId adding: quantity of: bookIsbn ]
+		raiseErrorWithMessageText: responseMessage.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - addToCart' stamp: 'EB 7/2/2019 14:44:59'!
+test07AddToCartWithCodeDIfferentFrom200ShouldPropagateTheError
+
+	| bookIsbn cartId quantity response |
+
+	cartId _ 1.
+	bookIsbn _ 1.
+	quantity _ 23.
+	response _ WebResponseTestDouble withCode: 500 andContent: 'error message.'.
+	self 
+		onHtmlSubmitToService: 'addToCart' 
+		doWithParameters: [ :parameters | response ].
+
+	extendedAssertions 
+		should: [ tusLibrosWebClient getAddToCartWithId: cartId adding: quantity of: bookIsbn ]
+		raiseErrorWithMessageText: 
+			(TusLibrosWebClient badResponseErrorMessageForResponse: response).! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - addToCart' stamp: 'EB 7/2/2019 21:19:20'!
+test08AddToCartOnServerUnavailableShouldPropagateTheError
+
+	self 
+		onHtmlSubmitToService: 'addToCart' 
+		doWithParameters: [ :parameters | ConnectionTimedOut new signal ].
+
+	self 
+		should: [ tusLibrosWebClient getAddToCartWithId: 2 adding: 23 of: 3 ]
+		raise: ConnectionTimedOut.! !
+
+
+!TusLibrosWebClientTest methodsFor: 'tests - listCart' stamp: 'EB 7/2/2019 15:05:14'!
+test09ListCartShouldParseEmptyListCartResponseCorrectly
+
+	| cartContents cartId |
+
+	cartId _ 1.
+	self 
+		onHtmlSubmitToService: 'listCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'cartId' -> cartId asString} ifTrue: [
+				WebResponseTestDouble withCode: 200 andContent: '0|' ].
+		].
+
+	cartContents _ tusLibrosWebClient getListCartWithId: cartId.
+	self assert: Bag new equals: cartContents.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - listCart' stamp: 'EB 7/2/2019 15:22:25'!
+test10ListCartShouldParseFullListCartResponseCorrectly
+
+	| cartContents cartId expectedContents |
+
+	cartId _ 1.
+	self 
+		onHtmlSubmitToService: 'listCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'cartId' -> cartId asString} ifTrue: [
+				WebResponseTestDouble withCode: 200 andContent: '0|1|2|32|4' ].
+		].
+
+	cartContents _ tusLibrosWebClient getListCartWithId: cartId.
+	expectedContents _ Bag new.
+	expectedContents add: 1 withOccurrences: 2.
+	expectedContents add: 32 withOccurrences: 4.
+	self assert: expectedContents equals: cartContents.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - listCart' stamp: 'EB 7/2/2019 21:13:06'!
+test11ListCartWithServerResponseWithOddAmountOfElementsShouldRaiseError
+
+	| cartId response |
+
+	cartId _ 1.
+	response _ WebResponseTestDouble withCode: 200 andContent: '0|1'.
+	self 
+		onHtmlSubmitToService: 'listCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'cartId' -> cartId asString} ifTrue: [ response ].
+		].
+
+	extendedAssertions
+		should: [ tusLibrosWebClient getListCartWithId: cartId ]
+		raiseErrorWithMessageText:
+			(TusLibrosWebClient badResponseErrorMessageForResponse: response).! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - listCart' stamp: 'EB 7/2/2019 21:13:43'!
+test12ListCartWithServerResponseWithNonNumberElementsShouldRaiseError
+
+	| cartId response |
+
+	cartId _ 1.
+	response _ WebResponseTestDouble withCode: 200 andContent: '0|asd|asd'.
+	self 
+		onHtmlSubmitToService: 'listCart' 
+		doWithParameters: [ :parameters |
+			parameters = {'cartId' -> cartId asString} ifTrue: [ response ].
+		].
+
+	extendedAssertions
+		should: [ tusLibrosWebClient getListCartWithId: cartId ]
+		raiseErrorWithMessageText:
+			(TusLibrosWebClient badResponseErrorMessageForResponse: response).! !
+
+
+!TusLibrosWebClientTest methodsFor: 'tests - checkoutCart' stamp: 'EB 7/2/2019 23:15:37'!
+test14CheckoutCartShouldMakeTheRequestWithCorrectParameters
+
+	| cartId cced ccn cco responseMessage transactionId response expirationMonthOfYear |
+
+	cartId _ 123.
+	ccn _ '1234567890123456'.
+	expirationMonthOfYear _ GregorianMonthOfYear 
+		yearNumber: 2019 month: January.
+	cced _ GregorianMonthOfYearHTTPEncoder new encode: expirationMonthOfYear.
+	cco _ 'Pepito'.
+	responseMessage _ '54'.
+	response _ WebResponseTestDouble withCode: 200 andContent: '0|', responseMessage.
+	
+	self 
+		assertHtmlSubmitIsSentOnceToService: 'checkoutCart'
+		withParameters: 
+			{'cartId' -> cartId asString.
+			'ccn' -> ccn.
+			'cced' -> cced.
+			'cco' -> cco}
+		whenDoing: [
+			transactionId _ tusLibrosWebClient 
+				getCheckoutCartWithId: cartId
+				withCreditCardNumbered: ccn
+				withExpirationDate: expirationMonthOfYear
+				andOwner: cco ]
+		response: response.
+		
+	self assert: responseMessage equals: transactionId.! !
+
+
+!TusLibrosWebClientTest methodsFor: 'assertions' stamp: 'EB 7/2/2019 23:01:54'!
+assertHtmlSubmitIsSentOnceToService: aService
+withParameters: someParameters
+whenDoing: aBlock
+response: aResponse 
+
+	| alreadyCalled expectedUrl |
+	
+	expectedUrl _ domainUrl, '/', aService.
+	alreadyCalled _ false.
+	htmlSubmitBlock _ [ :url :fields |
+		self deny: alreadyCalled.
+		self assert: expectedUrl equals: url.
+		self assert: someParameters equals: fields.
+		alreadyCalled _ true.
+		aResponse ].
+	
+	aBlock value.
+	self assert: alreadyCalled.! !
+
+
+!TusLibrosWebClientTest methodsFor: 'tests - listPurchases' stamp: 'EB 7/2/2019 23:33:49'!
+test15ListPurchasesWithEmptyListShouldReturnAnEmptyBag
+	
+	| clientId password purchases |
+	clientId _ 'Pepito'.
+	password _ 'password'.
+	self 
+		onHtmlSubmitToService: 'listPurchases'
+		doWithParameters: [ :parameters |
+			parameters = {'clientId' -> clientId. 'password' -> password} ifTrue: [
+				WebResponseTestDouble withCode: 200 andContent: '0|' ]
+		].
+	
+	purchases _ tusLibrosWebClient 
+		getListPurchasesOfClientWithId: clientId 
+		withPassword: password.
+	self assert: Bag new equals: purchases.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - listPurchases' stamp: 'EB 7/2/2019 23:33:49'!
+test16ListPurchasesWithNonEmptyListShouldReturnAFullBag
+	
+	| clientId password purchases expectedContents |
+	clientId _ 'Pepito'.
+	password _ 'password'.
+	self 
+		onHtmlSubmitToService: 'listPurchases'
+		doWithParameters: [ :parameters |
+			parameters = {'clientId' -> clientId. 'password' -> password} ifTrue: [
+				WebResponseTestDouble withCode: 200 andContent: '0|1|2|34|2' ]
+		].
+	
+	purchases _ tusLibrosWebClient 
+		getListPurchasesOfClientWithId: clientId 
+		withPassword: password.
+		
+	expectedContents _ Bag new.
+	expectedContents add: 1 withOccurrences: 2.
+	expectedContents add: 34 withOccurrences: 2.
+	self assert: expectedContents equals: purchases.! !
 
 
 !classDefinition: #TusLibrosWebServerTest category: #'TusLibros-Tests'!
@@ -1062,25 +1439,29 @@ getCreateCartWithParams: someParams
 getListCartWithCartId: aCartId
 	^self getService: 'listCart' withParams: {'cartId' -> aCartId}. ! !
 
+!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 7/1/2019 13:40:26'!
+getListPrices
+	^self getService: 'listPrices' withParams: {}.! !
+
 !TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 7/1/2019 01:49:10'!
 getListPurchasesWithClientId: aClientId andPassword: aPassword
 	^self 
 		getService: 'listPurchases' 
 		withParams: {'clientId' -> aClientId. 'password' -> aPassword}. ! !
 
-!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 17:22:47'!
+!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 7/1/2019 19:46:09'!
 getService: aService withParams: someParams
-	^WebClient htmlSubmit: self localHostUrl, '/', aService fields: someParams.! !
-
-!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 14:56:15'!
-localHostUrl
-	^'http://localhost:', self port asString! !
+	^WebClient htmlSubmit: self serverUrl, '/', aService fields: someParams.! !
 
 !TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 6/25/2019 14:54:46'!
 port
 	"Use a random port to minimise chances of concurrently running test suites clashing."
 	^ port
 		ifNil: [port := (10000 to: 50000) atRandom]! !
+
+!TusLibrosWebServerTest methodsFor: 'excercising' stamp: 'EB 7/1/2019 19:46:09'!
+serverUrl
+	^'http://localhost:', self port asString! !
 
 
 !TusLibrosWebServerTest methodsFor: 'test objects creation' stamp: 'EB 7/1/2019 01:46:52'!
@@ -1465,6 +1846,34 @@ test19ErrorsListingPurchasesAreParsedInTheResponse
 		returnFailureResponseWithDescription: 
 			TusLibrosApi invalidUserCredentialsErrorMessage.! !
 
+
+!TusLibrosWebServerTest methodsFor: 'tests - listPrices' stamp: 'EB 7/1/2019 13:40:38'!
+test20ListPricesShouldReturnResponseWithParsedPriceList
+
+	| priceList response |
+	
+	priceList _ {1 -> 2. 3 -> 4} asDictionary.
+	self 
+		createServerWithApiWithRegisteredCredentials: Dictionary new 
+		andPriceList: priceList.
+	
+	response _ self getListPrices.
+	
+	self assert: 200 equals: response code.
+	self assert: '0|1|2|3|4' equals: response content.! !
+
+!TusLibrosWebServerTest methodsFor: 'tests - listPrices' stamp: 'EB 7/1/2019 13:40:53'!
+test21ListPricesWithoutPricesShouldReturnEmptyResponseContent
+
+	| response |
+	
+	self createServerWithApiWithNoCredentials.
+
+	response _ self getListPrices.
+	
+	self assert: 200 equals: response code.
+	self assert: '0|' equals: response content.! !
+
 
 !classDefinition: #CredentialsDictionaryUserAuthenticator category: #'TusLibros-Tests'!
 Object subclass: #CredentialsDictionaryUserAuthenticator
@@ -1616,3 +2025,35 @@ debitedAmount
 !MerchantProcessorForTesting methodsFor: 'accessing' stamp: 'EB 6/9/2019 19:15:18'!
 usedCreditCards
 	^creditCardsUsed.! !
+
+
+!classDefinition: #WebResponseTestDouble category: #'TusLibros-Tests'!
+Object subclass: #WebResponseTestDouble
+	instanceVariableNames: 'content code'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros-Tests'!
+
+!WebResponseTestDouble methodsFor: 'accessing' stamp: 'EB 7/2/2019 00:05:51'!
+code
+	^code! !
+
+!WebResponseTestDouble methodsFor: 'accessing' stamp: 'EB 7/2/2019 00:05:29'!
+content
+	^content.! !
+
+
+!WebResponseTestDouble methodsFor: 'initializing' stamp: 'EB 7/2/2019 00:06:20'!
+initializeWithCode: aCode andContent: someContent
+	content _ someContent.
+	code _ aCode.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'WebResponseTestDouble class' category: #'TusLibros-Tests'!
+WebResponseTestDouble class
+	instanceVariableNames: ''!
+
+!WebResponseTestDouble class methodsFor: 'instance creation' stamp: 'EB 7/2/2019 00:06:59'!
+withCode: aCode andContent: someContent
+	^self new initializeWithCode: aCode andContent: someContent! !

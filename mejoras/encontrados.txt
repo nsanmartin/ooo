@@ -18,6 +18,7 @@ Features:
 le puedas poner un shortcut y te lo muestre en el menú y cuando se aprete el shortcut
 te haga la acción.
 - Refactors:
+	- variable local -> variable de instancia que se fije en los otros métodos de la clase y pregunte si sacarlos de ahí también.
 	- variable local <-> variable de instancia
 	- extract method
 	- variable de bloque <-> variable local
@@ -31,6 +32,7 @@ te haga la acción.
 	- Insert abstract superclass
 	- Insert abstract method in superclass
 	- Create test for class, o create test class
+	- Move to setUp?
 - Que sea fácil cambiar/agregar shortcuts.
 - find/replace in class/category/system.
 - si no hay mensajes para la categoría, debería existir la categoría?
