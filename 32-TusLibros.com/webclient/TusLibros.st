@@ -1,3 +1,161 @@
+!classDefinition: #TusLibrosClientWindowLogin category: #TusLibros!
+Panel subclass: #TusLibrosClientWindowLogin
+	instanceVariableNames: 'webClient userName userPass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/7/2019 13:33:23'!
+defaultExtent
+
+	^ 630@435
+	! !
+
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/7/2019 16:17:07'!
+initializeWith: aTitle
+
+	self titleMorph showButtonsNamed: #( close collapse ).
+	self setLabel: aTitle.
+	self model: (TusLibrosClientWindowLoginModel new).
+	self morphExtent: (self defaultExtent).
+	self buildMorphicWindow.
+	self openInWorld.
+	self yourself.
+			
+	self model when: #createCartRequest send: #newCart to: self.
+	
+	! !
+
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/7/2019 15:07:39'!
+newCart
+	self shouldBeImplemented .! !
+
+
+!TusLibrosClientWindowLogin methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 16:16:34'!
+buildMorphicWindow
+	| loginButton |
+	loginButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendCreateCartRequest label: 'create cart'.	
+	
+	self layoutMorph beColumn;
+	separation: 15;
+	padding: #left;
+	addMorph: (StringMorph contents:'user:');
+	addMorph: (TextModelMorph textProvider: self model textGetter: nil textSetter: #setUserName:);
+	addMorph: (StringMorph contents:'password:');
+	addMorph: (TextModelMorph textProvider: self model textGetter: nil textSetter: #setPassword:);
+	addMorph: loginButton.
+	
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TusLibrosClientWindowLogin class' category: #TusLibros!
+TusLibrosClientWindowLogin class
+	instanceVariableNames: ''!
+
+!TusLibrosClientWindowLogin class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 16:20:37'!
+open
+	
+	^self new initializeWith: 'TusLibros Log in-Service Client Window'.! !
+
+
+!classDefinition: #TusLibrosClientWindowPurchase category: #TusLibros!
+Panel subclass: #TusLibrosClientWindowPurchase
+	instanceVariableNames: 'webClient userName userPass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 13:33:48'!
+defaultExtent
+
+	^ 630@435
+	! !
+
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 15:41:57'!
+initializeWith: aTitle
+
+	self titleMorph showButtonsNamed: #( close collapse ).
+	self setLabel: aTitle.
+	self model: (TusLibrosClientWindowPurchaseModel withCartId: 1).
+	self morphExtent: (self defaultExtent).
+	self buildMorphicWindow.
+	self openInWorld.
+	self yourself.
+			
+	self model when: #addToCartRequest send: #refreshCart to: self.
+	self model when: #checkoutRequest send: #refreshCart to: self.
+	! !
+
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 13:47:42'!
+refreshCart
+	! !
+
+
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 15:38:02'!
+build1stCol
+	| addToCartButton firstColLayout catalogList |
+	
+	addToCartButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendAddToCartRequest label: 'Add to Cart'.	
+	
+	catalogList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: #productoSeleccionadoIndex indexSetter: #productoSeleccionadoIndex:.
+
+"	catalogList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: nil indexSetter: nil."
+	catalogList  borderColor: Color skyBlue.
+	catalogList  borderWidth: 1.
+	
+	firstColLayout := LayoutMorph newColumn .
+	firstColLayout separation: 25;
+	padding: #left;
+	addMorph: catalogList ;
+	addMorph: addToCartButton.
+	
+	^firstColLayout.
+	! !
+
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 14:37:10'!
+build2ndCol
+	| checkoutButton secondColLayout cartList |
+	
+	checkoutButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendCheckoutCartRequest label: 'Checkout!!'.	
+	
+	cartList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: nil  indexSetter: nil.
+	cartList  borderColor: Color skyBlue.
+	cartList  borderWidth: 1.
+	
+	
+	secondColLayout := LayoutMorph newColumn .
+	secondColLayout separation: 25;
+	padding: #left;
+	addMorph: cartList ;
+	addMorph: checkoutButton.
+	
+	^secondColLayout.
+	! !
+
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 14:16:57'!
+buildMorphicWindow
+		
+	self layoutMorph beColumn;
+	separation: 15;
+	padding: #left;
+	addMorph: self build1stCol;
+	addMorph: self build2ndCol.
+	
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TusLibrosClientWindowPurchase class' category: #TusLibros!
+TusLibrosClientWindowPurchase class
+	instanceVariableNames: ''!
+
+!TusLibrosClientWindowPurchase class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:49:34'!
+open
+	
+	^self new initializeWith: 'TusLibros-Service Client Window'.! !
+
+
 !classDefinition: #Cart category: #TusLibros!
 Object subclass: #Cart
 	instanceVariableNames: 'books priceList'
@@ -512,20 +670,33 @@ invalidUserCredentialsErrorMessage
 
 !classDefinition: #TusLibrosClientWindowLoginModel category: #TusLibros!
 Object subclass: #TusLibrosClientWindowLoginModel
-	instanceVariableNames: 'webClient userName userPass'
+	instanceVariableNames: 'webClient userPass clientId userName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosClientWindowLoginModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 12:25:03'!
+!TusLibrosClientWindowLoginModel methodsFor: 'initialization' stamp: 'NSM 7/7/2019 16:20:00'!
 initialize
-	webClient _ ''."crear un web client"
-	userName _ ''.
-	userPass _ ''.! !
+	webClient _ TusLibrosWebClient usingWebClient: (WebClient  new) forUrl: 'http://localhost:80'.
+	clientId _ ''.
+	userName _ ''.	
+	userPass _ ''.
+	! !
 
-!TusLibrosClientWindowLoginModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 12:26:57'!
+
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:44:07'!
 sendCreateCartRequest
-	webClient  getCreateCartWithClientId: userName andPassword: userPass .! !
+	webClient  getCreateCartWithClientId: clientId andPassword: userPass .
+	
+	self triggerEvent: #createCartRequest with: self.! !
+
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 16:13:16'!
+setPassword: aPassword
+	^ userPass _ aPassword .! !
+
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 16:13:40'!
+setUserName: aUsername
+	userName _ aUsername .! !
 
 
 !classDefinition: #TusLibrosClientWindowPurchaseModel category: #TusLibros!
@@ -539,24 +710,75 @@ Object subclass: #TusLibrosClientWindowPurchaseModel
 getSelectedBookIsbn
 	^ catalogo at: productoSeleccionadoIndex ."todo obtener isbn"! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 12:20:06'!
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 15:42:53'!
+initializeWithCartId: aCartId
+	self initializeWithWebClient: (TusLibrosWebClient usingWebClient: (WebClient  new) forUrl: 'http://localhost:80')
+		 andCartId: aCartId. 
+		
+		
+	! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 15:55:26'!
 initializeWithWebClient: aWebClient andCartId: aCartId
 	webClient _ aWebClient.
 	catalogo _ OrderedCollection new. "webClient getCatalogo ??"
 	cartId _ aCartId.
-	productosEnCarrito _ webClient  getListCartWithCartId: cartId.
+	productosEnCarrito _ webClient  getListCartWithId: cartId.
 	productoSeleccionadoIndex _ 1.
 	cantidadSolicitadaProductoSolicitado _ 0.
 		
 		
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 12:28:12'!
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 14:26:03'!
+catalogo
+	^ catalogo .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 15:34:36'!
+productoSeleccionadoIndex
+	^ productoSeleccionadoIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 14:25:49'!
+productoSeleccionadoIndex: anIndex
+	productoSeleccionadoIndex _ anIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:29:06'!
 sendAddToCartRequest
 	webClient  getAddToCartWithCartId:  cartId andBookIsbn: (self getSelectedBookIsbn) andQuantity: cantidadSolicitadaProductoSolicitado .
-	self triggerEvent: #createCartRequest with: self.
+	self triggerEvent: #addToCartRequest with: self.
 	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
 	self model when: #addToCartRequest send: #refreshWindow  to: self."! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:56:16'!
+sendCheckoutCartRequest
+	webClient  getCheckoutCartWithCartId: cartId andCreditCard: 'credit card?'.
+	self triggerEvent: #showWorldInTranscript with: self.
+	! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:55:53'!
+showWordInTranscript
+	
+	[TranscriptWindow openTranscript.
+		Transcript clear.
+		Transcript show: 'Compra exitosa '.
+		Transcript show: ' '.].
+! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TusLibrosClientWindowPurchaseModel class' category: #TusLibros!
+TusLibrosClientWindowPurchaseModel class
+	instanceVariableNames: ''!
+
+!TusLibrosClientWindowPurchaseModel class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:41:17'!
+withCartId: aCartId
+	^self new initializeWithCartId: aCartId .! !
+
+!TusLibrosClientWindowPurchaseModel class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:56:54'!
+withWebClient: aWebClient andCartId: aCartId
+	^self new initializeWithWebClient: aWebClient andCartId: aCartId .! !
 
 
 !classDefinition: #TusLibrosWebClient category: #TusLibros!
