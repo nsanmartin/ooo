@@ -92,7 +92,7 @@ refreshCart
 	! !
 
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 15:38:02'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 19:30:13'!
 build1stCol
 	| addToCartButton firstColLayout catalogList |
 	
@@ -113,13 +113,13 @@ build1stCol
 	^firstColLayout.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 14:37:10'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 19:36:49'!
 build2ndCol
 	| checkoutButton secondColLayout cartList |
 	
 	checkoutButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendCheckoutCartRequest label: 'Checkout!!'.	
 	
-	cartList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: nil  indexSetter: nil.
+	cartList := PluggableListMorph model: self model listGetter: #carrito indexGetter: nil  indexSetter: nil.
 	cartList  borderColor: Color skyBlue.
 	cartList  borderWidth: 1.
 	
@@ -133,10 +133,10 @@ build2ndCol
 	^secondColLayout.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 14:16:57'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 19:32:30'!
 buildMorphicWindow
 		
-	self layoutMorph beColumn;
+	self layoutMorph beRow ;
 	separation: 15;
 	padding: #left;
 	addMorph: self build1stCol;
@@ -719,18 +719,22 @@ initializeWithCartId: aCartId
 		
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 15:55:26'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 19:35:07'!
 initializeWithWebClient: aWebClient andCartId: aCartId
 	webClient _ aWebClient.
-	catalogo _ OrderedCollection new. "webClient getCatalogo ??"
+	catalogo _ {'1'. '2'. '3'. '4'} asOrderedCollection . "webClient getCatalogo ??"
 	cartId _ aCartId.
-	productosEnCarrito _ webClient  getListCartWithId: cartId.
+	productosEnCarrito _ {} asOrderedCollection . "webClient  getListCartWithId: cartId."
 	productoSeleccionadoIndex _ 1.
 	cantidadSolicitadaProductoSolicitado _ 0.
 		
 		
 	! !
 
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 19:37:00'!
+carrito
+	^ productosEnCarrito .! !
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 14:26:03'!
 catalogo
