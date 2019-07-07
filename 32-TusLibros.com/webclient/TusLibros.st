@@ -706,9 +706,48 @@ Object subclass: #TusLibrosClientWindowPurchaseModel
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:37:00'!
+carrito
+	^ productosEnCarrito .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:26:03'!
+catalogo
+	^ catalogo .! !
+
 !TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 11:56:33'!
 getSelectedBookIsbn
 	^ catalogo at: productoSeleccionadoIndex ."todo obtener isbn"! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:34:36'!
+productoSeleccionadoIndex
+	^ productoSeleccionadoIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:25:49'!
+productoSeleccionadoIndex: anIndex
+	productoSeleccionadoIndex _ anIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 13:29:06'!
+sendAddToCartRequest
+	webClient  getAddToCartWithCartId:  cartId andBookIsbn: (self getSelectedBookIsbn) andQuantity: cantidadSolicitadaProductoSolicitado .
+	self triggerEvent: #addToCartRequest with: self.
+	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
+	self model when: #addToCartRequest send: #refreshWindow  to: self."! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:44:57'!
+sendCheckoutCartRequest
+	self showWordInTranscript .
+	"webClient  getCheckoutCartWithCartId: cartId andCreditCard: 'credit card?'."
+	"self triggerEvent: #showWorldInTranscript with: self."
+	! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:51:57'!
+showWordInTranscript
+	
+	TranscriptWindow openTranscript.
+	Transcript clear.
+	Transcript show: 'Compra eviada: '.
+	self carrito do: [:libro| Transcript  show: libro, ' '.].
+! !
 
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 15:42:53'!
@@ -719,56 +758,17 @@ initializeWithCartId: aCartId
 		
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 19:35:07'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 19:47:41'!
 initializeWithWebClient: aWebClient andCartId: aCartId
 	webClient _ aWebClient.
 	catalogo _ {'1'. '2'. '3'. '4'} asOrderedCollection . "webClient getCatalogo ??"
 	cartId _ aCartId.
-	productosEnCarrito _ {} asOrderedCollection . "webClient  getListCartWithId: cartId."
+	productosEnCarrito _ {'2'. '3'} asOrderedCollection . "webClient  getListCartWithId: cartId."
 	productoSeleccionadoIndex _ 1.
 	cantidadSolicitadaProductoSolicitado _ 0.
 		
 		
 	! !
-
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 19:37:00'!
-carrito
-	^ productosEnCarrito .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 14:26:03'!
-catalogo
-	^ catalogo .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 15:34:36'!
-productoSeleccionadoIndex
-	^ productoSeleccionadoIndex .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 14:25:49'!
-productoSeleccionadoIndex: anIndex
-	productoSeleccionadoIndex _ anIndex .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:29:06'!
-sendAddToCartRequest
-	webClient  getAddToCartWithCartId:  cartId andBookIsbn: (self getSelectedBookIsbn) andQuantity: cantidadSolicitadaProductoSolicitado .
-	self triggerEvent: #addToCartRequest with: self.
-	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
-	self model when: #addToCartRequest send: #refreshWindow  to: self."! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:56:16'!
-sendCheckoutCartRequest
-	webClient  getCheckoutCartWithCartId: cartId andCreditCard: 'credit card?'.
-	self triggerEvent: #showWorldInTranscript with: self.
-	! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:55:53'!
-showWordInTranscript
-	
-	[TranscriptWindow openTranscript.
-		Transcript clear.
-		Transcript show: 'Compra exitosa '.
-		Transcript show: ' '.].
-! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
