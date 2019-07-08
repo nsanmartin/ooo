@@ -11,41 +11,62 @@ defaultExtent
 	^ 630@435
 	! !
 
-!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/7/2019 16:17:07'!
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 20:42:48'!
 initializeWith: aTitle
 
 	self titleMorph showButtonsNamed: #( close collapse ).
 	self setLabel: aTitle.
-	self model: (TusLibrosClientWindowLoginModel new).
-	self morphExtent: (self defaultExtent).
+	self model: TusLibrosClientWindowLoginModel new.
+	self morphExtent: self defaultExtent.
 	self buildMorphicWindow.
 	self openInWorld.
-	self yourself.
-			
+		
 	self model when: #createCartRequest send: #newCart to: self.
 	
 	! !
 
-!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/7/2019 15:07:39'!
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 21:14:05'!
 newCart
-	self shouldBeImplemented .! !
+	TusLibrosClientWindowPurchase open.! !
 
 
-!TusLibrosClientWindowLogin methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 16:16:34'!
+!TusLibrosClientWindowLogin methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:12:58'!
 buildMorphicWindow
-	| loginButton |
-	loginButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendCreateCartRequest label: 'create cart'.	
 	
-	self layoutMorph beColumn;
-	separation: 15;
-	padding: #left;
-	addMorph: (StringMorph contents:'user:');
-	addMorph: (TextModelMorph textProvider: self model textGetter: nil textSetter: #setUserName:);
-	addMorph: (StringMorph contents:'password:');
-	addMorph: (TextModelMorph textProvider: self model textGetter: nil textSetter: #setPassword:);
-	addMorph: loginButton.
+	| loginButton |
+	
+	loginButton := PluggableButtonMorph 
+		model: self model 
+		stateGetter: nil
+		action: #sendCreateCartRequest 
+		label: 'create cart'.
+	
+	self layoutMorph 
+		beColumn;
+		separation: 15;
+		padding: #left;
+		addMorph: (StringMorph contents: 'user:');
+		addMorph: (self buildTextModelMorphWithTextSetter: #setUserName:);
+		addMorph: (StringMorph contents: 'password:');
+		addMorph: (self buildTextModelMorphWithTextSetter: #setPassword:);
+		addMorph: loginButton.
 	
 	! !
+
+!TusLibrosClientWindowLogin methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:08:27'!
+buildTextModelMorphWithTextSetter: aTextSetterSymbol
+
+	| textModelMorph |
+
+	textModelMorph _ TextModelMorph 
+		textProvider: self model 
+		textGetter: nil 
+		textSetter: aTextSetterSymbol.
+	textModelMorph textMorph 
+		setProperty: #keyStroke: 
+		toValue: [ :key | textModelMorph textMorph acceptContents ].
+	textModelMorph  borderWidth: 1; borderColor: Color skyBlue.
+	^textModelMorph.	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -92,11 +113,15 @@ refreshCart
 	! !
 
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 19:30:13'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/7/2019 21:15:53'!
 build1stCol
 	| addToCartButton firstColLayout catalogList |
 	
-	addToCartButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendAddToCartRequest label: 'Add to Cart'.	
+	addToCartButton := PluggableButtonMorph 
+		model: self model 
+		stateGetter: nil  
+		action: #sendAddToCartRequest 
+		label: 'Add to Cart'.	
 	
 	catalogList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: #productoSeleccionadoIndex indexSetter: #productoSeleccionadoIndex:.
 
@@ -113,16 +138,23 @@ build1stCol
 	^firstColLayout.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 19:36:49'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/7/2019 21:15:32'!
 build2ndCol
 	| checkoutButton secondColLayout cartList |
 	
-	checkoutButton := PluggableButtonMorph model: self model stateGetter: nil  action: #sendCheckoutCartRequest label: 'Checkout!!'.	
+	checkoutButton := PluggableButtonMorph 
+		model: self model 
+		stateGetter: nil
+		action: #sendCheckoutCartRequest 
+		label: 'Checkout!!'.
 	
-	cartList := PluggableListMorph model: self model listGetter: #carrito indexGetter: nil  indexSetter: nil.
+	cartList := PluggableListMorph 
+		model: self model 
+		listGetter: #carrito 
+		indexGetter: nil
+		indexSetter: nil.
 	cartList  borderColor: Color skyBlue.
 	cartList  borderWidth: 1.
-	
 	
 	secondColLayout := LayoutMorph newColumn .
 	secondColLayout separation: 25;
@@ -675,22 +707,26 @@ Object subclass: #TusLibrosClientWindowLoginModel
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosClientWindowLoginModel methodsFor: 'initialization' stamp: 'NSM 7/7/2019 16:20:00'!
+!TusLibrosClientWindowLoginModel methodsFor: 'initialization' stamp: 'EB 7/7/2019 20:47:20'!
 initialize
-	webClient _ TusLibrosWebClient usingWebClient: (WebClient  new) forUrl: 'http://localhost:80'.
+	webClient _ TusLibrosWebClient usingWebClient: WebClient forUrl: 'http://localhost:8000'.
 	clientId _ ''.
 	userName _ ''.	
 	userPass _ ''.
 	! !
 
 
-!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 13:44:07'!
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'EB 7/7/2019 21:11:07'!
+getUserName
+	^userName.! !
+
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'EB 7/7/2019 21:11:13'!
 sendCreateCartRequest
-	webClient  getCreateCartWithClientId: clientId andPassword: userPass .
+	webClient  getCreateCartWithClientId: userName andPassword: userPass .
 	
 	self triggerEvent: #createCartRequest with: self.! !
 
-!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'NSM 7/7/2019 16:13:16'!
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'EB 7/7/2019 20:51:15'!
 setPassword: aPassword
 	^ userPass _ aPassword .! !
 
@@ -726,9 +762,9 @@ productoSeleccionadoIndex
 productoSeleccionadoIndex: anIndex
 	productoSeleccionadoIndex _ anIndex .! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 13:29:06'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:16:35'!
 sendAddToCartRequest
-	webClient  getAddToCartWithCartId:  cartId andBookIsbn: (self getSelectedBookIsbn) andQuantity: cantidadSolicitadaProductoSolicitado .
+	webClient getAddToCartWithId: cartId adding: self getSelectedBookIsbn of: cantidadSolicitadaProductoSolicitado. 
 	self triggerEvent: #addToCartRequest with: self.
 	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
 	self model when: #addToCartRequest send: #refreshWindow  to: self."! !
@@ -750,9 +786,9 @@ showWordInTranscript
 ! !
 
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 15:42:53'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'EB 7/7/2019 21:17:37'!
 initializeWithCartId: aCartId
-	self initializeWithWebClient: (TusLibrosWebClient usingWebClient: (WebClient  new) forUrl: 'http://localhost:80')
+	self initializeWithWebClient: (TusLibrosWebClient usingWebClient: WebClient forUrl: 'http://localhost:80')
 		 andCartId: aCartId. 
 		
 		
@@ -1203,6 +1239,23 @@ getStringField: aFieldName fromRequest: aRequest
 !classDefinition: 'TusLibrosWebServer class' category: #TusLibros!
 TusLibrosWebServer class
 	instanceVariableNames: ''!
+
+!TusLibrosWebServer class methodsFor: 'instance creation' stamp: 'EB 7/7/2019 20:48:07'!
+example
+
+	| api authenticator priceList |
+
+	priceList _ {1 -> 23. 34 -> 42. 69 -> 420. 90 -> 1234} asDictionary.
+	authenticator _ CredentialsDictionaryUserAuthenticator 
+		withRegisteredCredentials: {'admin' -> 'admin'} asDictionary.
+
+	api _ TusLibrosApi 
+		authenticatingWith: authenticator
+		debitingFrom: MerchantProcessorForTesting new
+		withPriceList: priceList
+		andClock: GregorianDateTime. 
+
+	^TusLibrosWebServer for: api listeningOn: 8000.! !
 
 !TusLibrosWebServer class methodsFor: 'instance creation' stamp: 'EB 6/28/2019 13:22:30'!
 for: aTusLibrosApi listeningOn: aPortNumber 
