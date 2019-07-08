@@ -132,7 +132,7 @@ refreshCart
 	cartList  updateList .! !
 
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/8/2019 20:08:52'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/8/2019 20:39:38'!
 build1stCol
 
 	| addToCartButton firstColLayout catalogList |
@@ -145,9 +145,9 @@ build1stCol
 	
 	catalogList := PluggableListMorph 
 		model: self model 
-		listGetter: #catalogo 
-		indexGetter: #productoSeleccionadoIndex 
-		indexSetter: #productoSeleccionadoIndex:.
+		listGetter: #showableCatalog 
+		indexGetter: #selectedProductIndex 
+		indexSetter: #selectedProductIndex:.
 
 	catalogList  borderColor: Color skyBlue.
 	catalogList  borderWidth: 1.
@@ -162,7 +162,7 @@ build1stCol
 	^firstColLayout.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 23:06:47'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/8/2019 20:33:14'!
 build2ndCol
 	| checkoutButton secondColLayout  |
 	
@@ -174,7 +174,7 @@ build2ndCol
 	
 	cartList := PluggableListMorph 
 		model: self model 
-		listGetter: #carrito 
+		listGetter: #cartContents 
 		indexGetter: nil
 		indexSetter: nil.
 	cartList  borderColor: Color skyBlue.
@@ -768,61 +768,28 @@ setUserName: aUsername
 
 !classDefinition: #TusLibrosClientWindowPurchaseModel category: #TusLibros!
 Object subclass: #TusLibrosClientWindowPurchaseModel
-	instanceVariableNames: 'catalogo cantidadSolicitadaProductoSolicitado productosEnCarrito productoSeleccionadoIndex webClient cartId listPrices'
+	instanceVariableNames: 'cantidadSolicitadaProductoSolicitado webClient cartId cartContents catalog showableCatalog selectedProductIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:37:00'!
-carrito
-	^ productosEnCarrito .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:26:03'!
-catalogo
-	^ catalogo .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/8/2019 20:10:03'!
-getSelectedBookIsbn
-
-	^(listPrices at: productoSeleccionadoIndex) x.! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:34:36'!
-productoSeleccionadoIndex
-	^ productoSeleccionadoIndex .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:25:49'!
-productoSeleccionadoIndex: anIndex
-	productoSeleccionadoIndex _ anIndex .! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/8/2019 20:15:17'!
-sendAddToCartRequest
-	webClient getAddToCartWithId: cartId adding: cantidadSolicitadaProductoSolicitado of: self getSelectedBookIsbn. 
-	self updateCartContents.
-	self triggerEvent: #addToCartRequest with: self.
-	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
-	self model when: #addToCartRequest send: #refreshWindow  to: self."! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:44:57'!
-sendCheckoutCartRequest
-	self showWordInTranscript .
-	"webClient  getCheckoutCartWithCartId: cartId andCreditCard: 'credit card?'."
-	"self triggerEvent: #showWorldInTranscript with: self."
-	! !
-
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 23:27:35'!
-showWordInTranscript
+!TusLibrosClientWindowPurchaseModel methodsFor: 'showing in transcript' stamp: 'EB 7/8/2019 20:57:16'!
+showCheckoutResultInTranscriptWithTransactionId: aTransactionId
 	
 	TranscriptWindow openTranscript.
 	Transcript clear.
-	Transcript show: 'Compra eviada: '.
-	self carrito do: [:libro| Transcript  show: libro asString , ' '.].
+	
+	Transcript log: 'Compra enviada.'.
+	Transcript log: 'Número de transacción: ', aTransactionId.
+	Transcript log: 'Libros comprados: '.
+	self cartContents do: [ :libro | Transcript log: libro asString , ' ' ]
+	
 ! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 23:25:48'!
-updateCartContents
-	productosEnCarrito _ OrderedCollection new.
-	(webClient getListCartWithId: cartId) do: [:x | productosEnCarrito add:x].! !
 
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/8/2019 20:29:22'!
+catalogStringForBookWIthIsbn: aBookIsbn andPrice: aPrice
+	^aBookIsbn asString, ' ($', aPrice asString, ')'.! !
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/7/2019 21:54:49'!
 initializeWithCartId: aCartId
@@ -837,23 +804,73 @@ initializeWithCartId: aCartId
 		
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'NSM 7/7/2019 22:53:52'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/8/2019 20:39:47'!
 initializeWithWebClient: aWebClient andCartId: aCartId
 	webClient _ aWebClient.
 	cartId _ aCartId.
 	
-	productoSeleccionadoIndex _ 1.
+	selectedProductIndex _ 1.
 	cantidadSolicitadaProductoSolicitado _ 1.
-	catalogo _ OrderedCollection new.
-	listPrices _ OrderedCollection new.
-	(webClient getListPrices ) keysAndValuesDo:  [:k :v| 
-		catalogo add: 'ISBN: ',(k asString) , '  precio: $',(v asString ).
-		listPrices add:k@v.
+	showableCatalog _ OrderedCollection new.
+	catalog _ OrderedCollection new.
+	(webClient getListPrices) keysAndValuesDo:  [ :bookIsbn :price |
+		showableCatalog add: (self catalogStringForBookWIthIsbn: bookIsbn andPrice: price).
+		catalog add: bookIsbn@price.
 	].
 	self updateCartContents.
 		
 		
 	! !
+
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:33:14'!
+cartContents
+	^ cartContents .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:39:47'!
+getSelectedBookIsbn
+
+	^catalog at: selectedProductIndex.! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:39:47'!
+selectedProductIndex
+	^ selectedProductIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:39:47'!
+selectedProductIndex: anIndex
+	selectedProductIndex _ anIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:40:01'!
+sendAddToCartRequest
+	webClient 
+		getAddToCartWithId: cartId 
+		adding: cantidadSolicitadaProductoSolicitado 
+		of: self getSelectedBookIsbn. 
+	self updateCartContents.
+	self triggerEvent: #addToCartRequest with: self.! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:47:18'!
+sendCheckoutCartRequest
+	
+	| transactionId |
+	
+	transactionId _ webClient
+		getCheckoutCartWithId: cartId 
+		withCreditCardNumbered: '1234567890123456' 
+		withExpirationDate: GregorianDateTime now monthOfYear 
+		andOwner: 'Pepito'.
+	self showCheckoutResultInTranscriptWithTransactionId: transactionId.
+	"webClient  getCheckoutCartWithCartId: cartId andCreditCard: 'credit card?'."
+	"self triggerEvent: #showWorldInTranscript with: self."
+	! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:38:55'!
+showableCatalog
+	^ showableCatalog .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:32:03'!
+updateCartContents
+	cartContents _ (webClient getListCartWithId: cartId) asOrderedCollection.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
