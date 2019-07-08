@@ -11,7 +11,7 @@ defaultExtent
 	^ 630@435
 	! !
 
-!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 20:42:48'!
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 22:01:10'!
 initializeWith: aTitle
 
 	self titleMorph showButtonsNamed: #( close collapse ).
@@ -21,16 +21,16 @@ initializeWith: aTitle
 	self buildMorphicWindow.
 	self openInWorld.
 		
-	self model when: #createCartRequest send: #newCart to: self.
+	self model when: #createCartRequest send: #openPurchaseWindowWithCartId: to: self.
 	
 	! !
 
-!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 21:14:05'!
-newCart
-	TusLibrosClientWindowPurchase open.! !
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 22:05:35'!
+openPurchaseWindowWithCartId: aCartId
+	TusLibrosClientWindowPurchase openForCart: aCartId.! !
 
 
-!TusLibrosClientWindowLogin methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:12:58'!
+!TusLibrosClientWindowLogin methodsFor: 'layout building' stamp: 'EB 7/7/2019 21:12:58'!
 buildMorphicWindow
 	
 	| loginButton |
@@ -53,7 +53,7 @@ buildMorphicWindow
 	
 	! !
 
-!TusLibrosClientWindowLogin methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:08:27'!
+!TusLibrosClientWindowLogin methodsFor: 'layout building' stamp: 'EB 7/7/2019 21:08:27'!
 buildTextModelMorphWithTextSetter: aTextSetterSymbol
 
 	| textModelMorph |
@@ -74,7 +74,7 @@ buildTextModelMorphWithTextSetter: aTextSetterSymbol
 TusLibrosClientWindowLogin class
 	instanceVariableNames: ''!
 
-!TusLibrosClientWindowLogin class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 16:20:37'!
+!TusLibrosClientWindowLogin class methodsFor: 'instance creation' stamp: 'NSM 7/7/2019 16:20:37'!
 open
 	
 	^self new initializeWith: 'TusLibros Log in-Service Client Window'.! !
@@ -93,12 +93,12 @@ defaultExtent
 	^ 630@435
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 15:41:57'!
-initializeWith: aTitle
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'EB 7/7/2019 21:49:07'!
+initializeWithTitle: aTitle forCartId: aCartId
 
 	self titleMorph showButtonsNamed: #( close collapse ).
 	self setLabel: aTitle.
-	self model: (TusLibrosClientWindowPurchaseModel withCartId: 1).
+	self model: (TusLibrosClientWindowPurchaseModel withCartId: aCartId).
 	self morphExtent: (self defaultExtent).
 	self buildMorphicWindow.
 	self openInWorld.
@@ -182,10 +182,10 @@ buildMorphicWindow
 TusLibrosClientWindowPurchase class
 	instanceVariableNames: ''!
 
-!TusLibrosClientWindowPurchase class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:49:34'!
-open
+!TusLibrosClientWindowPurchase class methodsFor: 'instance creation' stamp: 'EB 7/7/2019 21:48:28'!
+openForCart: aCartId
 	
-	^self new initializeWith: 'TusLibros-Service Client Window'.! !
+	^self new initializeWithTitle: 'TusLibros-Service Client Window' forCartId: aCartId.! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -720,11 +720,12 @@ initialize
 getUserName
 	^userName.! !
 
-!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'EB 7/7/2019 21:11:13'!
+!TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'EB 7/7/2019 22:00:20'!
 sendCreateCartRequest
-	webClient  getCreateCartWithClientId: userName andPassword: userPass .
+	| cartId |
 	
-	self triggerEvent: #createCartRequest with: self.! !
+	cartId _ webClient  getCreateCartWithClientId: userName andPassword: userPass .
+	self triggerEvent: #createCartRequest with: cartId.! !
 
 !TusLibrosClientWindowLoginModel methodsFor: 'PluggableButtonSelectors' stamp: 'EB 7/7/2019 20:51:15'!
 setPassword: aPassword
@@ -762,9 +763,10 @@ productoSeleccionadoIndex
 productoSeleccionadoIndex: anIndex
 	productoSeleccionadoIndex _ anIndex .! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:16:35'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:55:23'!
 sendAddToCartRequest
 	webClient getAddToCartWithId: cartId adding: self getSelectedBookIsbn of: cantidadSolicitadaProductoSolicitado. 
+	self updateCartContents.
 	self triggerEvent: #addToCartRequest with: self.
 	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
 	self model when: #addToCartRequest send: #refreshWindow  to: self."! !
@@ -785,23 +787,33 @@ showWordInTranscript
 	self carrito do: [:libro| Transcript  show: libro, ' '.].
 ! !
 
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:52:47'!
+updateCartContents
+	productosEnCarrito _ webClient getListCartWithId: cartId.! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'EB 7/7/2019 21:17:37'!
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/7/2019 21:54:49'!
 initializeWithCartId: aCartId
-	self initializeWithWebClient: (TusLibrosWebClient usingWebClient: WebClient forUrl: 'http://localhost:80')
-		 andCartId: aCartId. 
+	
+	| tusLibrosWebClient |
+	
+	tusLibrosWebClient _ TusLibrosWebClient usingWebClient: WebClient forUrl: 'http://localhost:8000'.
+	self 
+		initializeWithWebClient: tusLibrosWebClient
+		andCartId: aCartId. 
 		
 		
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initilization' stamp: 'NSM 7/7/2019 19:47:41'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/7/2019 21:53:11'!
 initializeWithWebClient: aWebClient andCartId: aCartId
 	webClient _ aWebClient.
-	catalogo _ {'1'. '2'. '3'. '4'} asOrderedCollection . "webClient getCatalogo ??"
 	cartId _ aCartId.
-	productosEnCarrito _ {'2'. '3'} asOrderedCollection . "webClient  getListCartWithId: cartId."
+	
 	productoSeleccionadoIndex _ 1.
 	cantidadSolicitadaProductoSolicitado _ 0.
+	catalogo _ webClient getListPrices.
+	self updateCartContents.
 		
 		
 	! !
@@ -812,11 +824,11 @@ initializeWithWebClient: aWebClient andCartId: aCartId
 TusLibrosClientWindowPurchaseModel class
 	instanceVariableNames: ''!
 
-!TusLibrosClientWindowPurchaseModel class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:41:17'!
+!TusLibrosClientWindowPurchaseModel class methodsFor: 'instance creation' stamp: 'NSM 7/7/2019 15:41:17'!
 withCartId: aCartId
 	^self new initializeWithCartId: aCartId .! !
 
-!TusLibrosClientWindowPurchaseModel class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:56:54'!
+!TusLibrosClientWindowPurchaseModel class methodsFor: 'instance creation' stamp: 'NSM 7/7/2019 14:56:54'!
 withWebClient: aWebClient andCartId: aCartId
 	^self new initializeWithWebClient: aWebClient andCartId: aCartId .! !
 
