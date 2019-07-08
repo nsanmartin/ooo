@@ -12,6 +12,9 @@ Bugs:
 (Estos dos son un quilombo de arreglar, el Encoder es el que devuelve mal las positionsForTemporaryVariable)
 - Create inexistent class no actualiza la vista de clases en un Browser
 - El Syntax Highlighter se rompe cuando creas un método con nombre ||
+- El ctrl+m si estás en un bloque y hay un mensaje en la misma línea se fija el mensaje antes del bloque. Por ejemplo, si estás en
+self should: [self mensaje]
+y hacés ctrl+m en mensaje, te va a mostrar implementors de should:
 
 Features:
 - Unificar shortcuts con el menu de opciones, o sea, hacer un objeto opción al que
@@ -42,12 +45,11 @@ también.
 - Multiple selection.
 - Un browser de tests que te los numere y esas cosas.
 - undo para refactors (el versiones sirve pero solo para cuando guardaste antes de hacerlo)
-- Seleccionar un wallpaper desde el FileList.
 - Rotar por Wallpapers de un directorio cada x tiempo.
 - Seleccionar más de un archivo en el FileList (en cualquier lado en realidad).
 - El FileList es reeee lento.
 - Creador de with: e initialize: (Para no tener que escribir dos veces lo mismo).
-- Que el autocomplete no tome en cuenta el case.
+- Que el autocomplete no tome en cuenta el case (no lo toma en cuenta para mensajes, pero sí para variables, porque quizá querés decir una clase).
 - Shortcuts de:
 	- Seleccionar línea
 	- Comentar línea
@@ -61,14 +63,13 @@ ChangeSet, para poder agregarlos en el próximo.
 estamos adentro de un block.
 - En Collection un #replace:with:ifAbsent:?
 - Coso para poder dibujar con el mouse.
-- No sé si hay redo.
 - Shortcuts para abrir cada browser.
 - Formatter de código (espacio después del selector, enters en mensajes largos, etc.)
 - Cambiar categoría de mensajes de a muchos mensajes (con lo de multiple selección de mensajes debería ayudar)
 - El browseIt deberia darse cuenta que hay un selector que tiene más de una palabra y browsear ese selector, como lo hace implementors of (o quizá no lo debería hacer y en eso se diferencia?)
 - El undo no hace undo por palabra, sino que hace por tiempo. Todos los otros editores lo hacen por palabra. Creo que no hay ninguno que lo haga por tiempo.
 - FileList con posibilidad de escribir el path al archivo.
-- Search en el popup de seleccionar un selector, cuando te dice de crear uno el debugger, por ejemplo.
+- Search en el popup de seleccionar una categoría, cuando te dice de crear uno el debugger, por ejemplo.
 - Agregar selector #- en las clases de GregorianDateTime que te diga la diferencia entre dos (básicamente el #distanceTo: pero con otro nombre).
 - Zoomear con la ruedita (que se agrande la letra o algo así).
 - No mostrar como editado en el SmallTalkEditor cuando no quedan undos por hacer (para eso quizá habría que poder hacer undo de refactors).
@@ -77,13 +78,16 @@ estamos adentro de un block.
 - El autocomplete no toma en cuenta la parte anterior del mensaje. Por ejemplo, si está tipo
 self should: 'hola' rai
 y querés autocompletar el rai, no te lo autocompleta bien.
+
+Acá habría que mostrar los autocompete de los mensajes con parámetros y los sin. Para los sin, usas el rai, y para los con usás lo que haya antes.
+
 - El autocomplete te borra la palabra hasta el final. si por ejemplo estás autocompletando
 self shouself
 y estás después de la u, te queda
 self should:
-- El ctrl+m si estás en un bloque y hay un mensaje en la misma línea se fija el mensaje antes del bloque. Por ejemplo, si estás en
-self should: [self mensaje]
-y hacés ctrl+m en mensaje, te va a mostrar implementors de should:
+
+Quizá esto está bien, otros editores lo hacen así. Quizá podría ser configurable.
+
 
 Arreglados:
 - Tratar de guardar un morph.
@@ -97,3 +101,4 @@ Arreglados:
 era una local, aunque hayas borrado la local (Se semi arregló con el nuevo refactor)
 - hacer control z después de tener errores de sintaxis cuando tenés un selector no
 reconocido en el código.
+- Seleccionar un wallpaper desde el FileList (ya estaba hecho).
