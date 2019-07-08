@@ -86,7 +86,7 @@ open
 
 !classDefinition: #TusLibrosClientWindowPurchase category: #TusLibros!
 Panel subclass: #TusLibrosClientWindowPurchase
-	instanceVariableNames: 'webClient userName userPass'
+	instanceVariableNames: 'webClient cartList userName userPass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -127,12 +127,12 @@ initializeWithTitle: aTitle forCartId: aCartId
 	self model when: #checkoutRequest send: #refreshCart to: self.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 13:47:42'!
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 23:08:54'!
 refreshCart
-	! !
+	cartList  updateList .! !
 
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/7/2019 21:15:53'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 23:05:00'!
 build1stCol
 	| addToCartButton firstColLayout catalogList |
 	
@@ -144,7 +144,6 @@ build1stCol
 	
 	catalogList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: #productoSeleccionadoIndex indexSetter: #productoSeleccionadoIndex:.
 
-"	catalogList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: nil indexSetter: nil."
 	catalogList  borderColor: Color skyBlue.
 	catalogList  borderWidth: 1.
 	
@@ -157,9 +156,9 @@ build1stCol
 	^firstColLayout.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/7/2019 21:15:32'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 23:06:47'!
 build2ndCol
-	| checkoutButton secondColLayout cartList |
+	| checkoutButton secondColLayout  |
 	
 	checkoutButton := PluggableButtonMorph 
 		model: self model 
@@ -805,18 +804,19 @@ sendCheckoutCartRequest
 	"self triggerEvent: #showWorldInTranscript with: self."
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:51:57'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 23:27:35'!
 showWordInTranscript
 	
 	TranscriptWindow openTranscript.
 	Transcript clear.
 	Transcript show: 'Compra eviada: '.
-	self carrito do: [:libro| Transcript  show: libro, ' '.].
+	self carrito do: [:libro| Transcript  show: libro asString , ' '.].
 ! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:52:47'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 23:25:48'!
 updateCartContents
-	productosEnCarrito _ webClient getListCartWithId: cartId.! !
+	productosEnCarrito _ OrderedCollection new.
+	(webClient getListCartWithId: cartId) do: [:x | productosEnCarrito add:x].! !
 
 
 
