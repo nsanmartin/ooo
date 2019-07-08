@@ -25,6 +25,10 @@ initializeWith: aTitle
 	
 	! !
 
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 21:14:05'!
+newCart
+	TusLibrosClientWindowPurchase open.! !
+
 !TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 22:05:35'!
 openPurchaseWindowWithCartId: aCartId
 	TusLibrosClientWindowPurchase openForCart: aCartId.! !
@@ -91,6 +95,21 @@ Panel subclass: #TusLibrosClientWindowPurchase
 defaultExtent
 
 	^ 630@435
+	! !
+
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 15:41:57'!
+initializeWith: aTitle
+
+	self titleMorph showButtonsNamed: #( close collapse ).
+	self setLabel: aTitle.
+	self model: (TusLibrosClientWindowPurchaseModel withCartId: 1).
+	self morphExtent: (self defaultExtent).
+	self buildMorphicWindow.
+	self openInWorld.
+	self yourself.
+			
+	self model when: #addToCartRequest send: #refreshCart to: self.
+	self model when: #checkoutRequest send: #refreshCart to: self.
 	! !
 
 !TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'EB 7/7/2019 21:49:07'!
@@ -181,6 +200,12 @@ buildMorphicWindow
 !classDefinition: 'TusLibrosClientWindowPurchase class' category: #TusLibros!
 TusLibrosClientWindowPurchase class
 	instanceVariableNames: ''!
+
+!TusLibrosClientWindowPurchase class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:49:34'!
+open
+	
+	^self new initializeWith: 'TusLibros-Service Client Window'.! !
+
 
 !TusLibrosClientWindowPurchase class methodsFor: 'instance creation' stamp: 'EB 7/7/2019 21:48:28'!
 openForCart: aCartId
@@ -738,7 +763,7 @@ setUserName: aUsername
 
 !classDefinition: #TusLibrosClientWindowPurchaseModel category: #TusLibros!
 Object subclass: #TusLibrosClientWindowPurchaseModel
-	instanceVariableNames: 'catalogo cantidadSolicitadaProductoSolicitado productosEnCarrito productoSeleccionadoIndex webClient cartId'
+	instanceVariableNames: 'catalogo cantidadSolicitadaProductoSolicitado productosEnCarrito productoSeleccionadoIndex webClient cartId listPrices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -751,9 +776,11 @@ carrito
 catalogo
 	^ catalogo .! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 11:56:33'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 22:50:22'!
 getSelectedBookIsbn
-	^ catalogo at: productoSeleccionadoIndex ."todo obtener isbn"! !
+	| isbn |
+	isbn _ (listPrices at: productoSeleccionadoIndex) x .
+	^ isbn.! !
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:34:36'!
 productoSeleccionadoIndex
@@ -763,9 +790,9 @@ productoSeleccionadoIndex
 productoSeleccionadoIndex: anIndex
 	productoSeleccionadoIndex _ anIndex .! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/7/2019 21:55:23'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 22:50:43'!
 sendAddToCartRequest
-	webClient getAddToCartWithId: cartId adding: self getSelectedBookIsbn of: cantidadSolicitadaProductoSolicitado. 
+	webClient getAddToCartWithId: cartId adding: (self getSelectedBookIsbn) of: cantidadSolicitadaProductoSolicitado. 
 	self updateCartContents.
 	self triggerEvent: #addToCartRequest with: self.
 	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
@@ -792,6 +819,7 @@ updateCartContents
 	productosEnCarrito _ webClient getListCartWithId: cartId.! !
 
 
+
 !TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/7/2019 21:54:49'!
 initializeWithCartId: aCartId
 	
@@ -805,14 +833,19 @@ initializeWithCartId: aCartId
 		
 	! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/7/2019 21:53:11'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'NSM 7/7/2019 22:53:52'!
 initializeWithWebClient: aWebClient andCartId: aCartId
 	webClient _ aWebClient.
 	cartId _ aCartId.
 	
 	productoSeleccionadoIndex _ 1.
-	cantidadSolicitadaProductoSolicitado _ 0.
-	catalogo _ webClient getListPrices.
+	cantidadSolicitadaProductoSolicitado _ 1.
+	catalogo _ OrderedCollection new.
+	listPrices _ OrderedCollection new.
+	(webClient getListPrices ) keysAndValuesDo:  [:k :v| 
+		catalogo add: 'ISBN: ',(k asString) , '  precio: $',(v asString ).
+		listPrices add:k@v.
+	].
 	self updateCartContents.
 		
 		
