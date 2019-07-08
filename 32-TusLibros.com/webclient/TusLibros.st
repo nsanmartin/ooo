@@ -878,6 +878,15 @@ getListCartWithId: aCartId
 		onSuccessDoWithResponseContentMessageHandlingErrors: [ :content |
 			^self responseContentMessageToBookIsbnBag: content ]. ! !
 
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/7/2019 21:38:46'!
+getListPrices
+	self 
+		getService: '/listPrices' 
+		withFields: {} 
+		onSuccessDoWithResponseContentMessageHandlingErrors: [ :contentMessage |
+			^self responseContentMessageToBookIsbnBag: contentMessage ]
+	! !
+
 !TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 23:41:24'!
 getListPurchasesOfClientWithId: aClientId withPassword: aPassword 
 	self 
