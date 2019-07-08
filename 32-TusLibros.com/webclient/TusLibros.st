@@ -132,8 +132,9 @@ refreshCart
 	cartList  updateList .! !
 
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/7/2019 23:05:00'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/8/2019 20:08:52'!
 build1stCol
+
 	| addToCartButton firstColLayout catalogList |
 	
 	addToCartButton := PluggableButtonMorph 
@@ -142,16 +143,21 @@ build1stCol
 		action: #sendAddToCartRequest 
 		label: 'Add to Cart'.	
 	
-	catalogList := PluggableListMorph model: self model listGetter: #catalogo indexGetter: #productoSeleccionadoIndex indexSetter: #productoSeleccionadoIndex:.
+	catalogList := PluggableListMorph 
+		model: self model 
+		listGetter: #catalogo 
+		indexGetter: #productoSeleccionadoIndex 
+		indexSetter: #productoSeleccionadoIndex:.
 
 	catalogList  borderColor: Color skyBlue.
 	catalogList  borderWidth: 1.
 	
-	firstColLayout := LayoutMorph newColumn .
-	firstColLayout separation: 25;
-	padding: #left;
-	addMorph: catalogList ;
-	addMorph: addToCartButton.
+	firstColLayout := LayoutMorph newColumn.
+	firstColLayout 
+		separation: 25;
+		padding: #left;
+		addMorph: catalogList;
+		addMorph: addToCartButton.
 	
 	^firstColLayout.
 	! !
@@ -200,16 +206,16 @@ buildMorphicWindow
 TusLibrosClientWindowPurchase class
 	instanceVariableNames: ''!
 
-!TusLibrosClientWindowPurchase class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:49:34'!
-open
-	
-	^self new initializeWith: 'TusLibros-Service Client Window'.! !
-
-
 !TusLibrosClientWindowPurchase class methodsFor: 'instance creation' stamp: 'EB 7/7/2019 21:48:28'!
 openForCart: aCartId
 	
 	^self new initializeWithTitle: 'TusLibros-Service Client Window' forCartId: aCartId.! !
+
+
+!TusLibrosClientWindowPurchase class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:49:34'!
+open
+	
+	^self new initializeWith: 'TusLibros-Service Client Window'.! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -775,11 +781,10 @@ carrito
 catalogo
 	^ catalogo .! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 22:50:22'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/8/2019 20:10:03'!
 getSelectedBookIsbn
-	| isbn |
-	isbn _ (listPrices at: productoSeleccionadoIndex) x .
-	^ isbn.! !
+
+	^(listPrices at: productoSeleccionadoIndex) x.! !
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:34:36'!
 productoSeleccionadoIndex
@@ -789,9 +794,9 @@ productoSeleccionadoIndex
 productoSeleccionadoIndex: anIndex
 	productoSeleccionadoIndex _ anIndex .! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 22:50:43'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'EB 7/8/2019 20:15:17'!
 sendAddToCartRequest
-	webClient getAddToCartWithId: cartId adding: (self getSelectedBookIsbn) of: cantidadSolicitadaProductoSolicitado. 
+	webClient getAddToCartWithId: cartId adding: cantidadSolicitadaProductoSolicitado of: self getSelectedBookIsbn. 
 	self updateCartContents.
 	self triggerEvent: #addToCartRequest with: self.
 	"Hay que agregar al initialize de la Window algo como eso (si no entendi mal):
@@ -817,7 +822,6 @@ showWordInTranscript
 updateCartContents
 	productosEnCarrito _ OrderedCollection new.
 	(webClient getListCartWithId: cartId) do: [:x | productosEnCarrito add:x].! !
-
 
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/7/2019 21:54:49'!
