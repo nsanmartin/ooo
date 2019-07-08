@@ -1374,7 +1374,7 @@ test16ListPurchasesWithNonEmptyListShouldReturnAFullBag
 	self assert: expectedContents equals: purchases.! !
 
 
-!TusLibrosWebClientTest methodsFor: 'tests - listPrices' stamp: 'EB 7/7/2019 21:33:58'!
+!TusLibrosWebClientTest methodsFor: 'tests - listPrices' stamp: 'EB 7/7/2019 22:08:01'!
 test17ListPricesWithEmptyPriceListShouldReturnEmptyBag
 	
 	| prices |
@@ -1386,9 +1386,9 @@ test17ListPricesWithEmptyPriceListShouldReturnEmptyBag
 	
 	prices _ tusLibrosWebClient getListPrices.
 		
-	self assert: Bag new equals: prices.! !
+	self assert: Dictionary new equals: prices.! !
 
-!TusLibrosWebClientTest methodsFor: 'tests - listPrices' stamp: 'EB 7/7/2019 21:36:45'!
+!TusLibrosWebClientTest methodsFor: 'tests - listPrices' stamp: 'EB 7/7/2019 22:09:00'!
 test18ListPricesWithFullPriceListShouldReturnFullBag
 	
 	| prices expectedContents |
@@ -1400,10 +1400,23 @@ test18ListPricesWithFullPriceListShouldReturnFullBag
 	
 	prices _ tusLibrosWebClient getListPrices.
 		
-	expectedContents _ Bag new.
-	expectedContents add: 1 withOccurrences: 2.
-	expectedContents add: 34 withOccurrences: 4.
+	expectedContents _ {1 -> 2. 34 -> 4} asDictionary.
 	self assert: expectedContents equals: prices.! !
+
+!TusLibrosWebClientTest methodsFor: 'tests - listPrices' stamp: 'EB 7/7/2019 22:14:58'!
+test19ListPricesWithNotValidResponseShouldRaiseError
+	
+	| response |
+	
+	response _ WebResponseTestDouble withCode: 200 andContent: '0|1|2|34|'.
+	self 
+		onHtmlSubmitToService: 'listPrices'
+		doWithParameters: [ :parameters | response ].
+	
+	extendedAssertions
+		should: [ tusLibrosWebClient getListPrices ]
+		raiseErrorWithMessageText:
+			(TusLibrosWebClient badResponseErrorMessageForResponse: response).! !
 
 
 !classDefinition: #TusLibrosWebServerTest category: #'TusLibros-Tests'!

@@ -890,13 +890,14 @@ getListCartWithId: aCartId
 		onSuccessDoWithResponseContentMessageHandlingErrors: [ :content |
 			^self responseContentMessageToBookIsbnBag: content ]. ! !
 
-!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/7/2019 21:38:46'!
+!TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/7/2019 22:18:03'!
 getListPrices
 	self 
 		getService: '/listPrices' 
 		withFields: {} 
 		onSuccessDoWithResponseContentMessageHandlingErrors: [ :contentMessage |
-			^self responseContentMessageToBookIsbnBag: contentMessage ]
+			^self responseContentMessageToBookIsbnDictionary: contentMessage.
+		]
 	! !
 
 !TusLibrosWebClient methodsFor: 'sending requests' stamp: 'EB 7/2/2019 23:41:24'!
@@ -974,6 +975,14 @@ responseContentMessageToBookIsbnBag: aResponseContentMessage
 	numbers _ aResponseContentMessage findTokens: '|'.
 	^self stringCollectionToBookIsbnBag: numbers! !
 
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/7/2019 22:17:30'!
+responseContentMessageToBookIsbnDictionary: aResponseContentMessage
+	
+	| numbers |
+	
+	numbers _ aResponseContentMessage findTokens: '|'.
+	^self stringCollectionToBookIsbnDictionary: numbers! !
+
 !TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/2/2019 01:06:57'!
 responseContentStatus: aResponseContent 
 	^aResponseContent first.! !
@@ -990,6 +999,18 @@ stringCollectionToBookIsbnBag: aCollection
 		bag add: element asNumber withOccurrences: quantity asNumber ].
 	^bag
 			! !
+
+!TusLibrosWebClient methodsFor: 'parsing response content' stamp: 'EB 7/7/2019 22:16:09'!
+stringCollectionToBookIsbnDictionary: aCollection
+	
+	| priceDictionary |
+	
+	aCollection size even ifFalse: [ self error ].
+	
+	priceDictionary _ Dictionary new.
+	aCollection pairsDo: [ :bookIsbn :price |
+		priceDictionary at: bookIsbn asNumber put: price asNumber ].
+	^priceDictionary.! !
 
 
 !TusLibrosWebClient methodsFor: 'error raising' stamp: 'EB 7/2/2019 21:10:27'!
