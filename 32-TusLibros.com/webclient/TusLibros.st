@@ -5,10 +5,10 @@ Panel subclass: #TusLibrosClientWindowLogin
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/7/2019 13:33:23'!
+!TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'NSM 7/9/2019 21:41:19'!
 defaultExtent
 
-	^ 630@435
+	^ 430@250
 	! !
 
 !TusLibrosClientWindowLogin methodsFor: 'initialization' stamp: 'EB 7/7/2019 22:01:10'!
@@ -34,7 +34,7 @@ openPurchaseWindowWithCartId: aCartId
 	TusLibrosClientWindowPurchase openForCart: aCartId.! !
 
 
-!TusLibrosClientWindowLogin methodsFor: 'layout building' stamp: 'EB 7/7/2019 21:12:58'!
+!TusLibrosClientWindowLogin methodsFor: 'layout building' stamp: 'NSM 7/9/2019 20:09:45'!
 buildMorphicWindow
 	
 	| loginButton |
@@ -57,7 +57,7 @@ buildMorphicWindow
 	
 	! !
 
-!TusLibrosClientWindowLogin methodsFor: 'layout building' stamp: 'EB 7/7/2019 21:08:27'!
+!TusLibrosClientWindowLogin methodsFor: 'layout building' stamp: 'NSM 7/9/2019 21:40:24'!
 buildTextModelMorphWithTextSetter: aTextSetterSymbol
 
 	| textModelMorph |
@@ -66,6 +66,7 @@ buildTextModelMorphWithTextSetter: aTextSetterSymbol
 		textProvider: self model 
 		textGetter: nil 
 		textSetter: aTextSetterSymbol.
+		textModelMorph morphExtent: 260@30.
 	textModelMorph textMorph 
 		setProperty: #keyStroke: 
 		toValue: [ :key | textModelMorph textMorph acceptContents ].
@@ -91,10 +92,10 @@ Panel subclass: #TusLibrosClientWindowPurchase
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 13:33:48'!
+!TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/9/2019 21:43:48'!
 defaultExtent
 
-	^ 630@435
+	^ 630@635
 	! !
 
 !TusLibrosClientWindowPurchase methodsFor: 'initialization' stamp: 'NSM 7/7/2019 15:41:57'!
@@ -132,7 +133,7 @@ refreshCart
 	cartList  updateList .! !
 
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/8/2019 20:39:38'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/9/2019 21:49:58'!
 build1stCol
 
 	| addToCartButton firstColLayout catalogList |
@@ -144,11 +145,11 @@ build1stCol
 		label: 'Add to Cart'.	
 	
 	catalogList := PluggableListMorph 
-		model: self model 
+		model: self model  
 		listGetter: #showableCatalog 
 		indexGetter: #selectedProductIndex 
 		indexSetter: #selectedProductIndex:.
-
+	catalogList  morphExtent: 200@430.
 	catalogList  borderColor: Color skyBlue.
 	catalogList  borderWidth: 1.
 	
@@ -156,13 +157,15 @@ build1stCol
 	firstColLayout 
 		separation: 25;
 		padding: #left;
+		addMorph: (StringMorph contents: 'List de precios');
 		addMorph: catalogList;
 		addMorph: addToCartButton.
+		
 	
 	^firstColLayout.
 	! !
 
-!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'EB 7/8/2019 20:33:14'!
+!TusLibrosClientWindowPurchase methodsFor: 'GUI building' stamp: 'NSM 7/9/2019 21:49:50'!
 build2ndCol
 	| checkoutButton secondColLayout  |
 	
@@ -179,11 +182,18 @@ build2ndCol
 		indexSetter: nil.
 	cartList  borderColor: Color skyBlue.
 	cartList  borderWidth: 1.
-	
+	cartList  morphExtent: 200@250.
 	secondColLayout := LayoutMorph newColumn .
 	secondColLayout separation: 25;
 	padding: #left;
+	addMorph: (StringMorph contents: 'carrito');
 	addMorph: cartList ;
+	addMorph: (StringMorph contents: 'Credit Card Owner:');
+	addMorph: (self buildTextModelMorphWithTextSetter: #setCreditCardOwner:);
+
+	addMorph: (StringMorph contents: 'credit card number:');
+	addMorph: (self buildTextModelMorphWithTextSetter: #setCreditCardNumber:);
+
 	addMorph: checkoutButton.
 	
 	^secondColLayout.
@@ -200,22 +210,39 @@ buildMorphicWindow
 	
 	! !
 
+
+!TusLibrosClientWindowPurchase methodsFor: 'as yet unclassified' stamp: 'NSM 7/9/2019 21:46:17'!
+buildTextModelMorphWithTextSetter: aTextSetterSymbol
+
+	| textModelMorph |
+
+	textModelMorph _ TextModelMorph 
+		textProvider: self model 
+		textGetter: nil 
+		textSetter: aTextSetterSymbol.
+		textModelMorph  morphExtent: 260@30.
+	textModelMorph textMorph 
+		setProperty: #keyStroke: 
+		toValue: [ :key | textModelMorph textMorph acceptContents ].
+	textModelMorph  borderWidth: 1; borderColor: Color skyBlue.
+	^textModelMorph.	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TusLibrosClientWindowPurchase class' category: #TusLibros!
 TusLibrosClientWindowPurchase class
 	instanceVariableNames: ''!
 
-!TusLibrosClientWindowPurchase class methodsFor: 'instance creation' stamp: 'EB 7/7/2019 21:48:28'!
-openForCart: aCartId
-	
-	^self new initializeWithTitle: 'TusLibros-Service Client Window' forCartId: aCartId.! !
-
-
 !TusLibrosClientWindowPurchase class methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:49:34'!
 open
 	
 	^self new initializeWith: 'TusLibros-Service Client Window'.! !
+
+
+!TusLibrosClientWindowPurchase class methodsFor: 'instance creation' stamp: 'EB 7/7/2019 21:48:28'!
+openForCart: aCartId
+	
+	^self new initializeWithTitle: 'TusLibros-Service Client Window' forCartId: aCartId.! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -768,23 +795,44 @@ setUserName: aUsername
 
 !classDefinition: #TusLibrosClientWindowPurchaseModel category: #TusLibros!
 Object subclass: #TusLibrosClientWindowPurchaseModel
-	instanceVariableNames: 'cantidadSolicitadaProductoSolicitado webClient cartId cartContents catalog showableCatalog selectedProductIndex'
+	instanceVariableNames: 'cantidadSolicitadaProductoSolicitado webClient cartId cartContents catalog showableCatalog selectedProductIndex creditCardNumber creditCardOwner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'showing in transcript' stamp: 'EB 7/8/2019 20:57:16'!
-showCheckoutResultInTranscriptWithTransactionId: aTransactionId
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:37:00'!
+carrito
+	^ productosEnCarrito .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:26:03'!
+catalogo
+	^ catalogo .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 15:34:36'!
+productoSeleccionadoIndex
+	^ productoSeleccionadoIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 14:25:49'!
+productoSeleccionadoIndex: anIndex
+	productoSeleccionadoIndex _ anIndex .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/9/2019 21:51:26'!
+setCreditCardNumber: aText 
+	creditCardNumber _ aText .! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/9/2019 21:50:42'!
+setCreditCardOwner: aText 
+	creditCardOwner  _ aText.! !
+
+!TusLibrosClientWindowPurchaseModel methodsFor: 'as yet unclassified' stamp: 'NSM 7/7/2019 19:51:57'!
+showWordInTranscript
 	
 	TranscriptWindow openTranscript.
 	Transcript clear.
-	
-	Transcript log: 'Compra enviada.'.
-	Transcript log: 'Número de transacción: ', aTransactionId.
-	Transcript log: 'Libros comprados: '.
-	self cartContents do: [ :libro | Transcript log: libro asString , ' ' ]
-	
+	Transcript show: 'Compra eviada: '.
+	self carrito do: [:libro| Transcript  show: libro, ' '.].
 ! !
+
 
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'initializing' stamp: 'EB 7/8/2019 20:29:22'!
@@ -823,6 +871,20 @@ initializeWithWebClient: aWebClient andCartId: aCartId
 	! !
 
 
+!TusLibrosClientWindowPurchaseModel methodsFor: 'showing in transcript' stamp: 'EB 7/8/2019 20:57:16'!
+showCheckoutResultInTranscriptWithTransactionId: aTransactionId
+	
+	TranscriptWindow openTranscript.
+	Transcript clear.
+	
+	Transcript log: 'Compra enviada.'.
+	Transcript log: 'Número de transacción: ', aTransactionId.
+	Transcript log: 'Libros comprados: '.
+	self cartContents do: [ :libro | Transcript log: libro asString , ' ' ]
+	
+! !
+
+
 !TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:33:14'!
 cartContents
 	^ cartContents .! !
@@ -849,19 +911,17 @@ sendAddToCartRequest
 	self updateCartContents.
 	self triggerEvent: #addToCartRequest with: self.! !
 
-!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:47:18'!
+!TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'NSM 7/9/2019 21:54:09'!
 sendCheckoutCartRequest
 	
 	| transactionId |
 	
 	transactionId _ webClient
 		getCheckoutCartWithId: cartId 
-		withCreditCardNumbered: '1234567890123456' 
+		withCreditCardNumbered: creditCardNumber 
 		withExpirationDate: GregorianDateTime now monthOfYear 
-		andOwner: 'Pepito'.
+		andOwner: creditCardOwner  ."'Pepito'.""'1234567890123456' "
 	self showCheckoutResultInTranscriptWithTransactionId: transactionId.
-	"webClient  getCheckoutCartWithCartId: cartId andCreditCard: 'credit card?'."
-	"self triggerEvent: #showWorldInTranscript with: self."
 	! !
 
 !TusLibrosClientWindowPurchaseModel methodsFor: 'window communication' stamp: 'EB 7/8/2019 20:38:55'!
