@@ -1,0 +1,22 @@
+Para usar el web client.
+
+Hacer filein de los *.st de TusLibros.
+En un workspae hacer do it de:
+
+server := TusLibrosWebServer.
+
+Y después de:
+
+client := TusLibrosClientWindowLogin open.
+
+credenciales:
+    user: admin
+    password: admin
+
+Hacer el pedido.
+
+Datos de la tarjeta:
+
+      Credir Card Owner: Pepito
+      CredirCardNumber: 1234567890123456
+
